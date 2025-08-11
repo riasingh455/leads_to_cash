@@ -56,19 +56,19 @@ export default function OpportunitiesPage() {
               <SidebarMenuItem>
                 <SidebarMenuButton href="/">
                   <LayoutDashboard />
-                  Dashboard
+                  <span>Dashboard</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton href="/leads">
                   <Users />
-                  Leads
+                  <span>Leads</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton href="/opportunities" isActive>
                   <Briefcase />
-                  Opportunities
+                  <span>Opportunities</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>

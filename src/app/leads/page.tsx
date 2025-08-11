@@ -57,19 +57,19 @@ export default function LeadsPage() {
               <SidebarMenuItem>
                 <SidebarMenuButton href="/">
                   <LayoutDashboard />
-                  Dashboard
+                  <span>Dashboard</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton href="/leads" isActive>
                   <Users />
-                  Leads
+                  <span>Leads</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton href="/opportunities">
                   <Briefcase />
-                  Opportunities
+                  <span>Opportunities</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>

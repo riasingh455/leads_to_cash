@@ -56,19 +56,19 @@ export default function DashboardPage() {
               <SidebarMenuItem>
                 <SidebarMenuButton href="/" isActive>
                   <LayoutDashboard />
-                  Dashboard
+                  <span>Dashboard</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton href="/leads">
                   <Users />
-                  Leads
+                  <span>Leads</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton href="/opportunities">
                   <Briefcase />
-                  Opportunities
+                  <span>Opportunities</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
