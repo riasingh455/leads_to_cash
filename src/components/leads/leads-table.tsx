@@ -40,166 +40,184 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { leads, type Lead, users } from '@/lib/data';
+import { leads as initialLeads, type Lead, users } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { format } from 'date-fns';
+import { useToast } from '@/hooks/use-toast';
 
-const data: Lead[] = leads;
+export function LeadsTable({ onViewDetails }: { onViewDetails: (lead: Lead) => void }) {
+  const [leads, setLeads] = React.useState<Lead[]>(initialLeads);
+  const { toast } = useToast();
 
-export const columns: ColumnDef<Lead>[] = [
-  {
-    id: 'select',
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && 'indeterminate')
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: 'title',
-    header: 'Title',
-    cell: ({ row }) => <div>{row.getValue('title')}</div>,
-  },
-  {
-    accessorKey: 'company',
-    header: 'Company',
-    cell: ({ row }) => <div>{row.getValue('company')}</div>,
-  },
-  {
-    accessorKey: 'ownerId',
-    header: 'Owner',
-    cell: ({ row }) => {
-      const owner = users.find(user => user.id === row.getValue('ownerId'));
-      return (
-        <div className="flex items-center gap-2">
-          <Avatar className="h-6 w-6">
-            <AvatarImage src={owner?.avatar} />
-            <AvatarFallback>{owner?.name.charAt(0)}</AvatarFallback>
-          </Avatar>
-          {owner?.name}
-        </div>
+  const handleMarkAsOpportunity = (leadId: string) => {
+    setLeads(prevLeads =>
+      prevLeads.map(lead =>
+        lead.id === leadId ? { ...lead, columnId: 'col-3' } : lead
       )
-    },
-  },
-  {
-    accessorKey: 'value',
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          className='text-right w-full'
-        >
-          Value
-          <CaretSortIcon className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
-    cell: ({ row }) => {
-      const amount = parseFloat(row.getValue('value'));
-      const currency = row.original.currency;
-
-      const formatted = new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: currency,
-      }).format(amount);
-
-      return <div className="text-right font-medium">{formatted}</div>;
-    },
-  },
+    );
+    toast({
+      title: "Lead Updated",
+      description: "The lead has been marked as an opportunity and moved to the 'Qualified' stage.",
+    });
+  };
+  
+  const columns: ColumnDef<Lead>[] = [
     {
-    accessorKey: 'score',
-    header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          className="text-right w-full"
-        >
-          Lead Score
-          <CaretSortIcon className="ml-2 h-4 w-4" />
-        </Button>
+      id: 'select',
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && 'indeterminate')
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
       ),
-    cell: ({ row }) => <div className="text-right">{row.getValue('score')}</div>,
-  },
-  {
-    accessorKey: 'priority',
-    header: 'Priority',
-    cell: ({ row }) => (
-      <Badge variant={row.getValue('priority') === 'High' ? 'destructive' : 'secondary'}>
-        {row.getValue('priority')}
-      </Badge>
-    ),
-  },
-  {
-    accessorKey: 'lastContact',
-    header: 'Last Contact',
-    cell: ({ row }) => <div>{format(new Date(row.getValue('lastContact')), 'PPP')}</div>,
-  },
-  {
-    accessorKey: 'region',
-    header: 'Region',
-    cell: ({ row }) => <div>{row.getValue('region')}</div>,
-  },
-  {
-    accessorKey: 'entryDate',
-    header: 'Entry Date',
-    cell: ({ row }) => <div>{format(new Date(row.getValue('entryDate')), 'PPP')}</div>,
-  },
-  {
-    accessorKey: 'companySize',
-    header: 'Company Size',
-    cell: ({ row }) => <div>{row.getValue('companySize')}</div>,
-  },
-  {
-    accessorKey: 'marketingCampaign',
-    header: 'Campaign',
-    cell: ({ row }) => <div>{row.getValue('marketingCampaign') || 'N/A'}</div>,
-  },
-  {
-    id: 'actions',
-    enableHiding: false,
-    cell: ({ row }) => {
-      const lead = row.original;
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <DotsHorizontalIcon className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(lead.id)}
-            >
-              Copy lead ID
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>View details</DropdownMenuItem>
-            <DropdownMenuItem>Mark as opportunity</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
     },
-  },
-];
+    {
+      accessorKey: 'title',
+      header: 'Title',
+      cell: ({ row }) => <div>{row.getValue('title')}</div>,
+    },
+    {
+      accessorKey: 'company',
+      header: 'Company',
+      cell: ({ row }) => <div>{row.getValue('company')}</div>,
+    },
+    {
+      accessorKey: 'ownerId',
+      header: 'Owner',
+      cell: ({ row }) => {
+        const owner = users.find(user => user.id === row.getValue('ownerId'));
+        return (
+          <div className="flex items-center gap-2">
+            <Avatar className="h-6 w-6">
+              <AvatarImage src={owner?.avatar} />
+              <AvatarFallback>{owner?.name.charAt(0)}</AvatarFallback>
+            </Avatar>
+            {owner?.name}
+          </div>
+        )
+      },
+    },
+    {
+      accessorKey: 'value',
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+            className='text-right w-full'
+          >
+            Value
+            <CaretSortIcon className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      },
+      cell: ({ row }) => {
+        const amount = parseFloat(row.getValue('value'));
+        const currency = row.original.currency;
+  
+        const formatted = new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: currency,
+        }).format(amount);
+  
+        return <div className="text-right font-medium">{formatted}</div>;
+      },
+    },
+      {
+      accessorKey: 'score',
+      header: ({ column }) => (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+            className="text-right w-full"
+          >
+            Lead Score
+            <CaretSortIcon className="ml-2 h-4 w-4" />
+          </Button>
+        ),
+      cell: ({ row }) => <div className="text-right">{row.getValue('score')}</div>,
+    },
+    {
+      accessorKey: 'priority',
+      header: 'Priority',
+      cell: ({ row }) => (
+        <Badge variant={row.getValue('priority') === 'High' ? 'destructive' : 'secondary'}>
+          {row.getValue('priority')}
+        </Badge>
+      ),
+    },
+    {
+      accessorKey: 'lastContact',
+      header: 'Last Contact',
+      cell: ({ row }) => <div>{format(new Date(row.getValue('lastContact')), 'PPP')}</div>,
+    },
+    {
+      accessorKey: 'region',
+      header: 'Region',
+      cell: ({ row }) => <div>{row.getValue('region')}</div>,
+    },
+    {
+      accessorKey: 'entryDate',
+      header: 'Entry Date',
+      cell: ({ row }) => <div>{format(new Date(row.getValue('entryDate')), 'PPP')}</div>,
+    },
+    {
+      accessorKey: 'companySize',
+      header: 'Company Size',
+      cell: ({ row }) => <div>{row.getValue('companySize')}</div>,
+    },
+    {
+      accessorKey: 'marketingCampaign',
+      header: 'Campaign',
+      cell: ({ row }) => <div>{row.getValue('marketingCampaign') || 'N/A'}</div>,
+    },
+    {
+      id: 'actions',
+      enableHiding: false,
+      cell: ({ row }) => {
+        const lead = row.original;
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <DotsHorizontalIcon className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem
+                onClick={() => navigator.clipboard.writeText(lead.id)}
+              >
+                Copy lead ID
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => onViewDetails(lead)}>
+                View details
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleMarkAsOpportunity(lead.id)}>
+                Mark as opportunity
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
+    },
+  ];
 
-export function LeadsTable() {
   const [sorting, setSorting] = React.useState<SortingState>([
     { id: 'entryDate', desc: true },
   ]);
@@ -215,7 +233,7 @@ export function LeadsTable() {
   const [rowSelection, setRowSelection] = React.useState({});
 
   const table = useReactTable({
-    data,
+    data: leads,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -231,6 +249,9 @@ export function LeadsTable() {
       columnVisibility,
       rowSelection,
     },
+    meta: {
+      setLeads,
+    }
   });
 
   return (
