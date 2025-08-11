@@ -1,3 +1,4 @@
+
 'use client';
 import React, { useState } from 'react';
 import {
@@ -105,7 +106,8 @@ export default function ProposalsPage() {
             user={currentUser} 
             title="Proposals & Reviews" 
             description="Track and manage deals in the late stages of the sales cycle." 
-            onAddLead={() => setIsAddLeadOpen(true)}
+            onAddButtonClick={() => setIsAddLeadOpen(true)}
+            addButtonText="Add Proposal"
           />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
             <ProposalsTable onViewDetails={setSelectedLead} />
@@ -123,6 +125,7 @@ export default function ProposalsPage() {
         onOpenChange={setIsAddLeadOpen}
         onLeadAdded={handleAddLead}
         users={users}
+        defaultStage="col-proposal"
       />
     </SidebarProvider>
   );

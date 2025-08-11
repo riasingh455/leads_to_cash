@@ -1,3 +1,4 @@
+
 'use client';
 import {
   Dialog,
@@ -48,9 +49,10 @@ interface AddLeadDialogProps {
   onOpenChange: (open: boolean) => void;
   onLeadAdded: (lead: Lead) => void;
   users: User[];
+  defaultStage?: string;
 }
 
-export function AddLeadDialog({ isOpen, onOpenChange, onLeadAdded, users }: AddLeadDialogProps) {
+export function AddLeadDialog({ isOpen, onOpenChange, onLeadAdded, users, defaultStage = 'col-1' }: AddLeadDialogProps) {
   const { toast } = useToast();
   const salesReps = users.filter(u => u.role === 'Sales Rep');
 
@@ -81,7 +83,7 @@ export function AddLeadDialog({ isOpen, onOpenChange, onLeadAdded, users }: AddL
         phone: '',
         title: 'N/A',
       },
-      columnId: 'col-1',
+      columnId: defaultStage,
       score: 50, // Default score
       priority: 'Medium',
       entryDate: new Date().toISOString(),

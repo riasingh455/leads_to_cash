@@ -1,3 +1,4 @@
+
 'use client';
 import React, { useState } from 'react';
 import {
@@ -105,7 +106,7 @@ export default function AccountsPage() {
             user={currentUser} 
             title="Accounts" 
             description="Manage your active client accounts." 
-            onAddLead={() => setIsAddLeadOpen(true)}
+            onAddButtonClick={() => setIsAddLeadOpen(true)}
           />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
             <AccountsTable onViewDetails={setSelectedLead} />

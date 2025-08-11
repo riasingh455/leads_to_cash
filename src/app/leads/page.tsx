@@ -1,3 +1,4 @@
+
 'use client';
 import React, { useState } from 'react';
 import {
@@ -106,7 +107,7 @@ export default function LeadsPage() {
             user={currentUser} 
             title="Leads" 
             description="Manage and track all potential leads." 
-            onAddLead={() => setIsAddLeadOpen(true)}
+            onAddButtonClick={() => setIsAddLeadOpen(true)}
           />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
             <LeadsTable onViewDetails={setSelectedLead} />

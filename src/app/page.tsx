@@ -1,3 +1,4 @@
+
 'use client';
 import React, { useState } from 'react';
 import {
@@ -99,7 +100,7 @@ export default function DashboardPage() {
           </SidebarFooter>
         </Sidebar>
         <SidebarInset>
-          <DashboardHeader user={currentUser} onAddLead={() => setIsAddLeadOpen(true)} />
+          <DashboardHeader user={currentUser} onAddButtonClick={() => setIsAddLeadOpen(true)} />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
             <KanbanBoard currentUser={currentUser} />
           </main>
