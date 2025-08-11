@@ -22,6 +22,7 @@ import {
   ChevronsUpDown,
   Building,
   Settings,
+  Plus,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -36,6 +37,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { users, type User } from '@/lib/data';
 import { DashboardHeader } from '@/components/dashboard-header';
+import { LeadsTable } from '@/components/leads/leads-table';
 
 export default function LeadsPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
@@ -77,10 +79,9 @@ export default function LeadsPage() {
           </SidebarFooter>
         </Sidebar>
         <SidebarInset>
-          <DashboardHeader user={currentUser} />
+          <DashboardHeader user={currentUser} title="Leads" description={`Manage and track all potential leads.`} />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
-            <h1 className="text-2xl font-bold">Leads</h1>
-            <p>This is the leads page.</p>
+            <LeadsTable />
           </main>
         </SidebarInset>
       </div>

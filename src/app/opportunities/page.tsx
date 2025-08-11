@@ -36,6 +36,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { users, type User } from '@/lib/data';
 import { DashboardHeader } from '@/components/dashboard-header';
+import { OpportunitiesTable } from '@/components/opportunities/opportunities-table';
 
 export default function OpportunitiesPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
@@ -77,10 +78,9 @@ export default function OpportunitiesPage() {
           </SidebarFooter>
         </Sidebar>
         <SidebarInset>
-          <DashboardHeader user={currentUser} />
+          <DashboardHeader user={currentUser} title="Opportunities" description="View and manage qualified sales opportunities." />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
-            <h1 className="text-2xl font-bold">Opportunities</h1>
-            <p>This is the opportunities page.</p>
+            <OpportunitiesTable />
           </main>
         </SidebarInset>
       </div>
