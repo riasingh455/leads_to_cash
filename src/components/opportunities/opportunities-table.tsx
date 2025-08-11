@@ -48,7 +48,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 
-const opportunityStageIds = ['col-prospect', 'col-3', 'col-proposal', 'col-review', 'col-delivery'];
+const opportunityStageIds = ['col-prospect', 'col-3'];
 const opportunityStages = leadColumns.filter(c => opportunityStageIds.includes(c.id));
 
 interface OpportunitiesTableProps {
@@ -57,15 +57,17 @@ interface OpportunitiesTableProps {
 
 export function OpportunitiesTable({ onViewDetails }: OpportunitiesTableProps) {
   const { toast } = useToast();
-  const [leads, setLeads] = React.useState<Lead[]>(initialLeads.filter(lead => opportunityStageIds.includes(lead.columnId) && !['col-proposal', 'col-review', 'col-delivery', 'col-5'].includes(lead.columnId)));
+  const [leads, setLeads] = React.useState<Lead[]>(initialLeads.filter(lead => opportunityStageIds.includes(lead.columnId)));
   
   const handleStageUpdate = (leadId: string, newStageId: string) => {
     const lead = initialLeads.find(l => l.id === leadId);
     if(lead) {
       lead.columnId = newStageId;
     }
+    
     setLeads(prev => prev.filter(l => l.id !== leadId));
-    const stage = opportunityStages.find(s => s.id === newStageId);
+    
+    const stage = leadColumns.find(s => s.id === newStageId);
     toast({
       title: 'Opportunity Updated',
       description: `Stage changed to "${stage?.title}"`,
