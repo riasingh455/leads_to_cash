@@ -36,10 +36,17 @@ import {
 import { Button } from '@/components/ui/button';
 import { DashboardHeader } from '@/components/dashboard-header';
 import { KanbanBoard } from '@/components/kanban/kanban-board';
-import { users, type User } from '@/lib/data';
+import { users, type User, type Lead } from '@/lib/data';
+import { AddLeadDialog } from '@/components/leads/add-lead-dialog';
 
 export default function DashboardPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
+  const [isAddLeadOpen, setIsAddLeadOpen] = useState(false);
+  const [leads, setLeads] = useState<Lead[]>([]);
+
+  const handleAddLead = (newLead: Lead) => {
+    setLeads((prevLeads) => [newLead, ...prevLeads]);
+  };
 
   return (
     <SidebarProvider defaultOpen>
@@ -78,12 +85,18 @@ export default function DashboardPage() {
           </SidebarFooter>
         </Sidebar>
         <SidebarInset>
-          <DashboardHeader user={currentUser} />
+          <DashboardHeader user={currentUser} onAddLead={() => setIsAddLeadOpen(true)} />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
             <KanbanBoard currentUser={currentUser} />
           </main>
         </SidebarInset>
       </div>
+      <AddLeadDialog
+        isOpen={isAddLeadOpen}
+        onOpenChange={setIsAddLeadOpen}
+        onLeadAdded={handleAddLead}
+        users={users}
+      />
     </SidebarProvider>
   );
 }

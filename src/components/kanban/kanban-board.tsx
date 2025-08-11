@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { KanbanColumn } from './kanban-column';
 import { columns as initialColumns, leads as initialLeads, type Lead, type Column, type User } from '@/lib/data';
 import { LeadDetailsDialog } from './lead-details-dialog';
+import { AddLeadDialog } from '../leads/add-lead-dialog';
+import { users } from '@/lib/data';
 
 export function KanbanBoard({ currentUser }: { currentUser: User }) {
   const [columns, setColumns] = useState<Column[]>(initialColumns);
@@ -12,11 +14,10 @@ export function KanbanBoard({ currentUser }: { currentUser: User }) {
 
   useEffect(() => {
     // Filter leads based on user role
-    if (currentUser.role === 'Sales Rep') {
-      setLeads(initialLeads.filter(lead => lead.ownerId === currentUser.id));
-    } else {
-      setLeads(initialLeads);
-    }
+    const filteredLeads = currentUser.role === 'Sales Rep'
+      ? initialLeads.filter(lead => lead.ownerId === currentUser.id)
+      : initialLeads;
+    setLeads(filteredLeads);
   }, [currentUser]);
 
   const handleDragStart = (cardId: string) => {
@@ -31,6 +32,11 @@ export function KanbanBoard({ currentUser }: { currentUser: User }) {
         lead.id === draggingCardId ? { ...lead, columnId: columnId } : lead
       )
     );
+    // Also update the master list
+    const leadIndex = initialLeads.findIndex(l => l.id === draggingCardId);
+    if(leadIndex !== -1) {
+      initialLeads[leadIndex].columnId = columnId;
+    }
     setDraggingCardId(null);
   };
   
@@ -39,6 +45,11 @@ export function KanbanBoard({ currentUser }: { currentUser: User }) {
     if (lead) {
       setSelectedLead(lead);
     }
+  };
+
+  const handleAddLead = (newLead: Lead) => {
+    initialLeads.unshift(newLead);
+    setLeads(prev => [newLead, ...prev]);
   };
 
   return (
@@ -66,5 +77,3 @@ export function KanbanBoard({ currentUser }: { currentUser: User }) {
     </>
   );
 }
-
-    

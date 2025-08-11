@@ -8,12 +8,14 @@ interface DashboardHeaderProps {
   user: User;
   title?: string;
   description?: string;
+  onAddLead?: () => void;
 }
 
 export function DashboardHeader({ 
   user,
   title = "Leads Dashboard",
-  description = `Welcome back, ${user.name}.`
+  description = `Welcome back, ${user.name}.`,
+  onAddLead,
 }: DashboardHeaderProps) {
   return (
     <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-sm md:px-6">
@@ -25,7 +27,7 @@ export function DashboardHeader({
         </div>
         <div className="flex items-center gap-4">
           <Button variant="outline">Export Data</Button>
-          <Button>
+          <Button onClick={onAddLead}>
             <Plus className="mr-2 h-4 w-4" />
             Add Lead
           </Button>

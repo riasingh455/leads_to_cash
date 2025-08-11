@@ -39,10 +39,17 @@ import { users, type User, type Lead } from '@/lib/data';
 import { DashboardHeader } from '@/components/dashboard-header';
 import { LeadsTable } from '@/components/leads/leads-table';
 import { LeadDetailsDialog } from '@/components/kanban/lead-details-dialog';
+import { AddLeadDialog } from '@/components/leads/add-lead-dialog';
 
 export default function LeadsPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [isAddLeadOpen, setIsAddLeadOpen] = useState(false);
+  const [leads, setLeads] = useState<Lead[]>([]);
+
+  const handleAddLead = (newLead: Lead) => {
+    setLeads((prevLeads) => [newLead, ...prevLeads]);
+  };
 
   return (
     <SidebarProvider defaultOpen>
@@ -81,7 +88,12 @@ export default function LeadsPage() {
           </SidebarFooter>
         </Sidebar>
         <SidebarInset>
-          <DashboardHeader user={currentUser} title="Leads" description={`Manage and track all potential leads.`} />
+          <DashboardHeader 
+            user={currentUser} 
+            title="Leads" 
+            description="Manage and track all potential leads." 
+            onAddLead={() => setIsAddLeadOpen(true)}
+          />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
             <LeadsTable onViewDetails={setSelectedLead} />
           </main>
@@ -92,6 +104,12 @@ export default function LeadsPage() {
         isOpen={!!selectedLead}
         onOpenChange={(isOpen) => !isOpen && setSelectedLead(null)}
         currentUser={currentUser}
+      />
+      <AddLeadDialog
+        isOpen={isAddLeadOpen}
+        onOpenChange={setIsAddLeadOpen}
+        onLeadAdded={handleAddLead}
+        users={users}
       />
     </SidebarProvider>
   );

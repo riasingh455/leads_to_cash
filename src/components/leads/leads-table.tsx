@@ -1,4 +1,3 @@
-
 'use client';
 import * as React from 'react';
 import {
@@ -46,15 +45,17 @@ import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 
 export function LeadsTable({ onViewDetails }: { onViewDetails: (lead: Lead) => void }) {
-  const [leads, setLeads] = React.useState<Lead[]>(initialLeads);
+  const [leads, setLeads] = React.useState<Lead[]>(initialLeads.filter(lead => !['col-prospect', 'col-3', 'col-4', 'col-5'].includes(lead.columnId)));
   const { toast } = useToast();
 
   const handleMarkAsOpportunity = (leadId: string) => {
-    setLeads(prevLeads =>
-      prevLeads.map(lead =>
-        lead.id === leadId ? { ...lead, columnId: 'col-3' } : lead
-      )
-    );
+    const leadToUpdate = initialLeads.find(l => l.id === leadId);
+    if (leadToUpdate) {
+      leadToUpdate.columnId = 'col-3'; // Qualified
+    }
+
+    setLeads(prevLeads => prevLeads.filter(lead => lead.id !== leadId));
+    
     toast({
       title: "Lead Updated",
       description: "The lead has been marked as an opportunity and moved to the 'Qualified' stage.",
