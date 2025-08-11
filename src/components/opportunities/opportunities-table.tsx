@@ -44,7 +44,7 @@ import { leads, type Lead, users, columns as leadColumns } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { format } from 'date-fns';
 
-const opportunityStages = ['col-3', 'col-4', 'col-5'];
+const opportunityStages = ['col-prospect', 'col-3', 'col-4', 'col-5'];
 const data: Lead[] = leads.filter(lead => opportunityStages.includes(lead.columnId));
 
 export const columns: ColumnDef<Lead>[] = [
@@ -307,3 +307,5 @@ export function OpportunitiesTable() {
     </div>
   );
 }
+
+    

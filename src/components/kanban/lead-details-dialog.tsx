@@ -12,9 +12,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Phone, Mail, Users, Lightbulb, FolderKanban, Briefcase, Calendar, Handshake } from 'lucide-react';
+import { FileText, Phone, Mail, Users, Lightbulb, FolderKanban, Briefcase, Calendar, Handshake, Target } from 'lucide-react';
 import type { Lead, User } from '@/lib/data';
-import { users } from '@/lib/data';
+import { users, columns } from '@/lib/data';
 import { format } from 'date-fns';
 import { StakeholderIdentification } from '../ai/stakeholder-identification';
 import { RecommendedNextSteps } from '../ai/recommend-next-steps';
@@ -38,6 +38,10 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
   ];
 
   const canUseAiFeatures = currentUser.role === 'Admin' || currentUser.id === lead.ownerId;
+  
+  const stageIndex = columns.findIndex(c => c.id === lead.columnId);
+  const prospectStageIndex = columns.findIndex(c => c.id === 'col-prospect');
+  const showProspectTab = stageIndex >= prospectStageIndex;
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -48,9 +52,10 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
         </DialogHeader>
         <div className="flex-grow overflow-hidden">
           <Tabs defaultValue="details" className="flex flex-col h-full">
-            <TabsList className="grid w-full grid-cols-5">
+            <TabsList className="grid w-full grid-cols-6">
               <TabsTrigger value="details">Details</TabsTrigger>
               <TabsTrigger value="follow-up"><Handshake className="w-4 h-4 mr-2"/>Follow-up</TabsTrigger>
+              {showProspectTab && <TabsTrigger value="prospecting"><Target className="w-4 h-4 mr-2" />Prospecting</TabsTrigger>}
               <TabsTrigger value="stakeholders" disabled={!canUseAiFeatures}><Users className="w-4 h-4 mr-2"/>Stakeholders</TabsTrigger>
               <TabsTrigger value="next-steps" disabled={!canUseAiFeatures}><Lightbulb className="w-4 h-4 mr-2"/>Next Steps</TabsTrigger>
               <TabsTrigger value="documents"><FolderKanban className="w-4 h-4 mr-2"/>Documents</TabsTrigger>
@@ -136,6 +141,54 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
                 </CardContent>
               </Card>
             </TabsContent>
+            <TabsContent value="prospecting" className="flex-grow overflow-auto p-1">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Prospecting Details</CardTitle>
+                    <CardDescription>Information gathered during the prospecting stage.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {lead.prospectData ? (
+                        <div className="text-sm grid md:grid-cols-2 gap-x-8 gap-y-4">
+                            <div className="space-y-1">
+                                <p className="font-medium text-muted-foreground">Response Date</p>
+                                <p>{format(new Date(lead.prospectData.responseDate), 'PPP')}</p>
+                            </div>
+                            <div className="space-y-1">
+                                <p className="font-medium text-muted-foreground">Engagement Type</p>
+                                <p>{lead.prospectData.engagementType}</p>
+                            </div>
+                            <div className="space-y-1">
+                                <p className="font-medium text-muted-foreground">Contact Quality</p>
+                                <p>{lead.prospectData.contactQuality}</p>
+                            </div>
+                            <div className="space-y-1">
+                                <p className="font-medium text-muted-foreground">Demo/Discovery Call</p>
+                                <p>{lead.prospectData.demoScheduled === 'Yes' && lead.prospectData.demoDate ? `Yes, on ${format(new Date(lead.prospectData.demoDate), 'PPP')}` : 'No'}</p>
+                            </div>
+                             <div className="space-y-1 col-span-2">
+                                <p className="font-medium text-muted-foreground">Qualification Notes</p>
+                                <p className="whitespace-pre-wrap">{lead.prospectData.qualificationNotes}</p>
+                            </div>
+                             <div className="space-y-1 col-span-2">
+                                <p className="font-medium text-muted-foreground">Initial Pain Points</p>
+                                <p className="whitespace-pre-wrap">{lead.prospectData.painPoints}</p>
+                            </div>
+                            <div className="space-y-1 col-span-2">
+                                <p className="font-medium text-muted-foreground">Competitor Awareness</p>
+                                <p className="whitespace-pre-wrap">{lead.prospectData.competitorAwareness}</p>
+                            </div>
+                            <div className="space-y-1 col-span-2">
+                                <p className="font-medium text-muted-foreground">Next Steps Agreed</p>
+                                <p className="whitespace-pre-wrap">{lead.prospectData.nextSteps}</p>
+                            </div>
+                        </div>
+                    ) : (
+                      <p className="text-muted-foreground">No prospecting data available for this lead yet.</p>
+                    )}
+                  </CardContent>
+                </Card>
+            </TabsContent>
             <TabsContent value="stakeholders" className="flex-grow overflow-auto p-1">
               <StakeholderIdentification lead={lead} />
             </TabsContent>
@@ -169,3 +222,5 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
     </Dialog>
   );
 }
+
+    

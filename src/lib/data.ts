@@ -5,6 +5,18 @@ export interface User {
   avatar: string;
 }
 
+export interface ProspectData {
+  responseDate: string;
+  engagementType: 'Phone response' | 'Email reply' | 'Meeting request' | 'Other';
+  contactQuality: 'Decision maker' | 'Influencer' | 'Gatekeeper';
+  qualificationNotes: string;
+  demoScheduled: 'Yes' | 'No';
+  demoDate?: string;
+  competitorAwareness: string;
+  painPoints: string;
+  nextSteps: string;
+}
+
 export interface Lead {
   id: string;
   title: string; // Proposed Offering
@@ -33,6 +45,7 @@ export interface Lead {
       date: string;
       method: 'Email' | 'Call' | 'LinkedIn' | 'Meeting';
   }[];
+  prospectData?: ProspectData;
 }
 
 export interface Column {
@@ -49,6 +62,7 @@ export const users: User[] = [
 export const columns: Column[] = [
   { id: 'col-1', title: 'New Lead' },
   { id: 'col-2', title: 'Contacted' },
+  { id: 'col-prospect', title: 'Prospect'},
   { id: 'col-3', title: 'Qualified' },
   { id: 'col-4', title: 'Proposal' },
   { id: 'col-5', title: 'Closed Won' },
@@ -122,7 +136,7 @@ export const leads: Lead[] = [
     currency: 'EUR',
     score: 65,
     priority: 'Medium',
-    columnId: 'col-3',
+    columnId: 'col-prospect',
     ownerId: 'user-2',
     entryDate: '2024-05-05T14:00:00Z',
     lastContact: '2024-05-15T09:00:00Z',
@@ -138,6 +152,17 @@ export const leads: Lead[] = [
     followUpCadence: [
         { date: '2024-05-06T16:00:00Z', method: 'Call' },
     ],
+    prospectData: {
+      responseDate: '2024-05-07T10:00:00Z',
+      engagementType: 'Email reply',
+      contactQuality: 'Decision maker',
+      qualificationNotes: 'Expressed high-level interest in improving employee onboarding.',
+      demoScheduled: 'Yes',
+      demoDate: '2024-05-20T14:00:00Z',
+      competitorAwareness: 'Mentioned they looked at BambooHR.',
+      painPoints: 'Current onboarding is manual and time-consuming.',
+      nextSteps: 'Follow up with a detailed proposal after the demo.',
+    },
   },
     {
     id: 'lead-4',
@@ -278,3 +303,5 @@ export const leads: Lead[] = [
     ],
   },
 ];
+
+    
