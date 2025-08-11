@@ -1,3 +1,4 @@
+
 'use client';
 import * as React from 'react';
 import {
@@ -38,7 +39,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { leads as initialLeads, type Lead, users, columns as leadColumns } from '@/lib/data';
+import { type Lead, users, columns as leadColumns } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { format } from 'date-fns';
 
@@ -46,10 +47,11 @@ const proposalStageIds = ['col-proposal', 'col-review', 'col-delivery'];
 
 interface ProposalsTableProps {
   onViewDetails: (lead: Lead) => void;
+  leads: Lead[];
 }
 
-export function ProposalsTable({ onViewDetails }: ProposalsTableProps) {
-  const [leads, setLeads] = React.useState<Lead[]>(initialLeads.filter(lead => proposalStageIds.includes(lead.columnId)));
+export function ProposalsTable({ onViewDetails, leads }: ProposalsTableProps) {
+  const data = React.useMemo(() => leads.filter(lead => proposalStageIds.includes(lead.columnId)), [leads]);
   
   const columns: ColumnDef<Lead>[] = [
     {
@@ -187,7 +189,7 @@ export function ProposalsTable({ onViewDetails }: ProposalsTableProps) {
   const [rowSelection, setRowSelection] = React.useState({});
 
   const table = useReactTable({
-    data: leads,
+    data,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,

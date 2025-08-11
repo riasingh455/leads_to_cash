@@ -94,6 +94,15 @@ export function AddLeadDialog({ isOpen, onOpenChange, onLeadAdded, users, defaul
       industry: 'N/A',
       region: 'N/A',
       followUpCadence: [],
+      proposalData: {
+        revisionHistory: [],
+        pricingStructure: 'Fixed',
+        projectDuration: '',
+        resourceRequirements: '',
+        servicesIncluded: '',
+        templateUsed: '',
+        termsVersion: '',
+      }
     };
 
     onLeadAdded(newLead);

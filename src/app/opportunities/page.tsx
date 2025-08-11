@@ -124,6 +124,7 @@ export default function OpportunitiesPage() {
         onOpenChange={setIsAddLeadOpen}
         onLeadAdded={handleAddLead}
         users={users}
+        defaultStage="col-3"
       />
     </SidebarProvider>
   );

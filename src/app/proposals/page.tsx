@@ -37,20 +37,34 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { users, type User, type Lead } from '@/lib/data';
+import { users, type User, type Lead, leads as initialLeads } from '@/lib/data';
 import { DashboardHeader } from '@/components/dashboard-header';
 import { LeadDetailsDialog } from '@/components/kanban/lead-details-dialog';
-import { AddLeadDialog } from '@/components/leads/add-lead-dialog';
 import { ProposalsTable } from '@/components/proposals/proposals-table';
+import { AddProposalDialog } from '@/components/proposals/add-proposal-dialog';
 
 export default function ProposalsPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
-  const [isAddLeadOpen, setIsAddLeadOpen] = useState(false);
-  const [leads, setLeads] = useState<Lead[]>([]);
+  const [isAddProposalOpen, setIsAddProposalOpen] = useState(false);
+  const [leads, setLeads] = useState<Lead[]>(initialLeads);
 
-  const handleAddLead = (newLead: Lead) => {
-    setLeads((prevLeads) => [newLead, ...prevLeads]);
+  const handleAddProposal = (leadId: string, proposalData: any) => {
+    setLeads((prevLeads) => {
+      const leadIndex = prevLeads.findIndex(l => l.id === leadId);
+      if (leadIndex !== -1) {
+        const updatedLeads = [...prevLeads];
+        const updatedLead = { ...updatedLeads[leadIndex] };
+        updatedLead.columnId = 'col-proposal';
+        updatedLead.proposalData = {
+          ...proposalData,
+          revisionHistory: [{ version: 1, date: new Date().toISOString(), notes: 'Initial draft' }],
+        };
+        updatedLeads[leadIndex] = updatedLead;
+        return updatedLeads;
+      }
+      return prevLeads;
+    });
   };
 
   return (
@@ -106,11 +120,11 @@ export default function ProposalsPage() {
             user={currentUser} 
             title="Proposals & Reviews" 
             description="Track and manage deals in the late stages of the sales cycle." 
-            onAddButtonClick={() => setIsAddLeadOpen(true)}
+            onAddButtonClick={() => setIsAddProposalOpen(true)}
             addButtonText="Add Proposal"
           />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
-            <ProposalsTable onViewDetails={setSelectedLead} />
+            <ProposalsTable onViewDetails={setSelectedLead} leads={leads} />
           </main>
         </SidebarInset>
       </div>
@@ -120,12 +134,11 @@ export default function ProposalsPage() {
         onOpenChange={(isOpen) => !isOpen && setSelectedLead(null)}
         currentUser={currentUser}
       />
-      <AddLeadDialog
-        isOpen={isAddLeadOpen}
-        onOpenChange={setIsAddLeadOpen}
-        onLeadAdded={handleAddLead}
-        users={users}
-        defaultStage="col-proposal"
+      <AddProposalDialog
+        isOpen={isAddProposalOpen}
+        onOpenChange={setIsAddProposalOpen}
+        onProposalAdded={handleAddProposal}
+        leads={leads}
       />
     </SidebarProvider>
   );
