@@ -7,9 +7,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogFooter,
 } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -19,6 +20,11 @@ import { users, columns } from '@/lib/data';
 import { format } from 'date-fns';
 import { StakeholderIdentification } from '../ai/stakeholder-identification';
 import { RecommendedNextSteps } from '../ai/recommend-next-steps';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { Textarea } from '../ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
 interface LeadDetailsDialogProps {
   lead: Lead | null;
@@ -30,7 +36,7 @@ interface LeadDetailsDialogProps {
 const DetailRow = ({ label, value }: { label: string; value: React.ReactNode }) => (
     <>
         <span className="font-medium text-muted-foreground">{label}:</span>
-        <span>{value}</span>
+        <span className="break-all">{value}</span>
     </>
 );
 
@@ -72,7 +78,7 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
         </DialogHeader>
         <div className="flex-grow overflow-hidden">
           <Tabs defaultValue="details" className="flex flex-col h-full">
-            <TabsList className={`grid w-full grid-cols-${visibleTabs.length}`}>
+            <TabsList className={`grid w-full grid-cols-9`}>
               <TabsTrigger value="details">Details</TabsTrigger>
               <TabsTrigger value="follow-up"><Handshake className="w-4 h-4 mr-2"/>Follow-up</TabsTrigger>
               {tabVisibility.prospecting && <TabsTrigger value="prospecting"><Target className="w-4 h-4 mr-2" />Prospecting</TabsTrigger>}
@@ -206,28 +212,65 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
             {tabVisibility.proposal && (
               <TabsContent value="proposal" className="flex-grow overflow-auto p-1">
                 <Card>
-                  <CardHeader><CardTitle>Proposal Details</CardTitle></CardHeader>
-                  <CardContent>
-                    {lead.proposalData ? (
-                      <div className="space-y-6">
-                        <div className="text-sm grid md:grid-cols-2 gap-x-8 gap-y-4">
-                          <DetailRow label="Template Used" value={lead.proposalData.templateUsed} />
-                          <DetailRow label="Pricing Structure" value={lead.proposalData.pricingStructure} />
-                          <DetailRow label="Project Duration" value={lead.proposalData.projectDuration} />
-                          <DetailRow label="Terms & Conditions Version" value={lead.proposalData.termsVersion} />
-                          <div className="col-span-2 space-y-1">
-                            <p className="font-medium text-muted-foreground">Services/Products Included:</p>
-                            <p className="whitespace-pre-wrap">{lead.proposalData.servicesIncluded}</p>
-                          </div>
-                          <div className="col-span-2 space-y-1">
-                             <p className="font-medium text-muted-foreground">Resource Requirements:</p>
-                             <p className="whitespace-pre-wrap">{lead.proposalData.resourceRequirements}</p>
-                          </div>
+                    <CardHeader>
+                        <CardTitle>Create Proposal</CardTitle>
+                        <CardDescription>Fill out the details for the internal proposal document.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="grid md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="template">Proposal Template</Label>
+                                <Select defaultValue={lead.proposalData?.templateUsed}>
+                                    <SelectTrigger id="template">
+                                        <SelectValue placeholder="Select a template" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Standard">Standard Template</SelectItem>
+                                        <SelectItem value="Enterprise">Enterprise Template</SelectItem>
+                                        <SelectItem value="SME">SME Template</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="pricing">Pricing Structure</Label>
+                                <Select defaultValue={lead.proposalData?.pricingStructure}>
+                                    <SelectTrigger id="pricing">
+                                        <SelectValue placeholder="Select pricing" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Fixed">Fixed</SelectItem>
+                                        <SelectItem value="T&M">T&M</SelectItem>
+                                        <SelectItem value="Hybrid">Hybrid</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="services">Services/Products Included</Label>
+                            <Textarea id="services" defaultValue={lead.proposalData?.servicesIncluded} placeholder="List all services and products..."/>
+                        </div>
+                        <div className="grid md:grid-cols-2 gap-4">
+                           <div className="space-y-2">
+                                <Label htmlFor="duration">Project Duration Estimate</Label>
+                                <Input id="duration" defaultValue={lead.proposalData?.projectDuration} placeholder="e.g., 3 months" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="terms">Terms & Conditions Version</Label>
+                                <Input id="terms" defaultValue={lead.proposalData?.termsVersion} placeholder="e.g., v2.1" />
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="resources">Resource Requirements Analysis</Label>
+                            <Textarea id="resources" defaultValue={lead.proposalData?.resourceRequirements} placeholder="Analyze the resources needed..."/>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="success-criteria">Success Criteria Incorporation</Label>
+                            <Textarea id="success-criteria" placeholder="Incorporate success criteria from opportunity stage..." />
                         </div>
                         <div>
-                          <h4 className="font-semibold mb-2 flex items-center gap-2"><Edit className="w-4 h-4"/>Revision History</h4>
+                          <h4 className="font-semibold mb-2 mt-4 flex items-center gap-2"><Edit className="w-4 h-4"/>Revision History</h4>
                           <ul className="space-y-2">
-                            {lead.proposalData.revisionHistory.map(rev => (
+                            {lead.proposalData?.revisionHistory.map(rev => (
                                <li key={rev.version} className="flex gap-4 text-sm border-l-2 pl-4">
                                 <div>V{rev.version}</div>
                                 <div>{format(new Date(rev.date), 'PPP')}</div>
@@ -236,9 +279,10 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
                             ))}
                           </ul>
                         </div>
-                      </div>
-                    ) : <p className="text-muted-foreground">No proposal data available.</p>}
-                  </CardContent>
+                    </CardContent>
+                    <CardFooter>
+                        <Button>Save Proposal</Button>
+                    </CardFooter>
                 </Card>
               </TabsContent>
             )}

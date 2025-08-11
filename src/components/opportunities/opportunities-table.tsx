@@ -48,7 +48,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 
-const opportunityStageIds = ['col-prospect', 'col-3', 'col-proposal', 'col-review', 'col-delivery', 'col-5'];
+const opportunityStageIds = ['col-prospect', 'col-3', 'col-proposal', 'col-review', 'col-delivery'];
 const opportunityStages = leadColumns.filter(c => opportunityStageIds.includes(c.id));
 
 interface OpportunitiesTableProps {
@@ -57,10 +57,14 @@ interface OpportunitiesTableProps {
 
 export function OpportunitiesTable({ onViewDetails }: OpportunitiesTableProps) {
   const { toast } = useToast();
-  const [leads, setLeads] = React.useState<Lead[]>(initialLeads.filter(lead => opportunityStageIds.includes(lead.columnId) && lead.columnId !== 'col-5'));
+  const [leads, setLeads] = React.useState<Lead[]>(initialLeads.filter(lead => opportunityStageIds.includes(lead.columnId) && !['col-proposal', 'col-review', 'col-delivery', 'col-5'].includes(lead.columnId)));
   
   const handleStageUpdate = (leadId: string, newStageId: string) => {
-    setLeads(prev => prev.map(lead => lead.id === leadId ? { ...lead, columnId: newStageId } : lead));
+    const lead = initialLeads.find(l => l.id === leadId);
+    if(lead) {
+      lead.columnId = newStageId;
+    }
+    setLeads(prev => prev.filter(l => l.id !== leadId));
     const stage = opportunityStages.find(s => s.id === newStageId);
     toast({
       title: 'Opportunity Updated',
@@ -178,6 +182,9 @@ export function OpportunitiesTable({ onViewDetails }: OpportunitiesTableProps) {
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => onViewDetails(lead)}>
                 View details
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleStageUpdate(lead.id, 'col-proposal')}>
+                Create Proposal
               </DropdownMenuItem>
               <DropdownMenuSub>
                 <DropdownMenuSubTrigger>Update stage</DropdownMenuSubTrigger>

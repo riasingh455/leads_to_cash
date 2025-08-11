@@ -168,6 +168,9 @@ export function ProposalsTable({ onViewDetails }: ProposalsTableProps) {
               <DropdownMenuItem onClick={() => onViewDetails(lead)}>
                 View details
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onViewDetails(lead)}>
+                Edit Proposal
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         );
