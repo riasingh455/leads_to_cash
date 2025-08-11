@@ -34,12 +34,14 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { users, type User } from '@/lib/data';
+import { users, type User, type Lead } from '@/lib/data';
 import { DashboardHeader } from '@/components/dashboard-header';
 import { OpportunitiesTable } from '@/components/opportunities/opportunities-table';
+import { LeadDetailsDialog } from '@/components/kanban/lead-details-dialog';
 
 export default function OpportunitiesPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
 
   return (
     <SidebarProvider defaultOpen>
@@ -80,10 +82,16 @@ export default function OpportunitiesPage() {
         <SidebarInset>
           <DashboardHeader user={currentUser} title="Opportunities" description="View and manage qualified sales opportunities." />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
-            <OpportunitiesTable />
+            <OpportunitiesTable onViewDetails={setSelectedLead} />
           </main>
         </SidebarInset>
       </div>
+      <LeadDetailsDialog
+        lead={selectedLead}
+        isOpen={!!selectedLead}
+        onOpenChange={(isOpen) => !isOpen && setSelectedLead(null)}
+        currentUser={currentUser}
+      />
     </SidebarProvider>
   );
 }

@@ -29,6 +29,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuPortal,
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import {
@@ -39,132 +43,161 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { leads, type Lead, users, columns as leadColumns } from '@/lib/data';
+import { leads as initialLeads, type Lead, users, columns as leadColumns } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { format } from 'date-fns';
+import { useToast } from '@/hooks/use-toast';
 
-const opportunityStages = ['col-prospect', 'col-3', 'col-4', 'col-5'];
-const data: Lead[] = leads.filter(lead => opportunityStages.includes(lead.columnId));
+const opportunityStageIds = ['col-prospect', 'col-3', 'col-4', 'col-5'];
+const opportunityStages = leadColumns.filter(c => opportunityStageIds.includes(c.id));
 
-export const columns: ColumnDef<Lead>[] = [
-  {
-    id: 'select',
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && 'indeterminate')
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: 'title',
-    header: 'Opportunity',
-    cell: ({ row }) => <div>{row.getValue('title')}</div>,
-  },
-  {
-    accessorKey: 'company',
-    header: 'Company',
-    cell: ({ row }) => <div>{row.getValue('company')}</div>,
-  },
+interface OpportunitiesTableProps {
+  onViewDetails: (lead: Lead) => void;
+}
+
+export function OpportunitiesTable({ onViewDetails }: OpportunitiesTableProps) {
+  const { toast } = useToast();
+  const [leads, setLeads] = React.useState<Lead[]>(initialLeads.filter(lead => opportunityStageIds.includes(lead.columnId)));
+  
+  const handleStageUpdate = (leadId: string, newStageId: string) => {
+    setLeads(prev => prev.map(lead => lead.id === leadId ? { ...lead, columnId: newStageId } : lead));
+    const stage = opportunityStages.find(s => s.id === newStageId);
+    toast({
+      title: 'Opportunity Updated',
+      description: `Stage changed to "${stage?.title}"`,
+    });
+  };
+
+  const columns: ColumnDef<Lead>[] = [
     {
-    accessorKey: 'columnId',
-    header: 'Stage',
-    cell: ({ row }) => {
-        const stage = leadColumns.find(c => c.id === row.getValue('columnId'))
-        return <div>{stage?.title}</div>
-    }
-  },
-  {
-    accessorKey: 'ownerId',
-    header: 'Owner',
-    cell: ({ row }) => {
-      const owner = users.find(user => user.id === row.getValue('ownerId'));
-      return (
-        <div className="flex items-center gap-2">
-          <Avatar className="h-6 w-6">
-            <AvatarImage src={owner?.avatar} />
-            <AvatarFallback>{owner?.name.charAt(0)}</AvatarFallback>
-          </Avatar>
-          {owner?.name}
-        </div>
-      )
+      id: 'select',
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && 'indeterminate')
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
     },
-  },
-  {
-    accessorKey: 'value',
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          className='text-right w-full'
-        >
-          Value
-          <CaretSortIcon className="ml-2 h-4 w-4" />
-        </Button>
-      );
+    {
+      accessorKey: 'title',
+      header: 'Opportunity',
+      cell: ({ row }) => <div>{row.getValue('title')}</div>,
     },
-    cell: ({ row }) => {
-      const amount = parseFloat(row.getValue('value'));
+    {
+      accessorKey: 'company',
+      header: 'Company',
+      cell: ({ row }) => <div>{row.getValue('company')}</div>,
+    },
+      {
+      accessorKey: 'columnId',
+      header: 'Stage',
+      cell: ({ row }) => {
+          const stage = leadColumns.find(c => c.id === row.getValue('columnId'))
+          return <div>{stage?.title}</div>
+      }
+    },
+    {
+      accessorKey: 'ownerId',
+      header: 'Owner',
+      cell: ({ row }) => {
+        const owner = users.find(user => user.id === row.getValue('ownerId'));
+        return (
+          <div className="flex items-center gap-2">
+            <Avatar className="h-6 w-6">
+              <AvatarImage src={owner?.avatar} />
+              <AvatarFallback>{owner?.name.charAt(0)}</AvatarFallback>
+            </Avatar>
+            {owner?.name}
+          </div>
+        )
+      },
+    },
+    {
+      accessorKey: 'value',
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+            className='text-right w-full'
+          >
+            Value
+            <CaretSortIcon className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      },
+      cell: ({ row }) => {
+        const amount = parseFloat(row.getValue('value'));
+  
+        const formatted = new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: 'USD',
+        }).format(amount);
+  
+        return <div className="text-right font-medium">{formatted}</div>;
+      },
+    },
+    {
+      accessorKey: 'nextAction',
+      header: 'Next Action',
+      cell: ({ row }) => <div>{format(new Date(row.getValue('nextAction')), 'PPP')}</div>,
+    },
+    {
+      id: 'actions',
+      enableHiding: false,
+      cell: ({ row }) => {
+        const lead = row.original;
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <DotsHorizontalIcon className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem
+                onClick={() => navigator.clipboard.writeText(lead.id)}
+              >
+                Copy opportunity ID
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => onViewDetails(lead)}>
+                View details
+              </DropdownMenuItem>
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger>Update stage</DropdownMenuSubTrigger>
+                <DropdownMenuPortal>
+                  <DropdownMenuSubContent>
+                    {opportunityStages.map(stage => (
+                      <DropdownMenuItem key={stage.id} onClick={() => handleStageUpdate(lead.id, stage.id)}>
+                        {stage.title}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuSubContent>
+                </DropdownMenuPortal>
+              </DropdownMenuSub>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
+    },
+  ];
 
-      const formatted = new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-      }).format(amount);
-
-      return <div className="text-right font-medium">{formatted}</div>;
-    },
-  },
-  {
-    accessorKey: 'nextAction',
-    header: 'Next Action',
-    cell: ({ row }) => <div>{format(new Date(row.getValue('nextAction')), 'PPP')}</div>,
-  },
-  {
-    id: 'actions',
-    enableHiding: false,
-    cell: ({ row }) => {
-      const lead = row.original;
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <DotsHorizontalIcon className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(lead.id)}
-            >
-              Copy opportunity ID
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>View details</DropdownMenuItem>
-            <DropdownMenuItem>Update stage</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
-  },
-];
-
-export function OpportunitiesTable() {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -174,7 +207,7 @@ export function OpportunitiesTable() {
   const [rowSelection, setRowSelection] = React.useState({});
 
   const table = useReactTable({
-    data,
+    data: leads,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -307,5 +340,3 @@ export function OpportunitiesTable() {
     </div>
   );
 }
-
-    
