@@ -34,11 +34,10 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { DashboardHeader } from '@/components/dashboard-header';
-import { KanbanBoard } from '@/components/kanban/kanban-board';
 import { users, type User } from '@/lib/data';
+import { DashboardHeader } from '@/components/dashboard-header';
 
-export default function DashboardPage() {
+export default function OpportunitiesPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
 
   return (
@@ -54,7 +53,7 @@ export default function DashboardPage() {
           <SidebarContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton href="/" isActive>
+                <SidebarMenuButton href="/">
                   <LayoutDashboard />
                   Dashboard
                 </SidebarMenuButton>
@@ -66,7 +65,7 @@ export default function DashboardPage() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton href="/opportunities">
+                <SidebarMenuButton href="/opportunities" isActive>
                   <Briefcase />
                   Opportunities
                 </SidebarMenuButton>
@@ -80,7 +79,8 @@ export default function DashboardPage() {
         <SidebarInset>
           <DashboardHeader user={currentUser} />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
-            <KanbanBoard currentUser={currentUser} />
+            <h1 className="text-2xl font-bold">Opportunities</h1>
+            <p>This is the opportunities page.</p>
           </main>
         </SidebarInset>
       </div>
