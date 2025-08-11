@@ -14,7 +14,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Phone, Mail, Users, Lightbulb, FolderKanban, Briefcase, Calendar, Handshake, Target, CheckCircle, Clock, Search, FileCheck2, UserCheck, ShieldCheck, DollarSign, AlertTriangle, Building, Truck, Presentation, FileUp, Edit, Info, Users2 } from 'lucide-react';
+import { FileText, Phone, Mail, Users, Lightbulb, FolderKanban, Briefcase, Calendar, Handshake, Target, CheckCircle, Clock, Search, FileCheck2, UserCheck, ShieldCheck, DollarSign, AlertTriangle, Building, Truck, Presentation, FileUp, Edit, Info, Users2, FileSignature, Newspaper } from 'lucide-react';
 import type { Lead, User } from '@/lib/data';
 import { users, columns } from '@/lib/data';
 import { format } from 'date-fns';
@@ -60,6 +60,7 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
     proposal: stageIndex >= columns.findIndex(c => c.id === 'col-proposal'),
     review: stageIndex >= columns.findIndex(c => c.id === 'col-review'),
     delivery: stageIndex >= columns.findIndex(c => c.id === 'col-delivery'),
+    contract: stageIndex >= columns.findIndex(c => c.id === 'col-contract'),
   };
 
   const visibleTabs = ['details', 'follow-up', 
@@ -67,6 +68,7 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
     tabVisibility.proposal && 'proposal',
     tabVisibility.review && 'review',
     tabVisibility.delivery && 'delivery',
+    tabVisibility.contract && 'contract',
     'stakeholders', 'next-steps', 'documents'].filter(Boolean) as string[];
 
   return (
@@ -78,13 +80,14 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
         </DialogHeader>
         <div className="flex-grow overflow-hidden">
           <Tabs defaultValue="details" className="flex flex-col h-full">
-            <TabsList className={`grid w-full grid-cols-${visibleTabs.length}`}>
+            <TabsList className={`grid w-full grid-cols-10`}>
               {visibleTabs.includes('details') && <TabsTrigger value="details">Details</TabsTrigger>}
               {visibleTabs.includes('follow-up') && <TabsTrigger value="follow-up"><Handshake className="w-4 h-4 mr-2"/>Follow-up</TabsTrigger>}
               {visibleTabs.includes('prospecting') && <TabsTrigger value="prospecting"><Target className="w-4 h-4 mr-2" />Prospecting</TabsTrigger>}
               {visibleTabs.includes('proposal') && <TabsTrigger value="proposal"><FileUp className="w-4 h-4 mr-2" />Proposal</TabsTrigger>}
               {visibleTabs.includes('review') && <TabsTrigger value="review"><Search className="w-4 h-4 mr-2" />Review</TabsTrigger>}
               {visibleTabs.includes('delivery') && <TabsTrigger value="delivery"><Presentation className="w-4 h-4 mr-2" />Delivery</TabsTrigger>}
+              {visibleTabs.includes('contract') && <TabsTrigger value="contract"><FileSignature className="w-4 h-4 mr-2" />Contract</TabsTrigger>}
               {visibleTabs.includes('stakeholders') && <TabsTrigger value="stakeholders" disabled={!canUseAiFeatures}><Users className="w-4 h-4 mr-2"/>Stakeholders</TabsTrigger>}
               {visibleTabs.includes('next-steps') && <TabsTrigger value="next-steps" disabled={!canUseAiFeatures}><Lightbulb className="w-4 h-4 mr-2"/>Next Steps</TabsTrigger>}
               {visibleTabs.includes('documents') && <TabsTrigger value="documents"><FolderKanban className="w-4 h-4 mr-2"/>Documents</TabsTrigger>}
@@ -383,6 +386,60 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
                  </Card>
               </TabsContent>
             )}
+             {tabVisibility.contract && (
+              <TabsContent value="contract" className="flex-grow overflow-auto p-1">
+                 <Card>
+                  <CardHeader><CardTitle>Contract Stage</CardTitle></CardHeader>
+                  <CardContent>
+                    {lead.contractData ? (
+                       <div className="space-y-6">
+                         <div>
+                          <h4 className="font-semibold flex items-center gap-2 mb-2"><Newspaper className="w-5 h-5 text-primary" />Legal & Agreement</h4>
+                           <div className="text-sm grid md:grid-cols-2 gap-x-8 gap-y-2 pl-7">
+                              <DetailRow label="Contract Template" value={lead.contractData.templateUsed} />
+                              <DetailRow label="Contract Version" value={lead.contractData.version} />
+                              <DetailRow label="Legal Review" value={lead.contractData.legalReviewRequired} />
+                              <DetailRow label="Legal Reviewer" value={lead.contractData.legalReviewer || 'N/A'} />
+                              <DetailRow label="Contract Sent" value={lead.contractData.sentDate ? format(new Date(lead.contractData.sentDate), 'PPP') : 'N/A'} />
+                              <DetailRow label="Client Review" value={lead.contractData.clientReviewStatus} />
+                              <DetailRow label="Final Contract Date" value={lead.contractData.finalDate ? format(new Date(lead.contractData.finalDate), 'PPP') : 'N/A'} />
+                              <DetailRow label="Signed Date" value={lead.contractData.signedDate ? format(new Date(lead.contractData.signedDate), 'PPP') : 'N/A'} />
+                              <DetailRow label="Final Value" value={`$${lead.contractData.finalValue.toLocaleString()} ${lead.currency}`} />
+                              <DetailRow label="Payment Terms" value={lead.contractData.paymentTerms} />
+                           </div>
+                         </div>
+                         <Separator />
+                          <div>
+                            <h4 className="font-semibold flex items-center gap-2 mb-2"><Info className="w-5 h-5 text-blue-500" />Details & History</h4>
+                            <div className="text-sm grid grid-cols-1 gap-y-2 pl-7">
+                              <div className="space-y-1">
+                                <p className="font-medium text-muted-foreground">Redlines/Changes Requested:</p>
+                                <p className="whitespace-pre-wrap pl-6">{lead.contractData.redlinesRequested}</p>
+                              </div>
+                              <div className="space-y-1">
+                                <p className="font-medium text-muted-foreground">Negotiation Log:</p>
+                                <p className="whitespace-pre-wrap pl-6">{lead.contractData.negotiationLog}</p>
+                              </div>
+                              <div className="space-y-1">
+                                <p className="font-medium text-muted-foreground">Key Clauses:</p>
+                                <p className="whitespace-pre-wrap pl-6">{lead.contractData.keyClauses}</p>
+                              </div>
+                               <div className="space-y-1">
+                                <p className="font-medium text-muted-foreground">Renewal Terms:</p>
+                                <p className="whitespace-pre-wrap pl-6">{lead.contractData.renewalTerms}</p>
+                              </div>
+                              <div className="space-y-1">
+                                <p className="font-medium text-muted-foreground">Success Criteria:</p>
+                                <p className="whitespace-pre-wrap pl-6">{lead.contractData.projectSuccessCriteria}</p>
+                              </div>
+                            </div>
+                          </div>
+                       </div>
+                    ) : <p className="text-muted-foreground">No contract data available.</p>}
+                  </CardContent>
+                 </Card>
+              </TabsContent>
+            )}
             <TabsContent value="stakeholders" className="flex-grow overflow-auto p-1">
               <StakeholderIdentification lead={lead} />
             </TabsContent>
@@ -416,7 +473,3 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
     </Dialog>
   );
 }
-
-    
-
-    

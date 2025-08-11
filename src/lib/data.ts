@@ -61,6 +61,24 @@ export interface ClientDeliveryData {
   decisionTimeline: string;
 }
 
+export interface ContractData {
+  templateUsed: string;
+  version: string;
+  legalReviewRequired: 'Yes' | 'No';
+  legalReviewer?: string;
+  sentDate?: string;
+  clientReviewStatus: 'Pending' | 'Reviewed' | 'Approved';
+  redlinesRequested: string;
+  negotiationLog: string;
+  finalDate?: string;
+  signedDate?: string;
+  finalValue: number;
+  paymentTerms: string;
+  keyClauses: string;
+  renewalTerms: string;
+  projectSuccessCriteria: string;
+}
+
 export interface Lead {
   id: string;
   title: string; // Proposed Offering
@@ -93,6 +111,7 @@ export interface Lead {
   proposalData?: ProposalData;
   internalReviewData?: InternalReviewData;
   clientDeliveryData?: ClientDeliveryData;
+  contractData?: ContractData;
 }
 
 export interface Column {
@@ -114,6 +133,7 @@ export const columns: Column[] = [
   { id: 'col-proposal', title: 'Proposal' },
   { id: 'col-review', title: 'Internal Review' },
   { id: 'col-delivery', title: 'Client Delivery' },
+  { id: 'col-contract', title: 'Contract' },
   { id: 'col-5', title: 'Closed Won' },
 ];
 
@@ -364,7 +384,7 @@ export const leads: Lead[] = [
     currency: 'EUR',
     score: 35,
     priority: 'Low',
-    columnId: 'col-1',
+    columnId: 'col-contract',
     ownerId: 'user-3',
     entryDate: '2024-04-20T09:00:00Z',
     lastContact: '2024-05-01T10:00:00Z',
@@ -381,7 +401,22 @@ export const leads: Lead[] = [
     followUpCadence: [
         { date: '2024-04-21T14:00:00Z', method: 'Email' },
     ],
+    contractData: {
+      templateUsed: 'Enterprise Logistics v4',
+      version: 'v1.2',
+      legalReviewRequired: 'Yes',
+      legalReviewer: 'Legal Team',
+      sentDate: '2024-06-01T10:00:00Z',
+      clientReviewStatus: 'Reviewed',
+      redlinesRequested: 'Minor changes to indemnity clause.',
+      negotiationLog: 'Agreed on changes via call on 2024-06-05.',
+      finalDate: '2024-06-06T10:00:00Z',
+      signedDate: '2024-06-07T10:00:00Z',
+      finalValue: 155000,
+      paymentTerms: 'Net 30',
+      keyClauses: 'SLA for uptime, Data privacy, Support terms.',
+      renewalTerms: 'Auto-renewal with 60-day notice.',
+      projectSuccessCriteria: '99.9% uptime, Go-live by Q4, User adoption rate of 90%.',
+    },
   },
 ];
-
-    

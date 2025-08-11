@@ -38,19 +38,14 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
+import { users, type User, type Lead, leads as initialLeads } from '@/lib/data';
 import { DashboardHeader } from '@/components/dashboard-header';
-import { KanbanBoard } from '@/components/kanban/kanban-board';
-import { users, type User, type Lead } from '@/lib/data';
-import { AddLeadDialog } from '@/components/leads/add-lead-dialog';
+import { LeadDetailsDialog } from '@/components/kanban/lead-details-dialog';
+import { ClientDeliveryTable } from '@/components/client-delivery/client-delivery-table';
 
-export default function DashboardPage() {
+export default function ClientDeliveryPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
-  const [isAddLeadOpen, setIsAddLeadOpen] = useState(false);
-  const [leads, setLeads] = useState<Lead[]>([]);
-
-  const handleAddLead = (newLead: Lead) => {
-    setLeads((prevLeads) => [newLead, ...prevLeads]);
-  };
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
 
   return (
     <SidebarProvider defaultOpen>
@@ -65,7 +60,7 @@ export default function DashboardPage() {
           <SidebarContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton href="/" isActive>
+                <SidebarMenuButton href="/">
                   <LayoutDashboard />
                   <span>Dashboard</span>
                 </SidebarMenuButton>
@@ -89,7 +84,7 @@ export default function DashboardPage() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton href="/client-delivery">
+                <SidebarMenuButton href="/client-delivery" isActive>
                   <FileSignature />
                   <span>Client Delivery/Contract</span>
                 </SidebarMenuButton>
@@ -107,17 +102,21 @@ export default function DashboardPage() {
           </SidebarFooter>
         </Sidebar>
         <SidebarInset>
-          <DashboardHeader user={currentUser} onAddButtonClick={() => setIsAddLeadOpen(true)} />
+          <DashboardHeader 
+            user={currentUser} 
+            title="Client Delivery & Contract" 
+            description="Manage the final stages of deal closure and contract finalization."
+          />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
-            <KanbanBoard currentUser={currentUser} />
+            <ClientDeliveryTable onViewDetails={setSelectedLead} leads={initialLeads} />
           </main>
         </SidebarInset>
       </div>
-      <AddLeadDialog
-        isOpen={isAddLeadOpen}
-        onOpenChange={setIsAddLeadOpen}
-        onLeadAdded={handleAddLead}
-        users={users}
+      <LeadDetailsDialog
+        lead={selectedLead}
+        isOpen={!!selectedLead}
+        onOpenChange={(isOpen) => !isOpen && setSelectedLead(null)}
+        currentUser={currentUser}
       />
     </SidebarProvider>
   );
