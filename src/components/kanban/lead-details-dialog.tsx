@@ -61,6 +61,7 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
                   <div className="space-y-4">
                     <h3 className="font-semibold font-headline">Lead Information</h3>
                     <div className="text-sm grid grid-cols-2 gap-2">
+                        <span className="font-medium text-muted-foreground">Proposed Offering:</span> <span>{lead.title}</span>
                         <span className="font-medium text-muted-foreground">Value:</span> <span>${lead.value.toLocaleString()} {lead.currency}</span>
                         <span className="font-medium text-muted-foreground">Company Size:</span> <span>{lead.companySize}</span>
                         <span className="font-medium text-muted-foreground">Source:</span> <span>{lead.source}</span>
@@ -90,7 +91,7 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
                     </div>
                     <Separator />
                      <div>
-                        <h3 className="font-semibold font-headline mb-2">Owner</h3>
+                        <h3 className="font-semibold font-headline mb-2">Assigned Sales Rep</h3>
                          {owner && (
                            <div className="flex items-center gap-3">
                              <Avatar>
