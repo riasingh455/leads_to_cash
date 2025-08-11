@@ -23,6 +23,7 @@ import {
   Building,
   Settings,
   FolderKanban,
+  ClipboardCheck,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -79,6 +80,12 @@ export default function OpportunitiesPage() {
                 <SidebarMenuButton href="/opportunities" isActive>
                   <Briefcase />
                   <span>Opportunities</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+               <SidebarMenuItem>
+                <SidebarMenuButton href="/proposals">
+                  <ClipboardCheck />
+                  <span>Proposals/Review</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>

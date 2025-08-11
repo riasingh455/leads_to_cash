@@ -38,11 +38,11 @@ import {
 import { Button } from '@/components/ui/button';
 import { users, type User, type Lead } from '@/lib/data';
 import { DashboardHeader } from '@/components/dashboard-header';
-import { AccountsTable } from '@/components/accounts/accounts-table';
 import { LeadDetailsDialog } from '@/components/kanban/lead-details-dialog';
 import { AddLeadDialog } from '@/components/leads/add-lead-dialog';
+import { ProposalsTable } from '@/components/proposals/proposals-table';
 
-export default function AccountsPage() {
+export default function ProposalsPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [isAddLeadOpen, setIsAddLeadOpen] = useState(false);
@@ -83,13 +83,13 @@ export default function AccountsPage() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton href="/proposals">
+                <SidebarMenuButton href="/proposals" isActive>
                   <ClipboardCheck />
                   <span>Proposals/Review</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton href="/accounts" isActive>
+                <SidebarMenuButton href="/accounts">
                   <FolderKanban />
                   <span>Accounts</span>
                 </SidebarMenuButton>
@@ -103,12 +103,12 @@ export default function AccountsPage() {
         <SidebarInset>
           <DashboardHeader 
             user={currentUser} 
-            title="Accounts" 
-            description="Manage your active client accounts." 
+            title="Proposals & Reviews" 
+            description="Track and manage deals in the late stages of the sales cycle." 
             onAddLead={() => setIsAddLeadOpen(true)}
           />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
-            <AccountsTable onViewDetails={setSelectedLead} />
+            <ProposalsTable onViewDetails={setSelectedLead} />
           </main>
         </SidebarInset>
       </div>
