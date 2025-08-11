@@ -111,15 +111,29 @@ export const columns: ColumnDef<Lead>[] = [
     },
     cell: ({ row }) => {
       const amount = parseFloat(row.getValue('value'));
+      const currency = row.original.currency;
 
-      // Format the amount as a dollar amount
       const formatted = new Intl.NumberFormat('en-US', {
         style: 'currency',
-        currency: 'USD',
+        currency: currency,
       }).format(amount);
 
       return <div className="text-right font-medium">{formatted}</div>;
     },
+  },
+    {
+    accessorKey: 'score',
+    header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          className="text-right w-full"
+        >
+          Lead Score
+          <CaretSortIcon className="ml-2 h-4 w-4" />
+        </Button>
+      ),
+    cell: ({ row }) => <div className="text-right">{row.getValue('score')}</div>,
   },
   {
     accessorKey: 'priority',
@@ -139,6 +153,21 @@ export const columns: ColumnDef<Lead>[] = [
     accessorKey: 'region',
     header: 'Region',
     cell: ({ row }) => <div>{row.getValue('region')}</div>,
+  },
+  {
+    accessorKey: 'entryDate',
+    header: 'Entry Date',
+    cell: ({ row }) => <div>{format(new Date(row.getValue('entryDate')), 'PPP')}</div>,
+  },
+  {
+    accessorKey: 'companySize',
+    header: 'Company Size',
+    cell: ({ row }) => <div>{row.getValue('companySize')}</div>,
+  },
+  {
+    accessorKey: 'marketingCampaign',
+    header: 'Campaign',
+    cell: ({ row }) => <div>{row.getValue('marketingCampaign') || 'N/A'}</div>,
   },
   {
     id: 'actions',
@@ -171,12 +200,18 @@ export const columns: ColumnDef<Lead>[] = [
 ];
 
 export function LeadsTable() {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [sorting, setSorting] = React.useState<SortingState>([
+    { id: 'entryDate', desc: true },
+  ]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
+    React.useState<VisibilityState>({
+        region: false,
+        companySize: false,
+        marketingCampaign: false,
+    });
   const [rowSelection, setRowSelection] = React.useState({});
 
   const table = useReactTable({
