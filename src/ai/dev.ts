@@ -1,1 +1,5 @@
-// Flows will be imported for their side effects in this file.
+import { config } from 'dotenv';
+config();
+
+import '@/ai/flows/identify-stakeholders.ts';
+import '@/ai/flows/recommend-next-steps.ts';
