@@ -37,11 +37,11 @@ import {
 import { Button } from '@/components/ui/button';
 import { users, type User, type Lead } from '@/lib/data';
 import { DashboardHeader } from '@/components/dashboard-header';
-import { OpportunitiesTable } from '@/components/opportunities/opportunities-table';
+import { AccountsTable } from '@/components/accounts/accounts-table';
 import { LeadDetailsDialog } from '@/components/kanban/lead-details-dialog';
 import { AddLeadDialog } from '@/components/leads/add-lead-dialog';
 
-export default function OpportunitiesPage() {
+export default function AccountsPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [isAddLeadOpen, setIsAddLeadOpen] = useState(false);
@@ -76,13 +76,13 @@ export default function OpportunitiesPage() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton href="/opportunities" isActive>
+                <SidebarMenuButton href="/opportunities">
                   <Briefcase />
                   <span>Opportunities</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton href="/accounts">
+                <SidebarMenuButton href="/accounts" isActive>
                   <FolderKanban />
                   <span>Accounts</span>
                 </SidebarMenuButton>
@@ -96,12 +96,12 @@ export default function OpportunitiesPage() {
         <SidebarInset>
           <DashboardHeader 
             user={currentUser} 
-            title="Opportunities" 
-            description="View and manage qualified sales opportunities." 
+            title="Accounts" 
+            description="Manage your active client accounts." 
             onAddLead={() => setIsAddLeadOpen(true)}
           />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
-            <OpportunitiesTable onViewDetails={setSelectedLead} />
+            <AccountsTable onViewDetails={setSelectedLead} />
           </main>
         </SidebarInset>
       </div>

@@ -29,10 +29,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuPortal,
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import {
@@ -43,31 +39,18 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { leads as initialLeads, type Lead, users, columns as leadColumns } from '@/lib/data';
+import { leads as initialLeads, type Lead, users } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 
-const opportunityStageIds = ['col-prospect', 'col-3', 'col-proposal', 'col-review', 'col-delivery', 'col-5'];
-const opportunityStages = leadColumns.filter(c => opportunityStageIds.includes(c.id));
-
-interface OpportunitiesTableProps {
+interface AccountsTableProps {
   onViewDetails: (lead: Lead) => void;
 }
 
-export function OpportunitiesTable({ onViewDetails }: OpportunitiesTableProps) {
-  const { toast } = useToast();
-  const [leads, setLeads] = React.useState<Lead[]>(initialLeads.filter(lead => opportunityStageIds.includes(lead.columnId) && lead.columnId !== 'col-5'));
+export function AccountsTable({ onViewDetails }: AccountsTableProps) {
+  const [leads, setLeads] = React.useState<Lead[]>(initialLeads.filter(lead => lead.columnId === 'col-5'));
   
-  const handleStageUpdate = (leadId: string, newStageId: string) => {
-    setLeads(prev => prev.map(lead => lead.id === leadId ? { ...lead, columnId: newStageId } : lead));
-    const stage = opportunityStages.find(s => s.id === newStageId);
-    toast({
-      title: 'Opportunity Updated',
-      description: `Stage changed to "${stage?.title}"`,
-    });
-  };
-
   const columns: ColumnDef<Lead>[] = [
     {
       id: 'select',
@@ -93,7 +76,7 @@ export function OpportunitiesTable({ onViewDetails }: OpportunitiesTableProps) {
     },
     {
       accessorKey: 'title',
-      header: 'Opportunity',
+      header: 'Deal',
       cell: ({ row }) => <div>{row.getValue('title')}</div>,
     },
     {
@@ -101,17 +84,9 @@ export function OpportunitiesTable({ onViewDetails }: OpportunitiesTableProps) {
       header: 'Company',
       cell: ({ row }) => <div>{row.getValue('company')}</div>,
     },
-      {
-      accessorKey: 'columnId',
-      header: 'Stage',
-      cell: ({ row }) => {
-          const stage = leadColumns.find(c => c.id === row.getValue('columnId'))
-          return <div>{stage?.title}</div>
-      }
-    },
     {
       accessorKey: 'ownerId',
-      header: 'Owner',
+      header: 'Account Manager',
       cell: ({ row }) => {
         const owner = users.find(user => user.id === row.getValue('ownerId'));
         return (
@@ -141,19 +116,28 @@ export function OpportunitiesTable({ onViewDetails }: OpportunitiesTableProps) {
       },
       cell: ({ row }) => {
         const amount = parseFloat(row.getValue('value'));
+        const currency = row.original.currency;
   
         const formatted = new Intl.NumberFormat('en-US', {
           style: 'currency',
-          currency: 'USD',
+          currency: currency,
         }).format(amount);
   
         return <div className="text-right font-medium">{formatted}</div>;
       },
     },
     {
-      accessorKey: 'nextAction',
-      header: 'Next Action',
-      cell: ({ row }) => <div>{format(new Date(row.getValue('nextAction')), 'PPP')}</div>,
+      accessorKey: 'entryDate',
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          Close Date
+          <CaretSortIcon className="ml-2 h-4 w-4" />
+        </Button>
+      ),
+      cell: ({ row }) => <div>{format(new Date(row.original.internalReviewData?.finalApprovalDate || row.original.entryDate), 'PPP')}</div>,
     },
     {
       id: 'actions',
@@ -170,27 +154,9 @@ export function OpportunitiesTable({ onViewDetails }: OpportunitiesTableProps) {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(lead.id)}
-              >
-                Copy opportunity ID
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => onViewDetails(lead)}>
-                View details
+                View account details
               </DropdownMenuItem>
-              <DropdownMenuSub>
-                <DropdownMenuSubTrigger>Update stage</DropdownMenuSubTrigger>
-                <DropdownMenuPortal>
-                  <DropdownMenuSubContent>
-                    {opportunityStages.map(stage => (
-                      <DropdownMenuItem key={stage.id} onClick={() => handleStageUpdate(lead.id, stage.id)}>
-                        {stage.title}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuSubContent>
-                </DropdownMenuPortal>
-              </DropdownMenuSub>
             </DropdownMenuContent>
           </DropdownMenu>
         );
@@ -306,7 +272,7 @@ export function OpportunitiesTable({ onViewDetails }: OpportunitiesTableProps) {
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  No accounts found.
                 </TableCell>
               </TableRow>
             )}
