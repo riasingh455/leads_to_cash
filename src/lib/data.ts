@@ -17,6 +17,48 @@ export interface ProspectData {
   nextSteps: string;
 }
 
+export interface ProposalData {
+  templateUsed: string;
+  servicesIncluded: string;
+  pricingStructure: 'Fixed' | 'T&M' | 'Hybrid';
+  projectDuration: string; // e.g., '3 months'
+  resourceRequirements: string;
+  termsVersion: string;
+  revisionHistory: {
+    version: number;
+    date: string;
+    notes: string;
+  }[];
+}
+
+export interface InternalReviewData {
+  cstReviewStatus: 'Pending' | 'Approved' | 'Needs Changes';
+  cstReviewer?: string;
+  cstReviewDate?: string;
+  technicalFeasibilityNotes?: string;
+  resourceAvailabilityCheck: 'Completed' | 'Pending';
+  croReviewStatus: 'Pending' | 'Approved' | 'Needs Changes';
+  croReviewer?: string;
+  financialReviewDate?: string;
+  marginAnalysis?: string;
+  riskAssessment?: string;
+  finalApprovalDate?: string;
+  approvedBy?: string;
+}
+
+export interface ClientDeliveryData {
+  proposalSentDate: string;
+  proposalPresentationDate: string;
+  attendees: string;
+  decisionMakerPresent: 'Yes' | 'No';
+  clientQuestions: string;
+  clientFeedback: string;
+  additionalRequirements: string;
+  followUpActions: string;
+  decisionTimeline: string;
+  competitiveSituationUpdate: string;
+}
+
 export interface Lead {
   id: string;
   title: string; // Proposed Offering
@@ -46,6 +88,9 @@ export interface Lead {
       method: 'Email' | 'Call' | 'LinkedIn' | 'Meeting';
   }[];
   prospectData?: ProspectData;
+  proposalData?: ProposalData;
+  internalReviewData?: InternalReviewData;
+  clientDeliveryData?: ClientDeliveryData;
 }
 
 export interface Column {
@@ -62,9 +107,11 @@ export const users: User[] = [
 export const columns: Column[] = [
   { id: 'col-1', title: 'New Lead' },
   { id: 'col-2', title: 'Contacted' },
-  { id: 'col-prospect', title: 'Prospect'},
+  { id: 'col-prospect', title: 'Prospect' },
   { id: 'col-3', title: 'Qualified' },
-  { id: 'col-4', title: 'Proposal' },
+  { id: 'col-proposal', title: 'Proposal' },
+  { id: 'col-review', title: 'Internal Review' },
+  { id: 'col-delivery', title: 'Client Delivery' },
   { id: 'col-5', title: 'Closed Won' },
 ];
 
@@ -199,7 +246,7 @@ export const leads: Lead[] = [
     currency: 'GBP',
     score: 88,
     priority: 'High',
-    columnId: 'col-4',
+    columnId: 'col-proposal',
     ownerId: 'user-2',
     entryDate: '2024-05-11T13:00:00Z',
     lastContact: '2024-05-25T16:00:00Z',
@@ -217,6 +264,15 @@ export const leads: Lead[] = [
         { date: '2024-05-12T10:00:00Z', method: 'Email' },
         { date: '2024-05-19T14:00:00Z', method: 'Meeting' },
     ],
+    proposalData: {
+      templateUsed: 'Enterprise E-commerce v2.1',
+      servicesIncluded: 'Platform setup, custom theme, data migration, 2 months support',
+      pricingStructure: 'Fixed',
+      projectDuration: '4 months',
+      resourceRequirements: '1 PM, 2 Devs, 1 QA',
+      termsVersion: 'v3.2',
+      revisionHistory: [{ version: 1, date: '2024-05-26T10:00:00Z', notes: 'Initial draft' }],
+    },
   },
   {
     id: 'lead-6',
@@ -228,7 +284,7 @@ export const leads: Lead[] = [
     currency: 'USD',
     score: 72,
     priority: 'Medium',
-    columnId: 'col-2',
+    columnId: 'col-review',
     ownerId: 'user-3',
     entryDate: '2024-05-12T16:00:00Z',
     lastContact: '2024-05-18T12:00:00Z',
@@ -244,6 +300,14 @@ export const leads: Lead[] = [
     followUpCadence: [
         { date: '2024-05-13T11:00:00Z', method: 'Email' },
     ],
+    internalReviewData: {
+        cstReviewStatus: 'Approved',
+        cstReviewer: 'Tech Lead A',
+        cstReviewDate: '2024-05-20T10:00:00Z',
+        technicalFeasibilityNotes: 'Standard dashboard build, no issues.',
+        resourceAvailabilityCheck: 'Completed',
+        croReviewStatus: 'Pending',
+    },
   },
     {
     id: 'lead-7',
@@ -255,7 +319,7 @@ export const leads: Lead[] = [
     currency: 'USD',
     score: 95,
     priority: 'High',
-    columnId: 'col-3',
+    columnId: 'col-delivery',
     ownerId: 'user-2',
     entryDate: '2024-05-15T11:00:00Z',
     lastContact: '2024-05-22T15:00:00Z',
@@ -273,6 +337,18 @@ export const leads: Lead[] = [
         { date: '2024-05-16T10:00:00Z', method: 'LinkedIn' },
         { date: '2024-05-22T15:00:00Z', method: 'Meeting' },
     ],
+    clientDeliveryData: {
+        proposalSentDate: '2024-05-23T10:00:00Z',
+        proposalPresentationDate: '2024-05-25T14:00:00Z',
+        attendees: 'David Chen, Sarah (IT Manager)',
+        decisionMakerPresent: 'Yes',
+        clientQuestions: 'Questions about post-audit support.',
+        clientFeedback: 'Positive feedback on the thoroughness of the proposal.',
+        additionalRequirements: 'Requested a detailed timeline.',
+        followUpActions: 'Send revised proposal with timeline.',
+        decisionTimeline: 'End of month.',
+        competitiveSituationUpdate: 'They are also talking to a competitor.',
+    },
   },
   {
     id: 'lead-8',
@@ -303,5 +379,3 @@ export const leads: Lead[] = [
     ],
   },
 ];
-
-    

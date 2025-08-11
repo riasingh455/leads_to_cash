@@ -12,6 +12,9 @@ export default {
     // This is a safelist for the dynamic grid columns in the dialog
     'grid-cols-5',
     'grid-cols-6',
+    'grid-cols-7',
+    'grid-cols-8',
+    'grid-cols-9',
   ],
   theme: {
     extend: {

@@ -48,7 +48,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 
-const opportunityStageIds = ['col-prospect', 'col-3', 'col-4', 'col-5'];
+const opportunityStageIds = ['col-prospect', 'col-3', 'col-proposal', 'col-review', 'col-delivery', 'col-5'];
 const opportunityStages = leadColumns.filter(c => opportunityStageIds.includes(c.id));
 
 interface OpportunitiesTableProps {

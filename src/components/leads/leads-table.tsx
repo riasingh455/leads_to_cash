@@ -45,7 +45,7 @@ import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 
 export function LeadsTable({ onViewDetails }: { onViewDetails: (lead: Lead) => void }) {
-  const [leads, setLeads] = React.useState<Lead[]>(initialLeads.filter(lead => !['col-prospect', 'col-3', 'col-4', 'col-5'].includes(lead.columnId)));
+  const [leads, setLeads] = React.useState<Lead[]>(initialLeads.filter(lead => !['col-prospect', 'col-3', 'col-proposal', 'col-review', 'col-delivery', 'col-5'].includes(lead.columnId)));
   const { toast } = useToast();
 
   const handleMarkAsOpportunity = (leadId: string) => {
