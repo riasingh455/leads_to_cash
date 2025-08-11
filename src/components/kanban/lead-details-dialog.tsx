@@ -63,12 +63,15 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
     contract: stageIndex >= columns.findIndex(c => c.id === 'col-contract'),
   };
 
+  const isLateStageDeal = tabVisibility.delivery || tabVisibility.contract;
+
   const visibleTabs = ['details', 'follow-up', 
     tabVisibility.prospecting && 'prospecting',
     tabVisibility.proposal && 'proposal',
     tabVisibility.review && 'review',
-    tabVisibility.delivery && 'delivery',
-    tabVisibility.contract && 'contract',
+    isLateStageDeal ? 'delivery-contract' : null,
+    !isLateStageDeal && tabVisibility.delivery ? 'delivery' : null,
+    !isLateStageDeal && tabVisibility.contract ? 'contract' : null,
     'stakeholders', 'next-steps', 'documents'].filter(Boolean) as string[];
 
   return (
@@ -79,20 +82,21 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
           <DialogDescription>{lead.company}</DialogDescription>
         </DialogHeader>
         <div className="flex-grow overflow-hidden">
-          <Tabs defaultValue="details" className="flex flex-col h-full">
+          <Tabs defaultValue={isLateStageDeal ? "delivery-contract" : "details"} className="flex flex-col h-full">
             <TabsList className={`grid w-full grid-cols-10`}>
               {visibleTabs.includes('details') && <TabsTrigger value="details">Details</TabsTrigger>}
               {visibleTabs.includes('follow-up') && <TabsTrigger value="follow-up"><Handshake className="w-4 h-4 mr-2"/>Follow-up</TabsTrigger>}
               {visibleTabs.includes('prospecting') && <TabsTrigger value="prospecting"><Target className="w-4 h-4 mr-2" />Prospecting</TabsTrigger>}
               {visibleTabs.includes('proposal') && <TabsTrigger value="proposal"><FileUp className="w-4 h-4 mr-2" />Proposal</TabsTrigger>}
               {visibleTabs.includes('review') && <TabsTrigger value="review"><Search className="w-4 h-4 mr-2" />Review</TabsTrigger>}
+              {visibleTabs.includes('delivery-contract') && <TabsTrigger value="delivery-contract"><FileSignature className="w-4 h-4 mr-2" />Delivery & Contract</TabsTrigger>}
               {visibleTabs.includes('delivery') && <TabsTrigger value="delivery"><Presentation className="w-4 h-4 mr-2" />Delivery</TabsTrigger>}
               {visibleTabs.includes('contract') && <TabsTrigger value="contract"><FileSignature className="w-4 h-4 mr-2" />Contract</TabsTrigger>}
               {visibleTabs.includes('stakeholders') && <TabsTrigger value="stakeholders" disabled={!canUseAiFeatures}><Users className="w-4 h-4 mr-2"/>Stakeholders</TabsTrigger>}
               {visibleTabs.includes('next-steps') && <TabsTrigger value="next-steps" disabled={!canUseAiFeatures}><Lightbulb className="w-4 h-4 mr-2"/>Next Steps</TabsTrigger>}
               {visibleTabs.includes('documents') && <TabsTrigger value="documents"><FolderKanban className="w-4 h-4 mr-2"/>Documents</TabsTrigger>}
             </TabsList>
-
+            
             <TabsContent value="details" className="flex-grow overflow-auto p-1">
               <Card>
                 <CardContent className="p-6 grid md:grid-cols-2 gap-8">
@@ -332,22 +336,25 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
                 </Card>
               </TabsContent>
             )}
-            {tabVisibility.delivery && (
-              <TabsContent value="delivery" className="flex-grow overflow-auto p-1">
+            
+            <TabsContent value="delivery-contract" className="flex-grow overflow-auto p-1 space-y-4">
                  <Card>
-                  <CardHeader><CardTitle>Client Delivery</CardTitle></CardHeader>
+                  <CardHeader>
+                    <CardTitle className='flex items-center gap-2'><Presentation className="w-6 h-6 text-primary" />Client Delivery</CardTitle>
+                    <CardDescription>Details of the proposal presentation and client feedback.</CardDescription>
+                  </CardHeader>
                   <CardContent>
                     {lead.clientDeliveryData ? (
                        <div className="space-y-6">
                          <div>
-                          <h4 className="font-semibold flex items-center gap-2 mb-2"><Presentation className="w-5 h-5 text-primary" />Client Presentation</h4>
+                          <h4 className="font-semibold flex items-center gap-2 mb-2"><Users2 className="w-5 h-5 text-primary" />Client Presentation</h4>
                            <div className="text-sm grid md:grid-cols-2 gap-x-8 gap-y-2 pl-7">
                               <DetailRow label="Proposal Sent" value={format(new Date(lead.clientDeliveryData.proposalSentDate), 'PPP')} />
                               <DetailRow label="Presentation Date" value={format(new Date(lead.clientDeliveryData.proposalPresentationDate), 'PPP')} />
                               <DetailRow label="Presentation Method" value={lead.clientDeliveryData.presentationMethod} />
                               <DetailRow label="Decision Maker Present" value={lead.clientDeliveryData.decisionMakerPresent} />
                               <div className="col-span-2 space-y-1">
-                                <p className="font-medium text-muted-foreground flex items-center gap-2"><Users2 className="w-4 h-4"/>Attendees:</p>
+                                <p className="font-medium text-muted-foreground">Attendees:</p>
                                 <p className="whitespace-pre-wrap pl-6">{lead.clientDeliveryData.attendees}</p>
                               </div>
                            </div>
@@ -384,12 +391,11 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
                     ) : <p className="text-muted-foreground">No client delivery data available.</p>}
                   </CardContent>
                  </Card>
-              </TabsContent>
-            )}
-             {tabVisibility.contract && (
-              <TabsContent value="contract" className="flex-grow overflow-auto p-1">
                  <Card>
-                  <CardHeader><CardTitle>Contract Stage</CardTitle></CardHeader>
+                  <CardHeader>
+                    <CardTitle className='flex items-center gap-2'><FileSignature className="w-6 h-6 text-primary" />Contract</CardTitle>
+                    <CardDescription>Details of the legal agreement and final terms.</CardDescription>
+                  </CardHeader>
                   <CardContent>
                     {lead.contractData ? (
                        <div className="space-y-6">
@@ -440,6 +446,7 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
                  </Card>
               </TabsContent>
             )}
+
             <TabsContent value="stakeholders" className="flex-grow overflow-auto p-1">
               <StakeholderIdentification lead={lead} />
             </TabsContent>
@@ -473,3 +480,5 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
     </Dialog>
   );
 }
+
+    
