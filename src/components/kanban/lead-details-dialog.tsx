@@ -14,7 +14,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Phone, Mail, Users, Lightbulb, FolderKanban, Briefcase, Calendar, Handshake, Target, CheckCircle, Clock, Search, FileCheck2, UserCheck, ShieldCheck, DollarSign, AlertTriangle, Building, Truck, Presentation, FileUp, Edit } from 'lucide-react';
+import { FileText, Phone, Mail, Users, Lightbulb, FolderKanban, Briefcase, Calendar, Handshake, Target, CheckCircle, Clock, Search, FileCheck2, UserCheck, ShieldCheck, DollarSign, AlertTriangle, Building, Truck, Presentation, FileUp, Edit, Info, Users2 } from 'lucide-react';
 import type { Lead, User } from '@/lib/data';
 import { users, columns } from '@/lib/data';
 import { format } from 'date-fns';
@@ -33,10 +33,10 @@ interface LeadDetailsDialogProps {
   currentUser: User;
 }
 
-const DetailRow = ({ label, value }: { label: string; value: React.ReactNode }) => (
+const DetailRow = ({ label, value, fullWidth = false }: { label: string; value: React.ReactNode, fullWidth?: boolean }) => (
     <>
         <span className="font-medium text-muted-foreground">{label}:</span>
-        <span className="break-all">{value}</span>
+        <span className={`break-words ${fullWidth ? 'col-span-full' : ''}`}>{value}</span>
     </>
 );
 
@@ -78,16 +78,16 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
         </DialogHeader>
         <div className="flex-grow overflow-hidden">
           <Tabs defaultValue="details" className="flex flex-col h-full">
-            <TabsList className={`grid w-full grid-cols-9`}>
-              <TabsTrigger value="details">Details</TabsTrigger>
-              <TabsTrigger value="follow-up"><Handshake className="w-4 h-4 mr-2"/>Follow-up</TabsTrigger>
-              {tabVisibility.prospecting && <TabsTrigger value="prospecting"><Target className="w-4 h-4 mr-2" />Prospecting</TabsTrigger>}
-              {tabVisibility.proposal && <TabsTrigger value="proposal"><FileUp className="w-4 h-4 mr-2" />Proposal</TabsTrigger>}
-              {tabVisibility.review && <TabsTrigger value="review"><Search className="w-4 h-4 mr-2" />Review</TabsTrigger>}
-              {tabVisibility.delivery && <TabsTrigger value="delivery"><Presentation className="w-4 h-4 mr-2" />Delivery</TabsTrigger>}
-              <TabsTrigger value="stakeholders" disabled={!canUseAiFeatures}><Users className="w-4 h-4 mr-2"/>Stakeholders</TabsTrigger>
-              <TabsTrigger value="next-steps" disabled={!canUseAiFeatures}><Lightbulb className="w-4 h-4 mr-2"/>Next Steps</TabsTrigger>
-              <TabsTrigger value="documents"><FolderKanban className="w-4 h-4 mr-2"/>Documents</TabsTrigger>
+            <TabsList className={`grid w-full grid-cols-${visibleTabs.length}`}>
+              {visibleTabs.includes('details') && <TabsTrigger value="details">Details</TabsTrigger>}
+              {visibleTabs.includes('follow-up') && <TabsTrigger value="follow-up"><Handshake className="w-4 h-4 mr-2"/>Follow-up</TabsTrigger>}
+              {visibleTabs.includes('prospecting') && <TabsTrigger value="prospecting"><Target className="w-4 h-4 mr-2" />Prospecting</TabsTrigger>}
+              {visibleTabs.includes('proposal') && <TabsTrigger value="proposal"><FileUp className="w-4 h-4 mr-2" />Proposal</TabsTrigger>}
+              {visibleTabs.includes('review') && <TabsTrigger value="review"><Search className="w-4 h-4 mr-2" />Review</TabsTrigger>}
+              {visibleTabs.includes('delivery') && <TabsTrigger value="delivery"><Presentation className="w-4 h-4 mr-2" />Delivery</TabsTrigger>}
+              {visibleTabs.includes('stakeholders') && <TabsTrigger value="stakeholders" disabled={!canUseAiFeatures}><Users className="w-4 h-4 mr-2"/>Stakeholders</TabsTrigger>}
+              {visibleTabs.includes('next-steps') && <TabsTrigger value="next-steps" disabled={!canUseAiFeatures}><Lightbulb className="w-4 h-4 mr-2"/>Next Steps</TabsTrigger>}
+              {visibleTabs.includes('documents') && <TabsTrigger value="documents"><FolderKanban className="w-4 h-4 mr-2"/>Documents</TabsTrigger>}
             </TabsList>
 
             <TabsContent value="details" className="flex-grow overflow-auto p-1">
@@ -335,34 +335,47 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
                   <CardHeader><CardTitle>Client Delivery</CardTitle></CardHeader>
                   <CardContent>
                     {lead.clientDeliveryData ? (
-                       <div className="text-sm grid md:grid-cols-2 gap-x-8 gap-y-4">
-                          <DetailRow label="Proposal Sent" value={format(new Date(lead.clientDeliveryData.proposalSentDate), 'PPP')} />
-                          <DetailRow label="Presentation Date" value={format(new Date(lead.clientDeliveryData.proposalPresentationDate), 'PPP')} />
-                          <DetailRow label="Decision Maker Present" value={lead.clientDeliveryData.decisionMakerPresent} />
-                          <DetailRow label="Decision Timeline" value={lead.clientDeliveryData.decisionTimeline} />
-                          <div className="col-span-2 space-y-1">
-                            <p className="font-medium text-muted-foreground">Attendees:</p>
-                            <p className="whitespace-pre-wrap">{lead.clientDeliveryData.attendees}</p>
-                          </div>
-                          <div className="col-span-2 space-y-1">
-                            <p className="font-medium text-muted-foreground">Client Questions/Objections:</p>
-                            <p className="whitespace-pre-wrap">{lead.clientDeliveryData.clientQuestions}</p>
-                          </div>
-                          <div className="col-span-2 space-y-1">
-                            <p className="font-medium text-muted-foreground">Client Feedback:</p>
-                            <p className="whitespace-pre-wrap">{lead.clientDeliveryData.clientFeedback}</p>
-                          </div>
-                          <div className="col-span-2 space-y-1">
-                            <p className="font-medium text-muted-foreground">Additional Requirements:</p>
-                            <p className="whitespace-pre-wrap">{lead.clientDeliveryData.additionalRequirements}</p>
-                          </div>
-                          <div className="col-span-2 space-y-1">
-                            <p className="font-medium text-muted-foreground">Follow-up Actions:</p>
-                            <p className="whitespace-pre-wrap">{lead.clientDeliveryData.followUpActions}</p>
-                          </div>
-                          <div className="col-span-2 space-y-1">
-                            <p className="font-medium text-muted-foreground">Competitive Situation:</p>
-                            <p className="whitespace-pre-wrap">{lead.clientDeliveryData.competitiveSituationUpdate}</p>
+                       <div className="space-y-6">
+                         <div>
+                          <h4 className="font-semibold flex items-center gap-2 mb-2"><Presentation className="w-5 h-5 text-primary" />Client Presentation</h4>
+                           <div className="text-sm grid md:grid-cols-2 gap-x-8 gap-y-2 pl-7">
+                              <DetailRow label="Proposal Sent" value={format(new Date(lead.clientDeliveryData.proposalSentDate), 'PPP')} />
+                              <DetailRow label="Presentation Date" value={format(new Date(lead.clientDeliveryData.proposalPresentationDate), 'PPP')} />
+                              <DetailRow label="Presentation Method" value={lead.clientDeliveryData.presentationMethod} />
+                              <DetailRow label="Decision Maker Present" value={lead.clientDeliveryData.decisionMakerPresent} />
+                              <div className="col-span-2 space-y-1">
+                                <p className="font-medium text-muted-foreground flex items-center gap-2"><Users2 className="w-4 h-4"/>Attendees:</p>
+                                <p className="whitespace-pre-wrap pl-6">{lead.clientDeliveryData.attendees}</p>
+                              </div>
+                           </div>
+                         </div>
+                         <Separator />
+                          <div>
+                            <h4 className="font-semibold flex items-center gap-2 mb-2"><Info className="w-5 h-5 text-blue-500" />Feedback & Negotiation</h4>
+                            <div className="text-sm grid md:grid-cols-2 gap-x-8 gap-y-2 pl-7">
+                              <DetailRow label="Revision Requested" value={lead.clientDeliveryData.proposalRevisionRequested} />
+                              <DetailRow label="Decision Timeline" value={lead.clientDeliveryData.decisionTimeline} />
+                              <div className="col-span-2 space-y-1">
+                                <p className="font-medium text-muted-foreground">Client Feedback:</p>
+                                <p className="whitespace-pre-wrap pl-6">{lead.clientDeliveryData.clientFeedback}</p>
+                              </div>
+                              <div className="col-span-2 space-y-1">
+                                <p className="font-medium text-muted-foreground">Client Questions/Objections:</p>
+                                <p className="whitespace-pre-wrap pl-6">{lead.clientDeliveryData.clientQuestions}</p>
+                              </div>
+                               <div className="col-span-2 space-y-1">
+                                <p className="font-medium text-muted-foreground">Additional Requirements:</p>
+                                <p className="whitespace-pre-wrap pl-6">{lead.clientDeliveryData.additionalRequirements}</p>
+                              </div>
+                              <div className="col-span-2 space-y-1">
+                                <p className="font-medium text-muted-foreground">Follow-up Actions:</p>
+                                <p className="whitespace-pre-wrap pl-6">{lead.clientDeliveryData.followUpActions}</p>
+                              </div>
+                               <div className="col-span-2 space-y-1">
+                                <p className="font-medium text-muted-foreground">Competitive Situation:</p>
+                                <p className="whitespace-pre-wrap pl-6">{lead.clientDeliveryData.competitiveSituationUpdate}</p>
+                              </div>
+                            </div>
                           </div>
                        </div>
                     ) : <p className="text-muted-foreground">No client delivery data available.</p>}
@@ -403,3 +416,5 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
     </Dialog>
   );
 }
+
+    

@@ -49,14 +49,16 @@ export interface InternalReviewData {
 export interface ClientDeliveryData {
   proposalSentDate: string;
   proposalPresentationDate: string;
+  presentationMethod: 'In-person' | 'Virtual' | 'Email only';
   attendees: string;
   decisionMakerPresent: 'Yes' | 'No';
-  clientQuestions: string;
   clientFeedback: string;
+  clientQuestions: string;
   additionalRequirements: string;
+  competitiveSituationUpdate: string;
+  proposalRevisionRequested: 'Yes' | 'No';
   followUpActions: string;
   decisionTimeline: string;
-  competitiveSituationUpdate: string;
 }
 
 export interface Lead {
@@ -340,14 +342,16 @@ export const leads: Lead[] = [
     clientDeliveryData: {
         proposalSentDate: '2024-05-23T10:00:00Z',
         proposalPresentationDate: '2024-05-25T14:00:00Z',
-        attendees: 'David Chen, Sarah (IT Manager)',
+        presentationMethod: 'Virtual',
+        attendees: 'David Chen (CISO), Sarah (IT Manager)',
         decisionMakerPresent: 'Yes',
-        clientQuestions: 'Questions about post-audit support.',
         clientFeedback: 'Positive feedback on the thoroughness of the proposal.',
-        additionalRequirements: 'Requested a detailed timeline.',
-        followUpActions: 'Send revised proposal with timeline.',
+        clientQuestions: 'Questions about post-audit support and remediation services.',
+        additionalRequirements: 'Requested a detailed timeline for the audit process.',
+        competitiveSituationUpdate: 'They are also talking to a competitor, but feel our proposal is more comprehensive.',
+        proposalRevisionRequested: 'Yes',
+        followUpActions: 'Send revised proposal with timeline and pricing for remediation services.',
         decisionTimeline: 'End of month.',
-        competitiveSituationUpdate: 'They are also talking to a competitor.',
     },
   },
   {
@@ -379,3 +383,5 @@ export const leads: Lead[] = [
     ],
   },
 ];
+
+    
