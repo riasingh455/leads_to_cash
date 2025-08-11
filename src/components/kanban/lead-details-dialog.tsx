@@ -1,3 +1,4 @@
+
 'use client';
 import React from 'react';
 import {
@@ -43,6 +44,11 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
   const prospectStageIndex = columns.findIndex(c => c.id === 'col-prospect');
   const showProspectTab = stageIndex >= prospectStageIndex;
 
+  const visibleTabs = ['details', 'follow-up', 'stakeholders', 'next-steps', 'documents'];
+  if (showProspectTab) {
+    visibleTabs.splice(2, 0, 'prospecting');
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl h-[90vh] flex flex-col">
@@ -52,7 +58,7 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
         </DialogHeader>
         <div className="flex-grow overflow-hidden">
           <Tabs defaultValue="details" className="flex flex-col h-full">
-            <TabsList className="grid w-full grid-cols-6">
+            <TabsList className={`grid w-full grid-cols-${visibleTabs.length}`}>
               <TabsTrigger value="details">Details</TabsTrigger>
               <TabsTrigger value="follow-up"><Handshake className="w-4 h-4 mr-2"/>Follow-up</TabsTrigger>
               {showProspectTab && <TabsTrigger value="prospecting"><Target className="w-4 h-4 mr-2" />Prospecting</TabsTrigger>}
@@ -222,5 +228,3 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
     </Dialog>
   );
 }
-
-    
