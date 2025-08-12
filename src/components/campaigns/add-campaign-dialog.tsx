@@ -224,7 +224,6 @@ export function AddCampaignDialog({ isOpen, onOpenChange, onCampaignAndLeadsAdde
                               </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                              <Conference className="mr-2 h-4 w-4" /> <span>Conference</span>
                               <SelectItem value="Conference">Conference</SelectItem>
                               <SelectItem value="Webinar">Webinar</SelectItem>
                               <SelectItem value="Trade Show">Trade Show</SelectItem>
