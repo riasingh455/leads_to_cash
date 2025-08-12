@@ -69,7 +69,7 @@ export function AddLeadDialog({ isOpen, onOpenChange, onLeadAdded, users, defaul
       value: 0,
       currency: 'USD',
       ownerId: salesReps[0]?.id || '',
-      campaignId: defaultCampaignId,
+      campaignId: defaultCampaignId || 'none',
     },
   });
 
@@ -81,7 +81,7 @@ export function AddLeadDialog({ isOpen, onOpenChange, onLeadAdded, users, defaul
       value: values.value,
       currency: values.currency,
       ownerId: values.ownerId,
-      campaignId: values.campaignId,
+      campaignId: values.campaignId === 'none' ? undefined : values.campaignId,
       contact: {
         name: values.contactName,
         email: values.contactEmail,
@@ -254,7 +254,7 @@ export function AddLeadDialog({ isOpen, onOpenChange, onLeadAdded, users, defaul
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="">None</SelectItem>
+                      <SelectItem value="none">None</SelectItem>
                       {campaigns.map((campaign) => (
                         <SelectItem key={campaign.id} value={campaign.id}>{campaign.name}</SelectItem>
                       ))}
