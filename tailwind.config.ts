@@ -20,6 +20,7 @@ export default {
     'grid-cols-8',
     'grid-cols-9',
     'grid-cols-10',
+    'grid-cols-11',
   ],
   theme: {
     extend: {
@@ -111,3 +112,5 @@ export default {
   },
   plugins: [require('tailwindcss-animate')],
 } satisfies Config;
+
+    

@@ -26,6 +26,7 @@ import {
   FolderKanban,
   ClipboardCheck,
   FileSignature,
+  BookUser,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -87,6 +88,12 @@ export default function ClientDeliveryPage() {
                 <SidebarMenuButton href="/client-delivery" isActive>
                   <FileSignature />
                   <span>Client Delivery/Contract</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton href="/implementation">
+                  <BookUser />
+                  <span>Implementation</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
@@ -169,3 +176,5 @@ function UserMenu({ user, setUser }: { user: User, setUser: (user: User) => void
     </DropdownMenu>
   );
 }
+
+    

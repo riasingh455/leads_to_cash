@@ -14,7 +14,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Phone, Mail, Users, Lightbulb, FolderKanban, Briefcase, Calendar, Handshake, Target, CheckCircle, Clock, Search, FileCheck2, UserCheck, ShieldCheck, DollarSign, AlertTriangle, Building, Truck, Presentation, FileUp, Edit, Info, Users2, FileSignature, Newspaper } from 'lucide-react';
+import { FileText, Phone, Mail, Users, Lightbulb, FolderKanban, Briefcase, Calendar, Handshake, Target, CheckCircle, Clock, Search, FileCheck2, UserCheck, ShieldCheck, DollarSign, AlertTriangle, Building, Truck, Presentation, FileUp, Edit, Info, Users2, FileSignature, Newspaper, BookUser } from 'lucide-react';
 import type { Lead, User } from '@/lib/data';
 import { users, columns } from '@/lib/data';
 import { format } from 'date-fns';
@@ -62,6 +62,7 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
     review: stageIndex >= columns.findIndex(c => c.id === 'col-review'),
     delivery: stageIndex >= columns.findIndex(c => c.id === 'col-delivery'),
     contract: stageIndex >= columns.findIndex(c => c.id === 'col-contract'),
+    implementation: stageIndex >= columns.findIndex(c => c.id === 'col-implementation'),
   };
 
   const isLateStageDeal = tabVisibility.delivery || tabVisibility.contract;
@@ -73,6 +74,7 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
     tabVisibility.proposal && { id: 'proposal', label: 'Proposal', icon: <FileUp className="w-4 h-4 mr-2" /> },
     tabVisibility.review && { id: 'review', label: 'Review', icon: <Search className="w-4 h-4 mr-2" /> },
     isLateStageDeal && { id: 'delivery-contract', label: 'Delivery & Contract', icon: <FileSignature className="w-4 h-4 mr-2" /> },
+    tabVisibility.implementation && { id: 'implementation', label: 'Implementation', icon: <BookUser className="w-4 h-4 mr-2" /> },
     { id: 'stakeholders', label: 'Stakeholders', icon: <Users className="w-4 h-4 mr-2"/>, disabled: !canUseAiFeatures },
     { id: 'next-steps', label: 'Next Steps', icon: <Lightbulb className="w-4 h-4 mr-2"/>, disabled: !canUseAiFeatures },
     { id: 'documents', label: 'Documents', icon: <FolderKanban className="w-4 h-4 mr-2"/> }
@@ -448,6 +450,83 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
               </TabsContent>
             )}
 
+            {tabVisibility.implementation && (
+               <TabsContent value="implementation" className="flex-grow overflow-auto p-1">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Implementation & Training</CardTitle>
+                    <CardDescription>Tracking project delivery and user training.</CardDescription>
+                  </CardHeader>
+                   <CardContent>
+                      {lead.implementationAndTrainingData ? (
+                        <div className="space-y-6">
+                           <div>
+                            <h4 className="font-semibold flex items-center gap-2 mb-2"><Briefcase className="w-5 h-5 text-primary" />Project Delivery</h4>
+                            <div className="text-sm grid md:grid-cols-2 gap-x-8 gap-y-2 pl-7">
+                                <DetailRow label="Project Manager" value={lead.implementationAndTrainingData.projectManager} />
+                                <DetailRow label="Client POC" value={lead.implementationAndTrainingData.clientPoc} />
+                                <DetailRow label="Kickoff Date" value={format(new Date(lead.implementationAndTrainingData.kickoffDate), 'PPP')} />
+                                <DetailRow label="Go-Live Date" value={format(new Date(lead.implementationAndTrainingData.goLiveDate), 'PPP')} />
+                                <DetailRow label="Plan Status" value={lead.implementationAndTrainingData.implementationPlanStatus} />
+                                <DetailRow label="Team" value={lead.implementationAndTrainingData.implementationTeam.join(', ')} />
+                                <div className="col-span-2 space-y-1">
+                                  <p className="font-medium text-muted-foreground">Resource Allocation:</p>
+                                  <p className="whitespace-pre-wrap pl-6">{lead.implementationAndTrainingData.resourceAllocation}</p>
+                                </div>
+                            </div>
+                          </div>
+                          <Separator/>
+                           <div>
+                            <h4 className="font-semibold flex items-center gap-2 mb-2"><BookUser className="w-5 h-5 text-primary" />Training</h4>
+                            <div className="text-sm grid md:grid-cols-2 gap-x-8 gap-y-2 pl-7">
+                                <DetailRow label="Trainer" value={lead.implementationAndTrainingData.trainer} />
+                                <DetailRow label="Users to Train" value={lead.implementationAndTrainingData.usersToTrain} />
+                                <DetailRow label="Delivery Method" value={lead.implementationAndTrainingData.trainingDeliveryMethod} />
+                                <DetailRow label="Plan Status" value={lead.implementationAndTrainingData.trainingPlanStatus} />
+                                <div className="col-span-2 space-y-1">
+                                  <p className="font-medium text-muted-foreground">Schedule:</p>
+                                  <p className="whitespace-pre-wrap pl-6">{lead.implementationAndTrainingData.trainingSchedule}</p>
+                                </div>
+                                 <div className="col-span-2 space-y-1">
+                                  <p className="font-medium text-muted-foreground">Materials:</p>
+                                  <p className="whitespace-pre-wrap pl-6">{lead.implementationAndTrainingData.trainingMaterials.join(', ')}</p>
+                                </div>
+                            </div>
+                          </div>
+                          <Separator/>
+                            <div>
+                              <h4 className="font-semibold flex items-center gap-2 mb-2"><CheckCircle className="w-5 h-5 text-green-600" />Progress & Issues</h4>
+                              <div className="text-sm grid grid-cols-1 gap-y-4 pl-7">
+                                <div>
+                                    <p className="font-medium text-muted-foreground mb-2">Milestones:</p>
+                                    <ul className="space-y-2">
+                                    {lead.implementationAndTrainingData.milestoneTracking.map((m,i) => (
+                                        <li key={i} className="flex gap-4 items-center">
+                                            <Badge variant={m.status === 'Completed' ? 'default' : 'secondary'}>{m.status}</Badge>
+                                            <span>{m.milestone}</span>
+                                            <span className="text-muted-foreground">({format(new Date(m.date), 'PPP')})</span>
+                                        </li>
+                                    ))}
+                                    </ul>
+                                </div>
+                                <div className="space-y-1">
+                                  <p className="font-medium text-muted-foreground">Issues/Risks Log:</p>
+                                  <p className="whitespace-pre-wrap pl-6">{lead.implementationAndTrainingData.issuesLog}</p>
+                                </div>
+                                <div className="space-y-1">
+                                  <p className="font-medium text-muted-foreground">Change Requests:</p>
+                                  <p className="whitespace-pre-wrap pl-6">{lead.implementationAndTrainingData.changeRequests}</p>
+                                </div>
+                              </div>
+                            </div>
+
+                        </div>
+                      ) : <p className="text-muted-foreground">No implementation data available.</p>}
+                   </CardContent>
+                </Card>
+               </TabsContent>
+            )}
+
             <TabsContent value="stakeholders" className="flex-grow overflow-auto p-1">
               <StakeholderIdentification lead={lead} />
             </TabsContent>
@@ -481,3 +560,5 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
     </Dialog>
   );
 }
+
+    

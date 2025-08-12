@@ -23,7 +23,6 @@ import {
   ChevronsUpDown,
   Building,
   Settings,
-  FolderKanban,
   ClipboardCheck,
   FileSignature,
   BookUser,
@@ -42,32 +41,11 @@ import { Button } from '@/components/ui/button';
 import { users, type User, type Lead, leads as initialLeads } from '@/lib/data';
 import { DashboardHeader } from '@/components/dashboard-header';
 import { LeadDetailsDialog } from '@/components/kanban/lead-details-dialog';
-import { ProposalsTable } from '@/components/proposals/proposals-table';
-import { AddProposalDialog } from '@/components/proposals/add-proposal-dialog';
+import { ImplementationTable } from '@/components/implementation/implementation-table';
 
-export default function ProposalsPage() {
+export default function ImplementationPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
-  const [isAddProposalOpen, setIsAddProposalOpen] = useState(false);
-  const [leads, setLeads] = useState<Lead[]>(initialLeads);
-
-  const handleAddProposal = (leadId: string, proposalData: any) => {
-    setLeads((prevLeads) => {
-      const leadIndex = prevLeads.findIndex(l => l.id === leadId);
-      if (leadIndex !== -1) {
-        const updatedLeads = [...prevLeads];
-        const updatedLead = { ...updatedLeads[leadIndex] };
-        updatedLead.columnId = 'col-proposal';
-        updatedLead.proposalData = {
-          ...proposalData,
-          revisionHistory: [{ version: 1, date: new Date().toISOString(), notes: 'Initial draft' }],
-        };
-        updatedLeads[leadIndex] = updatedLead;
-        return updatedLeads;
-      }
-      return prevLeads;
-    });
-  };
 
   return (
     <SidebarProvider defaultOpen>
@@ -100,7 +78,7 @@ export default function ProposalsPage() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton href="/proposals" isActive>
+                <SidebarMenuButton href="/proposals">
                   <ClipboardCheck />
                   <span>Proposals/Review</span>
                 </SidebarMenuButton>
@@ -112,7 +90,7 @@ export default function ProposalsPage() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton href="/implementation">
+                <SidebarMenuButton href="/implementation" isActive>
                   <BookUser />
                   <span>Implementation</span>
                 </SidebarMenuButton>
@@ -126,13 +104,11 @@ export default function ProposalsPage() {
         <SidebarInset>
           <DashboardHeader 
             user={currentUser} 
-            title="Proposals & Reviews" 
-            description="Track and manage deals in the late stages of the sales cycle." 
-            onAddButtonClick={() => setIsAddProposalOpen(true)}
-            addButtonText="Add Proposal"
+            title="Implementation & Training" 
+            description="Manage project delivery and user training for closed deals."
           />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
-            <ProposalsTable onViewDetails={setSelectedLead} leads={leads} />
+            <ImplementationTable onViewDetails={setSelectedLead} leads={initialLeads} />
           </main>
         </SidebarInset>
       </div>
@@ -141,12 +117,6 @@ export default function ProposalsPage() {
         isOpen={!!selectedLead}
         onOpenChange={(isOpen) => !isOpen && setSelectedLead(null)}
         currentUser={currentUser}
-      />
-      <AddProposalDialog
-        isOpen={isAddProposalOpen}
-        onOpenChange={setIsAddProposalOpen}
-        onProposalAdded={handleAddProposal}
-        leads={leads}
       />
     </SidebarProvider>
   );

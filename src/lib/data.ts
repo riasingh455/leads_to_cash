@@ -79,6 +79,26 @@ export interface ContractData {
   projectSuccessCriteria: string;
 }
 
+export interface ImplementationAndTrainingData {
+  projectManager: string;
+  implementationTeam: string[];
+  clientPoc: string;
+  kickoffDate: string;
+  goLiveDate: string;
+  implementationPlanStatus: 'Created' | 'Pending';
+  resourceAllocation: string;
+  trainingPlanStatus: 'Created' | 'Pending';
+  trainer: string;
+  trainingMaterials: string[];
+  usersToTrain: number;
+  trainingSchedule: string;
+  trainingDeliveryMethod: 'On-site' | 'Virtual' | 'Hybrid';
+  milestoneTracking: { milestone: string; date: string; status: 'Completed' | 'In-progress' | 'Pending' }[];
+  statusUpdates: { date: string; update: string }[];
+  issuesLog: string;
+  changeRequests: string;
+}
+
 export interface Lead {
   id: string;
   title: string; // Proposed Offering
@@ -112,6 +132,7 @@ export interface Lead {
   internalReviewData?: InternalReviewData;
   clientDeliveryData?: ClientDeliveryData;
   contractData?: ContractData;
+  implementationAndTrainingData?: ImplementationAndTrainingData;
 }
 
 export interface Column {
@@ -134,6 +155,7 @@ export const columns: Column[] = [
   { id: 'col-review', title: 'Internal Review' },
   { id: 'col-delivery', title: 'Client Delivery' },
   { id: 'col-contract', title: 'Contract' },
+  { id: 'col-implementation', title: 'Implementation' },
   { id: 'col-5', title: 'Closed Won' },
 ];
 
@@ -419,4 +441,54 @@ export const leads: Lead[] = [
       projectSuccessCriteria: '99.9% uptime, Go-live by Q4, User adoption rate of 90%.',
     },
   },
+  {
+    id: 'lead-9',
+    title: 'AI Chatbot Integration',
+    company: 'FutureTech',
+    companySize: '201-500',
+    industry: 'AI',
+    value: 88000,
+    currency: 'USD',
+    score: 91,
+    priority: 'High',
+    columnId: 'col-implementation',
+    ownerId: 'user-1',
+    entryDate: '2024-05-18T11:00:00Z',
+    lastContact: '2024-06-10T15:00:00Z',
+    nextAction: '2024-06-20T15:00:00Z',
+    source: 'Conference',
+    marketingCampaign: 'AI_World_2024',
+    region: 'North America',
+    contact: {
+      name: 'Ben Carter',
+      title: 'Innovation Lead',
+      email: 'ben.c@futuretech.com',
+      phone: '901-234-5678',
+    },
+    followUpCadence: [],
+    implementationAndTrainingData: {
+      projectManager: 'Alex Johnson',
+      implementationTeam: ['Dev A', 'Dev B'],
+      clientPoc: 'Ben Carter',
+      kickoffDate: '2024-06-15T10:00:00Z',
+      goLiveDate: '2024-08-15T10:00:00Z',
+      implementationPlanStatus: 'Created',
+      resourceAllocation: '2 FTE for 2 months',
+      trainingPlanStatus: 'Created',
+      trainer: 'Alex Johnson',
+      trainingMaterials: ['User Guide.pdf', 'Admin Manual.pdf'],
+      usersToTrain: 50,
+      trainingSchedule: 'Weekly sessions starting July 1st',
+      trainingDeliveryMethod: 'Virtual',
+      milestoneTracking: [
+        { milestone: 'Phase 1 Complete', date: '2024-07-15T10:00:00Z', status: 'Completed' },
+        { milestone: 'UAT Starts', date: '2024-08-01T10:00:00Z', status: 'In-progress' },
+      ],
+      statusUpdates: [{ date: '2024-06-20T10:00:00Z', update: 'Project kicked off, team introduced.' }],
+      issuesLog: 'No major issues.',
+      changeRequests: 'None.',
+    },
+  },
 ];
+
+    
