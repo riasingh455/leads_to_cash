@@ -114,7 +114,7 @@ export function CampaignsTable({ campaigns, onViewDetails, onDeleteCampaign }: C
           <AlertDialog>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0">
+                <Button variant="ghost" className="h-8 w-8 p-0" onClick={(e) => e.stopPropagation()}>
                   <span className="sr-only">Open menu</span>
                   <DotsHorizontalIcon className="h-4 w-4" />
                 </Button>
@@ -126,7 +126,7 @@ export function CampaignsTable({ campaigns, onViewDetails, onDeleteCampaign }: C
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <AlertDialogTrigger asChild>
-                  <DropdownMenuItem className="text-red-600">
+                  <DropdownMenuItem className="text-red-600" onSelect={(e) => e.preventDefault()}>
                     Delete
                   </DropdownMenuItem>
                 </AlertDialogTrigger>
