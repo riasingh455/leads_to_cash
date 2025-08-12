@@ -110,12 +110,6 @@ export default function ProposalsPage() {
                   <span>Client Delivery/Contract</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton href="/accounts">
-                  <FolderKanban />
-                  <span>Accounts</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarContent>
           <SidebarFooter>
