@@ -46,6 +46,7 @@ import { AddCampaignDialog } from '@/components/campaigns/add-campaign-dialog';
 import { CampaignsTable } from '@/components/campaigns/campaigns-table';
 import { CampaignDetailsView } from '@/components/campaigns/campaign-details-view';
 import { AddLeadDialog } from '@/components/leads/add-lead-dialog';
+import { LeadDetailsDialog } from '@/components/kanban/lead-details-dialog';
 
 export default function CampaignsPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
@@ -54,6 +55,7 @@ export default function CampaignsPage() {
   const [campaignList, setCampaignList] = useState<Campaign[]>(campaigns);
   const [leadList, setLeadList] = useState<Lead[]>(leads);
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
 
   const handleAddCampaign = (newCampaign: Campaign, newLeads: Lead[]) => {
     setCampaignList((prev) => [newCampaign, ...prev]);
@@ -159,6 +161,7 @@ export default function CampaignsPage() {
                 campaign={selectedCampaign} 
                 leads={campaignLeads}
                 onBack={handleBackToList}
+                onViewLeadDetails={setSelectedLead}
               />
             ) : (
               <CampaignsTable 
@@ -180,6 +183,12 @@ export default function CampaignsPage() {
         onLeadAdded={handleAddLead}
         users={users}
         defaultCampaignId={selectedCampaign?.id}
+      />
+       <LeadDetailsDialog
+        lead={selectedLead}
+        isOpen={!!selectedLead}
+        onOpenChange={(isOpen) => !isOpen && setSelectedLead(null)}
+        currentUser={currentUser}
       />
     </SidebarProvider>
   );

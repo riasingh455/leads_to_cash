@@ -14,6 +14,7 @@ interface CampaignDetailsViewProps {
   campaign: Campaign;
   leads: Lead[];
   onBack: () => void;
+  onViewLeadDetails: (lead: Lead) => void;
 }
 
 const DetailRow = ({ icon, label, value }: { icon: React.ElementType, label: string, value: React.ReactNode }) => (
@@ -32,7 +33,7 @@ const DetailCard = ({ title, children }: { title: string, children: React.ReactN
     </Card>
 )
 
-export function CampaignDetailsView({ campaign, leads, onBack }: CampaignDetailsViewProps) {
+export function CampaignDetailsView({ campaign, leads, onBack, onViewLeadDetails }: CampaignDetailsViewProps) {
     
   const totalLeads = leads.length;
   const totalValue = leads.reduce((sum, lead) => sum + lead.value, 0);
@@ -119,7 +120,7 @@ export function CampaignDetailsView({ campaign, leads, onBack }: CampaignDetails
             <Card>
                 <CardHeader><CardTitle>Leads from this Campaign</CardTitle></CardHeader>
                 <CardContent>
-                    <LeadsTable onViewDetails={() => {}} initialLeads={leads} />
+                    <LeadsTable onViewDetails={onViewLeadDetails} initialLeads={leads} />
                 </CardContent>
             </Card>
         </div>
