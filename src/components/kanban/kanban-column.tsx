@@ -3,6 +3,10 @@
 import React, { useState } from 'react';
 import { KanbanCard } from './kanban-card';
 import type { Column, Lead, User } from '@/lib/data';
+import { Button } from '../ui/button';
+
+const INITIAL_VISIBLE_CARDS = 5;
+const CARDS_TO_LOAD = 5;
 
 interface KanbanColumnProps {
   column: Column;
@@ -16,6 +20,7 @@ interface KanbanColumnProps {
 
 export function KanbanColumn({ column, leads, onDrop, onDragStart, onCardClick, currentUser }: KanbanColumnProps) {
   const [isOver, setIsOver] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_CARDS);
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -31,6 +36,12 @@ export function KanbanColumn({ column, leads, onDrop, onDragStart, onCardClick, 
     onDrop(column.id);
     setIsOver(false);
   };
+  
+  const handleLoadMore = () => {
+    setVisibleCount(prevCount => prevCount + CARDS_TO_LOAD);
+  };
+
+  const visibleLeads = leads.slice(0, visibleCount);
 
   return (
     <div
@@ -48,7 +59,7 @@ export function KanbanColumn({ column, leads, onDrop, onDragStart, onCardClick, 
         </h2>
       </div>
       <div className="flex flex-col gap-4 p-4 pt-0 min-h-[200px]">
-        {leads.map((lead) => (
+        {visibleLeads.map((lead) => (
           <KanbanCard
             key={lead.id}
             lead={lead}
@@ -57,6 +68,11 @@ export function KanbanColumn({ column, leads, onDrop, onDragStart, onCardClick, 
             currentUser={currentUser}
           />
         ))}
+        {leads.length > visibleCount && (
+            <Button variant="secondary" onClick={handleLoadMore}>
+                Load More ({leads.length - visibleCount} hidden)
+            </Button>
+        )}
       </div>
     </div>
   );
