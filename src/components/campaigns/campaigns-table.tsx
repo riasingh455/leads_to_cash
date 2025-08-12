@@ -132,7 +132,7 @@ export function CampaignsTable({ campaigns, onViewDetails, onDeleteCampaign }: C
                 </AlertDialogTrigger>
               </DropdownMenuContent>
             </DropdownMenu>
-            <AlertDialogContent>
+            <AlertDialogContent onClick={(e) => e.stopPropagation()}>
               <AlertDialogHeader>
                 <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                 <AlertDialogDescription>
@@ -141,7 +141,7 @@ export function CampaignsTable({ campaigns, onViewDetails, onDeleteCampaign }: C
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={() => onDeleteCampaign(campaign.id)} className="bg-red-600 hover:bg-red-700">
+                <AlertDialogAction onClick={(e) => { e.stopPropagation(); onDeleteCampaign(campaign.id);}} className="bg-red-600 hover:bg-red-700">
                   Yes, delete
                 </AlertDialogAction>
               </AlertDialogFooter>

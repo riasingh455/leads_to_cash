@@ -210,7 +210,7 @@ export function OpportunitiesTable({ onViewDetails, leads: propLeads, onDeleteOp
                 </AlertDialogTrigger>
               </DropdownMenuContent>
             </DropdownMenu>
-            <AlertDialogContent>
+            <AlertDialogContent onClick={(e) => e.stopPropagation()}>
                 <AlertDialogHeader>
                   <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                   <AlertDialogDescription>
@@ -219,7 +219,7 @@ export function OpportunitiesTable({ onViewDetails, leads: propLeads, onDeleteOp
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => onDeleteOpportunity(lead.id)} className="bg-red-600 hover:bg-red-700">Yes, delete</AlertDialogAction>
+                  <AlertDialogAction onClick={(e) => { e.stopPropagation(); onDeleteOpportunity(lead.id);}} className="bg-red-600 hover:bg-red-700">Yes, delete</AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
           </AlertDialog>

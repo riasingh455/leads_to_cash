@@ -212,7 +212,7 @@ export function LeadsTable({ onViewDetails, leads, onDeleteLead }: { onViewDetai
                 </AlertDialogTrigger>
               </DropdownMenuContent>
             </DropdownMenu>
-             <AlertDialogContent>
+             <AlertDialogContent onClick={(e) => e.stopPropagation()}>
               <AlertDialogHeader>
                 <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                 <AlertDialogDescription>
@@ -221,7 +221,7 @@ export function LeadsTable({ onViewDetails, leads, onDeleteLead }: { onViewDetai
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={() => onDeleteLead(lead.id)} className="bg-red-600 hover:bg-red-700">Yes, delete</AlertDialogAction>
+                <AlertDialogAction onClick={(e) => { e.stopPropagation(); onDeleteLead(lead.id);}} className="bg-red-600 hover:bg-red-700">Yes, delete</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>

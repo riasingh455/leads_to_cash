@@ -181,7 +181,7 @@ export function ProposalsTable({ onViewDetails, leads: propLeads, onDeletePropos
                 </AlertDialogTrigger>
               </DropdownMenuContent>
             </DropdownMenu>
-            <AlertDialogContent>
+            <AlertDialogContent onClick={(e) => e.stopPropagation()}>
               <AlertDialogHeader>
                 <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                 <AlertDialogDescription>
@@ -190,7 +190,7 @@ export function ProposalsTable({ onViewDetails, leads: propLeads, onDeletePropos
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={() => onDeleteProposal(lead.id)} className="bg-red-600 hover:bg-red-700">Yes, delete proposal</AlertDialogAction>
+                <AlertDialogAction onClick={(e) => { e.stopPropagation(); onDeleteProposal(lead.id);}} className="bg-red-600 hover:bg-red-700">Yes, delete proposal</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
