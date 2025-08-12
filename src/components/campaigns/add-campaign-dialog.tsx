@@ -122,227 +122,228 @@ export function AddCampaignDialog({ isOpen, onOpenChange, onCampaignAdded }: Add
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Add New Campaign</DialogTitle>
           <DialogDescription>
             Fill in the details below to create a new campaign.
           </DialogDescription>
         </DialogHeader>
-        <div className='border rounded-lg p-4 space-y-2'>
-            <Label htmlFor='ai-idea'>Generate Brief with AI</Label>
-            <div className='flex gap-2'>
-                <Input id='ai-idea' placeholder='e.g., A webinar about Q3 product updates' value={aiIdea} onChange={(e) => setAiIdea(e.target.value)} />
-                <Button onClick={handleGenerateBrief} disabled={isGenerating}>
-                    {isGenerating ? <Loader2 className='animate-spin' /> : <Wand2 />}
-                    Generate
-                </Button>
-            </div>
-            {!form.formState.isDirty && (
-                <Alert>
-                    <AlertTitle>How it works</AlertTitle>
-                    <AlertDescription>
-                        Type a simple idea for a campaign and let AI generate a full brief, including target audience, key messages, and goals.
-                    </AlertDescription>
-                </Alert>
-            )}
+        <div className="flex-grow overflow-y-auto pr-4 -mr-4">
+          <div className='border rounded-lg p-4 space-y-2'>
+              <Label htmlFor='ai-idea'>Generate Brief with AI</Label>
+              <div className='flex gap-2'>
+                  <Input id='ai-idea' placeholder='e.g., A webinar about Q3 product updates' value={aiIdea} onChange={(e) => setAiIdea(e.target.value)} />
+                  <Button onClick={handleGenerateBrief} disabled={isGenerating}>
+                      {isGenerating ? <Loader2 className='animate-spin' /> : <Wand2 />}
+                      Generate
+                  </Button>
+              </div>
+              {!form.formState.isDirty && (
+                  <Alert>
+                      <AlertTitle>How it works</AlertTitle>
+                      <AlertDescription>
+                          Type a simple idea for a campaign and let AI generate a full brief, including target audience, key messages, and goals.
+                      </AlertDescription>
+                  </Alert>
+              )}
+          </div>
+          <Form {...form}>
+            <form id="add-campaign-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 mt-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Campaign Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <div className="grid grid-cols-3 gap-4">
+                  <FormField
+                      control={form.control}
+                      name="type"
+                      render={({ field }) => (
+                          <FormItem>
+                          <FormLabel>Type</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                              <SelectTrigger>
+                                  <SelectValue placeholder="Select type" />
+                              </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                              <SelectItem value="Conference">Conference</SelectItem>
+                              <SelectItem value="Webinar">Webinar</SelectItem>
+                              <SelectItem value="Trade Show">Trade Show</SelectItem>
+                              <SelectItem value="Digital">Digital</SelectItem>
+                              <SelectItem value="Other">Other</SelectItem>
+                              </SelectContent>
+                          </Select>
+                          <FormMessage />
+                          </FormItem>
+                      )}
+                  />
+                  <FormField
+                      control={form.control}
+                      name="startDate"
+                      render={({ field }) => (
+                          <FormItem className='flex flex-col'>
+                              <FormLabel>Start Date</FormLabel>
+                              <Popover>
+                                  <PopoverTrigger asChild>
+                                  <FormControl>
+                                      <Button
+                                      variant={"outline"}
+                                      className={cn(
+                                          "w-full pl-3 text-left font-normal",
+                                          !field.value && "text-muted-foreground"
+                                      )}
+                                      >
+                                      {field.value ? (
+                                          format(field.value, "PPP")
+                                      ) : (
+                                          <span>Pick a date</span>
+                                      )}
+                                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                      </Button>
+                                  </FormControl>
+                                  </PopoverTrigger>
+                                  <PopoverContent className="w-auto p-0" align="start">
+                                  <Calendar
+                                      mode="single"
+                                      selected={field.value}
+                                      onSelect={field.onChange}
+                                      initialFocus
+                                  />
+                                  </PopoverContent>
+                              </Popover>
+                              <FormMessage />
+                          </FormItem>
+                      )}
+                  />
+                  <FormField
+                      control={form.control}
+                      name="endDate"
+                      render={({ field }) => (
+                          <FormItem className='flex flex-col'>
+                              <FormLabel>End Date</FormLabel>
+                              <Popover>
+                                  <PopoverTrigger asChild>
+                                  <FormControl>
+                                      <Button
+                                      variant={"outline"}
+                                      className={cn(
+                                          "w-full pl-3 text-left font-normal",
+                                          !field.value && "text-muted-foreground"
+                                      )}
+                                      >
+                                      {field.value ? (
+                                          format(field.value, "PPP")
+                                      ) : (
+                                          <span>Pick a date</span>
+                                      )}
+                                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                      </Button>
+                                  </FormControl>
+                                  </PopoverTrigger>
+                                  <PopoverContent className="w-auto p-0" align="start">
+                                  <Calendar
+                                      mode="single"
+                                      selected={field.value}
+                                      onSelect={field.onChange}
+                                      initialFocus
+                                  />
+                                  </PopoverContent>
+                              </Popover>
+                              <FormMessage />
+                          </FormItem>
+                      )}
+                  />
+              </div>
+              
+              <FormField
+                control={form.control}
+                name="budget"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Budget ($)</FormLabel>
+                    <FormControl>
+                      <Input type='number' {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Textarea {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="targetAudience"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Target Audience</FormLabel>
+                    <FormControl>
+                      <Textarea {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="keyMessages"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Key Messages</FormLabel>
+                    <FormControl>
+                      <Textarea {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="goals"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Goals</FormLabel>
+                    <FormControl>
+                      <Textarea {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </form>
+          </Form>
         </div>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Campaign Name</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <div className="grid grid-cols-3 gap-4">
-                <FormField
-                    control={form.control}
-                    name="type"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>Type</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select type" />
-                            </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                            <SelectItem value="Conference">Conference</SelectItem>
-                            <SelectItem value="Webinar">Webinar</SelectItem>
-                            <SelectItem value="Trade Show">Trade Show</SelectItem>
-                            <SelectItem value="Digital">Digital</SelectItem>
-                            <SelectItem value="Other">Other</SelectItem>
-                            </SelectContent>
-                        </Select>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="startDate"
-                    render={({ field }) => (
-                        <FormItem className='flex flex-col'>
-                            <FormLabel>Start Date</FormLabel>
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                <FormControl>
-                                    <Button
-                                    variant={"outline"}
-                                    className={cn(
-                                        "w-full pl-3 text-left font-normal",
-                                        !field.value && "text-muted-foreground"
-                                    )}
-                                    >
-                                    {field.value ? (
-                                        format(field.value, "PPP")
-                                    ) : (
-                                        <span>Pick a date</span>
-                                    )}
-                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                    </Button>
-                                </FormControl>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0" align="start">
-                                <Calendar
-                                    mode="single"
-                                    selected={field.value}
-                                    onSelect={field.onChange}
-                                    initialFocus
-                                />
-                                </PopoverContent>
-                            </Popover>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                 <FormField
-                    control={form.control}
-                    name="endDate"
-                    render={({ field }) => (
-                        <FormItem className='flex flex-col'>
-                            <FormLabel>End Date</FormLabel>
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                <FormControl>
-                                    <Button
-                                    variant={"outline"}
-                                    className={cn(
-                                        "w-full pl-3 text-left font-normal",
-                                        !field.value && "text-muted-foreground"
-                                    )}
-                                    >
-                                    {field.value ? (
-                                        format(field.value, "PPP")
-                                    ) : (
-                                        <span>Pick a date</span>
-                                    )}
-                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                    </Button>
-                                </FormControl>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0" align="start">
-                                <Calendar
-                                    mode="single"
-                                    selected={field.value}
-                                    onSelect={field.onChange}
-                                    initialFocus
-                                />
-                                </PopoverContent>
-                            </Popover>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-            </div>
-            
-            <FormField
-              control={form.control}
-              name="budget"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Budget ($)</FormLabel>
-                  <FormControl>
-                    <Input type='number' {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-             <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-             <FormField
-              control={form.control}
-              name="targetAudience"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Target Audience</FormLabel>
-                  <FormControl>
-                    <Textarea {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-             <FormField
-              control={form.control}
-              name="keyMessages"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Key Messages</FormLabel>
-                  <FormControl>
-                    <Textarea {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-             <FormField
-              control={form.control}
-              name="goals"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Goals</FormLabel>
-                  <FormControl>
-                    <Textarea {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
 
-
-            <DialogFooter>
-                <DialogClose asChild>
-                    <Button type="button" variant="secondary">
-                        Cancel
-                    </Button>
-                </DialogClose>
-                <Button type="submit">Create Campaign</Button>
-            </DialogFooter>
-          </form>
-        </Form>
+        <DialogFooter>
+            <DialogClose asChild>
+                <Button type="button" variant="secondary">
+                    Cancel
+                </Button>
+            </DialogClose>
+            <Button type="submit" form="add-campaign-form">Create Campaign</Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
