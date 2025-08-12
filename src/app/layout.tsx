@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: 'Leads to Cash',
+  title: 'OncoFlow',
   description: 'AI-Powered Lead Lifecycle Management',
 };
 
