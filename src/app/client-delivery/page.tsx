@@ -91,13 +91,13 @@ export default function ClientDeliveryPage() {
               <SidebarMenuItem>
                 <SidebarMenuButton href="/proposals">
                   <ClipboardCheck />
-                  <span>Proposals/Review</span>
+                  <span>Proposals & Internal Review</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton href="/client-delivery" isActive>
                   <FileSignature />
-                  <span>Client Delivery/Contract</span>
+                  <span>Client Delivery & Contracts</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
@@ -121,7 +121,7 @@ export default function ClientDeliveryPage() {
         <SidebarInset>
           <DashboardHeader 
             user={currentUser} 
-            title="Client Delivery & Contract" 
+            title="Client Delivery & Contracts" 
             description="Manage the final stages of deal closure and contract finalization."
             exportData={deliveryLeads}
             exportFilename='client-delivery.csv'

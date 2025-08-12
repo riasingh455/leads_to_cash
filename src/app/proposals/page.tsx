@@ -134,13 +134,13 @@ export default function ProposalsPage() {
               <SidebarMenuItem>
                 <SidebarMenuButton href="/proposals" isActive>
                   <ClipboardCheck />
-                  <span>Proposals/Review</span>
+                  <span>Proposals & Internal Review</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton href="/client-delivery">
                   <FileSignature />
-                  <span>Client Delivery/Contract</span>
+                  <span>Client Delivery & Contracts</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
@@ -164,7 +164,7 @@ export default function ProposalsPage() {
         <SidebarInset>
           <DashboardHeader 
             user={currentUser} 
-            title="Proposals & Reviews" 
+            title="Proposals & Internal Review" 
             description="Track and manage deals in the late stages of the sales cycle." 
             onAddButtonClick={() => setIsAddProposalOpen(true)}
             addButtonText="Add Proposal"

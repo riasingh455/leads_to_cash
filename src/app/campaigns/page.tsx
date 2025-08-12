@@ -128,13 +128,13 @@ export default function CampaignsPage() {
               <SidebarMenuItem>
                 <SidebarMenuButton href="/proposals">
                   <ClipboardCheck />
-                  <span>Proposals/Review</span>
+                  <span>Proposals & Internal Review</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton href="/client-delivery">
                   <FileSignature />
-                  <span>Client Delivery/Contract</span>
+                  <span>Client Delivery & Contracts</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
