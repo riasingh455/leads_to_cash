@@ -23,7 +23,6 @@ import {
   ChevronsUpDown,
   Building,
   Settings,
-  FolderKanban,
   ClipboardCheck,
   FileSignature,
   BookUser,
@@ -43,9 +42,11 @@ import { Button } from '@/components/ui/button';
 import { users, type User, type Lead, leads as initialLeads } from '@/lib/data';
 import { DashboardHeader } from '@/components/dashboard-header';
 import { LeadDetailsDialog } from '@/components/kanban/lead-details-dialog';
-import { ClientDeliveryTable } from '@/components/client-delivery/client-delivery-table';
+import { GoLiveTable } from '@/components/post-sales/go-live-table';
+import { BillingTable } from '@/components/post-sales/billing-table';
+import { Separator } from '@/components/ui/separator';
 
-export default function ClientDeliveryPage() {
+export default function PostSalesPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
 
@@ -86,7 +87,7 @@ export default function ClientDeliveryPage() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton href="/client-delivery" isActive>
+                <SidebarMenuButton href="/client-delivery">
                   <FileSignature />
                   <span>Client Delivery/Contract</span>
                 </SidebarMenuButton>
@@ -98,7 +99,7 @@ export default function ClientDeliveryPage() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton href="/post-sales">
+                <SidebarMenuButton href="/post-sales" isActive>
                   <Rocket />
                   <span>Go-Live & Handoff</span>
                 </SidebarMenuButton>
@@ -112,11 +113,19 @@ export default function ClientDeliveryPage() {
         <SidebarInset>
           <DashboardHeader 
             user={currentUser} 
-            title="Client Delivery & Contract" 
-            description="Manage the final stages of deal closure and contract finalization."
+            title="Go-Live & Handoff" 
+            description="Manage the final stages of the customer lifecycle."
           />
-          <main className="flex-1 p-4 md:p-6 lg:p-8">
-            <ClientDeliveryTable onViewDetails={setSelectedLead} leads={initialLeads} />
+          <main className="flex-1 p-4 md:p-6 lg:p-8 space-y-8">
+            <div>
+              <h2 className="text-2xl font-bold font-headline mb-4">Go-Live & Initial Support</h2>
+              <GoLiveTable onViewDetails={setSelectedLead} leads={initialLeads} />
+            </div>
+            <Separator />
+            <div>
+              <h2 className="text-2xl font-bold font-headline mb-4">Billing & Handoff</h2>
+              <BillingTable onViewDetails={setSelectedLead} leads={initialLeads} />
+            </div>
           </main>
         </SidebarInset>
       </div>

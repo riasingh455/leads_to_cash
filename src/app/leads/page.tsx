@@ -28,6 +28,7 @@ import {
   ClipboardCheck,
   FileSignature,
   BookUser,
+  Rocket,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -102,6 +103,12 @@ export default function LeadsPage() {
                 <SidebarMenuButton href="/implementation">
                   <BookUser />
                   <span>Implementation</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton href="/post-sales">
+                  <Rocket />
+                  <span>Go-Live & Handoff</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
@@ -191,5 +198,3 @@ function UserMenu({ user, setUser }: { user: User, setUser: (user: User) => void
     </DropdownMenu>
   );
 }
-
-    

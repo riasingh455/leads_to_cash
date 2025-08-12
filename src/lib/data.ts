@@ -99,6 +99,54 @@ export interface ImplementationAndTrainingData {
   changeRequests: string;
 }
 
+export interface GoLiveAndSupportData {
+  uatCompleteDate: string;
+  goLiveDate: string;
+  systemCutoverDate: string;
+  deploymentStatus: 'Completed' | 'In-progress' | 'Pending';
+  trainingCompletionDate: string;
+  trainingEffectivenessScore: number;
+  userAdoptionRate: number;
+  supportStartDate: string;
+  supportEndDate: string;
+  knownIssues: string;
+  successCriteriaMet: 'Yes' | 'No';
+  successCriteriaNotes: string;
+  clientSatisfactionScore: number;
+}
+
+export interface BillingAndHandoffData {
+  firstInvoiceDate: string;
+  firstInvoiceAmount: number;
+  invoiceStatus: 'Sent' | 'Received' | 'Paid';
+  paymentDueDate: string;
+  revenueRecognitionDate: string;
+  clientOnboardingComplete: 'Yes' | 'No';
+  accountManager: string;
+  projectSuccessRating: 'High' | 'Medium' | 'Low';
+  lessonsLearned: string;
+  referralRequestMade: 'Yes' | 'No';
+  caseStudyOpportunity: 'Yes' | 'No';
+}
+
+export interface ChangeOrderData {
+  id: string;
+  type: 'Scope' | 'Time' | 'Cost';
+  parentOpportunityId: string;
+  requestedBy: string;
+  description: string;
+  impactAnalysis: string;
+  status: 'Pending' | 'Approved' | 'Rejected';
+  approvedBy?: string;
+  value: number;
+  implementationDate: string;
+  updatedTimeline: string;
+  updatedBudget: number;
+  documentationUrl: string;
+  auditTrail: { date: string; action: string; user: string }[];
+}
+
+
 export interface Lead {
   id: string;
   title: string; // Proposed Offering
@@ -133,6 +181,9 @@ export interface Lead {
   clientDeliveryData?: ClientDeliveryData;
   contractData?: ContractData;
   implementationAndTrainingData?: ImplementationAndTrainingData;
+  goLiveAndSupportData?: GoLiveAndSupportData;
+  billingAndHandoffData?: BillingAndHandoffData;
+  changeOrders?: ChangeOrderData[];
 }
 
 export interface Column {
@@ -156,6 +207,8 @@ export const columns: Column[] = [
   { id: 'col-delivery', title: 'Client Delivery' },
   { id: 'col-contract', title: 'Contract' },
   { id: 'col-implementation', title: 'Implementation' },
+  { id: 'col-go-live', title: 'Go-Live' },
+  { id: 'col-billing', title: 'Billing & Handoff' },
   { id: 'col-5', title: 'Closed Won' },
 ];
 
@@ -488,7 +541,104 @@ export const leads: Lead[] = [
       issuesLog: 'No major issues.',
       changeRequests: 'None.',
     },
+    changeOrders: [
+      {
+        id: 'co-1',
+        type: 'Scope',
+        parentOpportunityId: 'lead-9',
+        requestedBy: 'Ben Carter',
+        description: 'Add support for French language.',
+        impactAnalysis: 'Adds 2 weeks to timeline and $5,000 to cost.',
+        status: 'Approved',
+        approvedBy: 'Alex Johnson',
+        value: 5000,
+        implementationDate: '2024-07-20T10:00:00Z',
+        updatedTimeline: 'New go-live date: 2024-08-29',
+        updatedBudget: 93000,
+        documentationUrl: '/docs/co-1.pdf',
+        auditTrail: [
+          { date: '2024-07-18T10:00:00Z', action: 'Created', user: 'Alex Johnson' },
+          { date: '2024-07-19T14:00:00Z', action: 'Approved', user: 'Ben Carter' },
+        ],
+      }
+    ]
+  },
+  {
+    id: 'lead-10',
+    title: 'Data Warehouse Setup',
+    company: 'Analytics Pros',
+    companySize: '51-200',
+    industry: 'Data Analytics',
+    value: 180000,
+    currency: 'USD',
+    score: 94,
+    priority: 'High',
+    columnId: 'col-go-live',
+    ownerId: 'user-2',
+    entryDate: '2024-03-01T10:00:00Z',
+    lastContact: '2024-06-25T10:00:00Z',
+    nextAction: '2024-07-01T10:00:00Z',
+    source: 'Website',
+    region: 'North America',
+    contact: {
+      name: 'Linda Kim',
+      title: 'Head of BI',
+      email: 'linda.k@analyticspros.com',
+      phone: '123-123-1234',
+    },
+    followUpCadence: [],
+    goLiveAndSupportData: {
+        uatCompleteDate: '2024-06-20T10:00:00Z',
+        goLiveDate: '2024-06-25T10:00:00Z',
+        systemCutoverDate: '2024-06-24T10:00:00Z',
+        deploymentStatus: 'Completed',
+        trainingCompletionDate: '2024-06-18T10:00:00Z',
+        trainingEffectivenessScore: 9,
+        userAdoptionRate: 95,
+        supportStartDate: '2024-06-25T10:00:00Z',
+        supportEndDate: '2024-07-25T10:00:00Z',
+        knownIssues: 'Minor UI bug in reporting dashboard, fix scheduled.',
+        successCriteriaMet: 'Yes',
+        successCriteriaNotes: 'All key metrics achieved.',
+        clientSatisfactionScore: 10,
+    },
+  },
+  {
+    id: 'lead-11',
+    title: 'CRM Integration',
+    company: 'Connectify',
+    companySize: '201-500',
+    industry: 'Software',
+    value: 110000,
+    currency: 'EUR',
+    score: 89,
+    priority: 'High',
+    columnId: 'col-billing',
+    ownerId: 'user-3',
+    entryDate: '2024-02-15T10:00:00Z',
+    lastContact: '2024-07-01T10:00:00Z',
+    nextAction: '2024-07-15T10:00:00Z',
+    source: 'Referral',
+    region: 'EMEA',
+    contact: {
+      name: 'Marcus Wright',
+      title: 'Sales Ops Director',
+      email: 'marcus.w@connectify.com',
+      phone: '321-321-4321',
+    },
+    followUpCadence: [],
+    billingAndHandoffData: {
+      firstInvoiceDate: '2024-07-01T10:00:00Z',
+      firstInvoiceAmount: 55000,
+      invoiceStatus: 'Sent',
+      paymentDueDate: '2024-07-31T10:00:00Z',
+      revenueRecognitionDate: '2024-07-01T10:00:00Z',
+      clientOnboardingComplete: 'Yes',
+      accountManager: 'Account Manager X',
+      projectSuccessRating: 'High',
+      lessonsLearned: 'Integration points were more complex than anticipated.',
+      referralRequestMade: 'No',
+      caseStudyOpportunity: 'Yes',
+    },
   },
 ];
-
-    

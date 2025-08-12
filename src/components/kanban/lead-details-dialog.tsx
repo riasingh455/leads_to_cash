@@ -14,7 +14,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Phone, Mail, Users, Lightbulb, FolderKanban, Briefcase, Calendar, Handshake, Target, CheckCircle, Clock, Search, FileCheck2, UserCheck, ShieldCheck, DollarSign, AlertTriangle, Building, Truck, Presentation, FileUp, Edit, Info, Users2, FileSignature, Newspaper, BookUser } from 'lucide-react';
+import { FileText, Phone, Mail, Users, Lightbulb, FolderKanban, Briefcase, Calendar, Handshake, Target, CheckCircle, Clock, Search, FileCheck2, UserCheck, ShieldCheck, DollarSign, AlertTriangle, Building, Truck, Presentation, FileUp, Edit, Info, Users2, FileSignature, Newspaper, BookUser, Rocket, Receipt, GitBranch } from 'lucide-react';
 import type { Lead, User } from '@/lib/data';
 import { users, columns } from '@/lib/data';
 import { format } from 'date-fns';
@@ -65,6 +65,8 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
     delivery: columns.findIndex(c => c.id === 'col-delivery'),
     contract: columns.findIndex(c => c.id === 'col-contract'),
     implementation: columns.findIndex(c => c.id === 'col-implementation'),
+    goLive: columns.findIndex(c => c.id === 'col-go-live'),
+    billing: columns.findIndex(c => c.id === 'col-billing'),
   }
 
   const getVisibleTabs = () => {
@@ -92,6 +94,14 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
     if (stageIndex >= stages.implementation) {
       baseTabs.push({ id: 'implementation', label: 'Implementation', icon: <BookUser className="w-4 h-4 mr-2" /> });
     }
+    
+    if (stageIndex >= stages.goLive) {
+      baseTabs.push({ id: 'go-live', label: 'Go-Live', icon: <Rocket className="w-4 h-4 mr-2" /> });
+    }
+
+    if (stageIndex >= stages.billing) {
+      baseTabs.push({ id: 'billing', label: 'Billing', icon: <Receipt className="w-4 h-4 mr-2" /> });
+    }
 
     const aiTabs = [
       { id: 'stakeholders', label: 'Stakeholders', icon: <Users className="w-4 h-4 mr-2"/>, disabled: !canUseAiFeatures },
@@ -99,12 +109,18 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
       { id: 'documents', label: 'Documents', icon: <FolderKanban className="w-4 h-4 mr-2"/> }
     ];
 
+    if (stageIndex >= stages.implementation) {
+      aiTabs.push({ id: 'change-orders', label: 'Change Orders', icon: <GitBranch className="w-4 h-4 mr-2" /> });
+    }
+
     return [...baseTabs, ...aiTabs];
   }
 
   const visibleTabs = getVisibleTabs();
 
   const getDefaultTab = () => {
+    if (stageIndex >= stages.billing) return "billing";
+    if (stageIndex >= stages.goLive) return "go-live";
     if (stageIndex >= stages.implementation) return "implementation";
     if (stageIndex >= stages.delivery) return "delivery-contract";
     if (stageIndex >= stages.review) return "review";
@@ -555,7 +571,97 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
                  </CardContent>
               </Card>
              </TabsContent>
+
+             <TabsContent value="go-live" className="flex-grow overflow-auto p-1">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Go-Live & Initial Support</CardTitle>
+                </CardHeader>
+                 <CardContent>
+                    {lead.goLiveAndSupportData ? (
+                      <div className="space-y-6">
+                        <div className="text-sm grid md:grid-cols-2 gap-x-8 gap-y-4">
+                          <DetailRow label="UAT Complete Date" value={format(new Date(lead.goLiveAndSupportData.uatCompleteDate), 'PPP')} />
+                          <DetailRow label="Go-Live Date" value={format(new Date(lead.goLiveAndSupportData.goLiveDate), 'PPP')} />
+                          <DetailRow label="System Cutover Date" value={format(new Date(lead.goLiveAndSupportData.systemCutoverDate), 'PPP')} />
+                          <DetailRow label="Deployment Status" value={<Badge>{lead.goLiveAndSupportData.deploymentStatus}</Badge>} />
+                          <DetailRow label="Training Completion Date" value={format(new Date(lead.goLiveAndSupportData.trainingCompletionDate), 'PPP')} />
+                          <DetailRow label="Training Effectiveness" value={`${lead.goLiveAndSupportData.trainingEffectivenessScore}/10`} />
+                          <DetailRow label="User Adoption Rate" value={`${lead.goLiveAndSupportData.userAdoptionRate}%`} />
+                          <DetailRow label="Support Start Date" value={format(new Date(lead.goLiveAndSupportData.supportStartDate), 'PPP')} />
+                          <DetailRow label="Support End Date" value={format(new Date(lead.goLiveAndSupportData.supportEndDate), 'PPP')} />
+                           <DetailRow label="Success Criteria Met" value={lead.goLiveAndSupportData.successCriteriaMet} />
+                           <DetailRow label="Client Satisfaction" value={`${lead.goLiveAndSupportData.clientSatisfactionScore}/10`} />
+                          <div className="col-span-2 space-y-1">
+                            <p className="font-medium text-muted-foreground">Known Issues at Launch:</p>
+                            <p className="whitespace-pre-wrap">{lead.goLiveAndSupportData.knownIssues}</p>
+                          </div>
+                          <div className="col-span-2 space-y-1">
+                            <p className="font-medium text-muted-foreground">Success Criteria Notes:</p>
+                            <p className="whitespace-pre-wrap">{lead.goLiveAndSupportData.successCriteriaNotes}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ) : <p className="text-muted-foreground">No go-live data available.</p>}
+                 </CardContent>
+              </Card>
+             </TabsContent>
+
+            <TabsContent value="billing" className="flex-grow overflow-auto p-1">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Billing & Handoff</CardTitle>
+                </CardHeader>
+                 <CardContent>
+                    {lead.billingAndHandoffData ? (
+                      <div className="space-y-6">
+                        <div className="text-sm grid md:grid-cols-2 gap-x-8 gap-y-4">
+                            <DetailRow label="First Invoice Date" value={format(new Date(lead.billingAndHandoffData.firstInvoiceDate), 'PPP')} />
+                            <DetailRow label="First Invoice Amount" value={`$${lead.billingAndHandoffData.firstInvoiceAmount.toLocaleString()}`} />
+                            <DetailRow label="Invoice Status" value={<Badge>{lead.billingAndHandoffData.invoiceStatus}</Badge>} />
+                            <DetailRow label="Payment Due Date" value={format(new Date(lead.billingAndHandoffData.paymentDueDate), 'PPP')} />
+                            <DetailRow label="Revenue Recognition Date" value={format(new Date(lead.billingAndHandoffData.revenueRecognitionDate), 'PPP')} />
+                            <DetailRow label="Onboarding Complete" value={lead.billingAndHandoffData.clientOnboardingComplete} />
+                            <DetailRow label="Account Manager" value={lead.billingAndHandoffData.accountManager} />
+                            <DetailRow label="Project Success Rating" value={lead.billingAndHandoffData.projectSuccessRating} />
+                            <DetailRow label="Referral Request Made" value={lead.billingAndHandoffData.referralRequestMade} />
+                            <DetailRow label="Case Study Opportunity" value={lead.billingAndHandoffData.caseStudyOpportunity} />
+                            <div className="col-span-2 space-y-1">
+                                <p className="font-medium text-muted-foreground">Lessons Learned:</p>
+                                <p className="whitespace-pre-wrap">{lead.billingAndHandoffData.lessonsLearned}</p>
+                            </div>
+                        </div>
+                      </div>
+                    ) : <p className="text-muted-foreground">No billing data available.</p>}
+                 </CardContent>
+              </Card>
+            </TabsContent>
             
+            <TabsContent value="change-orders" className="flex-grow overflow-auto p-1">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Change Orders</CardTitle>
+                  <CardDescription>Track all change orders related to this opportunity.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-3">
+                    {lead.changeOrders?.map((co) => (
+                      <li key={co.id} className="flex items-start justify-between p-3 rounded-md border">
+                        <div className="flex items-start gap-4">
+                          <GitBranch className="w-5 h-5 text-primary mt-1" />
+                          <div>
+                            <p className="font-semibold">{co.description}</p>
+                            <p className="text-sm text-muted-foreground">Value: ${co.value.toLocaleString()} | Status: <Badge>{co.status}</Badge></p>
+                          </div>
+                        </div>
+                        <span className="text-sm text-muted-foreground">{format(new Date(co.implementationDate), 'PPP')}</span>
+                      </li>
+                    ))}
+                    {!lead.changeOrders?.length && <p className="text-muted-foreground">No change orders recorded.</p>}
+                  </ul>
+                </CardContent>
+              </Card>
+            </TabsContent>
 
             <TabsContent value="stakeholders" className="flex-grow overflow-auto p-1">
               <StakeholderIdentification lead={lead} />
