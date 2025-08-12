@@ -31,6 +31,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import type { Lead, User } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
+import { campaigns } from '@/lib/data';
 
 const leadSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -40,6 +41,7 @@ const leadSchema = z.object({
   value: z.coerce.number().min(0, 'Value must be a positive number'),
   currency: z.enum(['USD', 'EUR', 'GBP']),
   ownerId: z.string().min(1, 'Please select a sales rep'),
+  campaignId: z.string().optional(),
 });
 
 type LeadFormValues = z.infer<typeof leadSchema>;
@@ -50,9 +52,10 @@ interface AddLeadDialogProps {
   onLeadAdded: (lead: Lead) => void;
   users: User[];
   defaultStage?: string;
+  defaultCampaignId?: string;
 }
 
-export function AddLeadDialog({ isOpen, onOpenChange, onLeadAdded, users, defaultStage = 'col-1' }: AddLeadDialogProps) {
+export function AddLeadDialog({ isOpen, onOpenChange, onLeadAdded, users, defaultStage = 'col-1', defaultCampaignId }: AddLeadDialogProps) {
   const { toast } = useToast();
   const salesReps = users.filter(u => u.role === 'Sales Rep');
 
@@ -66,6 +69,7 @@ export function AddLeadDialog({ isOpen, onOpenChange, onLeadAdded, users, defaul
       value: 0,
       currency: 'USD',
       ownerId: salesReps[0]?.id || '',
+      campaignId: defaultCampaignId,
     },
   });
 
@@ -77,6 +81,7 @@ export function AddLeadDialog({ isOpen, onOpenChange, onLeadAdded, users, defaul
       value: values.value,
       currency: values.currency,
       ownerId: values.ownerId,
+      campaignId: values.campaignId,
       contact: {
         name: values.contactName,
         email: values.contactEmail,
@@ -229,6 +234,29 @@ export function AddLeadDialog({ isOpen, onOpenChange, onLeadAdded, users, defaul
                     <SelectContent>
                       {salesReps.map((rep) => (
                         <SelectItem key={rep.id} value={rep.id}>{rep.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+             <FormField
+              control={form.control}
+              name="campaignId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Campaign</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!!defaultCampaignId}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a campaign (optional)" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="">None</SelectItem>
+                      {campaigns.map((campaign) => (
+                        <SelectItem key={campaign.id} value={campaign.id}>{campaign.name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>

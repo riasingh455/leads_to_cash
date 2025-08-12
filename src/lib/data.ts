@@ -5,6 +5,19 @@ export interface User {
   avatar: string;
 }
 
+export interface Campaign {
+  id: string;
+  name: string;
+  type: 'Conference' | 'Webinar' | 'Trade Show' | 'Digital' | 'Other';
+  startDate: string;
+  endDate: string;
+  budget: number;
+  description: string;
+  targetAudience: string;
+  keyMessages: string;
+  goals: string;
+}
+
 export interface ProspectData {
   responseDate: string;
   engagementType: 'Phone response' | 'Email reply' | 'Meeting request' | 'Other';
@@ -163,7 +176,7 @@ export interface Lead {
   lastContact: string;
   nextAction: string;
   source: string;
-  marketingCampaign?: string;
+  campaignId?: string;
   region: string;
   contact: {
     name: string;
@@ -212,6 +225,45 @@ export const columns: Column[] = [
   { id: 'col-5', title: 'Closed Won' },
 ];
 
+export const campaigns: Campaign[] = [
+  { 
+    id: 'campaign-1', 
+    name: 'Summer Promo 2024', 
+    type: 'Digital', 
+    startDate: '2024-06-01T10:00:00Z', 
+    endDate: '2024-08-31T10:00:00Z',
+    budget: 20000,
+    description: 'Digital marketing campaign for summer season.',
+    targetAudience: 'E-commerce businesses',
+    keyMessages: 'Boost your summer sales with our new tools.',
+    goals: 'Generate 200 new leads.'
+  },
+  { 
+    id: 'campaign-2', 
+    name: 'Retail Expo 2024', 
+    type: 'Trade Show', 
+    startDate: '2024-04-15T10:00:00Z', 
+    endDate: '2024-04-18T10:00:00Z',
+    budget: 50000,
+    description: 'Annual retail industry trade show.',
+    targetAudience: 'Brick-and-mortar retail owners',
+    keyMessages: 'Modernize your retail experience.',
+    goals: 'Get 50 qualified leads.'
+  },
+  { 
+    id: 'campaign-3', 
+    name: 'CyberCon 2024', 
+    type: 'Conference', 
+    startDate: '2024-05-10T10:00:00Z', 
+    endDate: '2024-05-12T10:00:00Z',
+    budget: 75000,
+    description: 'Major cybersecurity conference.',
+    targetAudience: 'CISOs and IT security managers',
+    keyMessages: 'The future of enterprise security.',
+    goals: 'Network with industry leaders, book 30 meetings.'
+  }
+];
+
 export const leads: Lead[] = [
   {
     id: 'lead-1',
@@ -229,7 +281,7 @@ export const leads: Lead[] = [
     lastContact: '2024-05-20T10:00:00Z',
     nextAction: '2024-06-05T10:00:00Z',
     source: 'Website',
-    marketingCampaign: 'Summer_Promo_2024',
+    campaignId: 'campaign-1',
     region: 'North America',
     contact: {
       name: 'Jane Doe',
@@ -349,7 +401,7 @@ export const leads: Lead[] = [
     lastContact: '2024-05-25T16:00:00Z',
     nextAction: '2024-06-01T16:00:00Z',
     source: 'Partner',
-    marketingCampaign: 'Retail_Expo_2024',
+    campaignId: 'campaign-2',
     region: 'EMEA',
     contact: {
       name: 'Sarah Green',
@@ -422,7 +474,7 @@ export const leads: Lead[] = [
     lastContact: '2024-05-22T15:00:00Z',
     nextAction: '2024-06-03T15:00:00Z',
     source: 'Conference',
-    marketingCampaign: 'CyberCon_2024',
+    campaignId: 'campaign-3',
     region: 'North America',
     contact: {
       name: 'David Chen',
@@ -465,7 +517,6 @@ export const leads: Lead[] = [
     lastContact: '2024-05-01T10:00:00Z',
     nextAction: '2024-06-20T10:00:00Z',
     source: 'Ad Campaign',
-    marketingCampaign: 'Logistics_World_Q2',
     region: 'EMEA',
     contact: {
       name: 'Fatima Ahmed',
@@ -510,7 +561,6 @@ export const leads: Lead[] = [
     lastContact: '2024-06-10T15:00:00Z',
     nextAction: '2024-06-20T15:00:00Z',
     source: 'Conference',
-    marketingCampaign: 'AI_World_2024',
     region: 'North America',
     contact: {
       name: 'Ben Carter',

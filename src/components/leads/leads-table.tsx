@@ -39,13 +39,13 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { leads as initialLeads, type Lead, users } from '@/lib/data';
+import { leads as initialLeads, type Lead, users, campaigns } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 
-export function LeadsTable({ onViewDetails }: { onViewDetails: (lead: Lead) => void }) {
-  const [leads, setLeads] = React.useState<Lead[]>(initialLeads.filter(lead => !['col-prospect', 'col-3', 'col-proposal', 'col-review', 'col-delivery', 'col-5'].includes(lead.columnId)));
+export function LeadsTable({ onViewDetails, initialLeads: propLeads }: { onViewDetails: (lead: Lead) => void, initialLeads?: Lead[] }) {
+  const [leads, setLeads] = React.useState<Lead[]>(propLeads || initialLeads.filter(lead => !['col-prospect', 'col-3', 'col-proposal', 'col-review', 'col-delivery', 'col-5'].includes(lead.columnId)));
   const { toast } = useToast();
 
   const handleMarkAsOpportunity = (leadId: string) => {
@@ -166,24 +166,12 @@ export function LeadsTable({ onViewDetails }: { onViewDetails: (lead: Lead) => v
       cell: ({ row }) => <div>{format(new Date(row.getValue('lastContact')), 'PPP')}</div>,
     },
     {
-      accessorKey: 'region',
-      header: 'Region',
-      cell: ({ row }) => <div>{row.getValue('region')}</div>,
-    },
-    {
-      accessorKey: 'entryDate',
-      header: 'Entry Date',
-      cell: ({ row }) => <div>{format(new Date(row.getValue('entryDate')), 'PPP')}</div>,
-    },
-    {
-      accessorKey: 'companySize',
-      header: 'Company Size',
-      cell: ({ row }) => <div>{row.getValue('companySize')}</div>,
-    },
-    {
-      accessorKey: 'marketingCampaign',
+      accessorKey: 'campaignId',
       header: 'Campaign',
-      cell: ({ row }) => <div>{row.getValue('marketingCampaign') || 'N/A'}</div>,
+      cell: ({ row }) => {
+        const campaign = campaigns.find(c => c.id === row.getValue('campaignId'));
+        return <div>{campaign?.name || 'N/A'}</div>;
+      },
     },
     {
       id: 'actions',
@@ -227,9 +215,7 @@ export function LeadsTable({ onViewDetails }: { onViewDetails: (lead: Lead) => v
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({
-        region: false,
-        companySize: false,
-        marketingCampaign: false,
+        campaignId: false,
     });
   const [rowSelection, setRowSelection] = React.useState({});
 

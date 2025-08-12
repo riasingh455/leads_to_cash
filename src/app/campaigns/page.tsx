@@ -1,6 +1,6 @@
 
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   SidebarProvider,
   Sidebar,
@@ -40,14 +40,41 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { users, type User, type Lead, leads as initialLeads } from '@/lib/data';
+import { users, campaigns, leads, type User, type Lead, type Campaign } from '@/lib/data';
 import { DashboardHeader } from '@/components/dashboard-header';
-import { LeadDetailsDialog } from '@/components/kanban/lead-details-dialog';
-import { ImplementationTable } from '@/components/implementation/implementation-table';
+import { AddCampaignDialog } from '@/components/campaigns/add-campaign-dialog';
+import { CampaignsTable } from '@/components/campaigns/campaigns-table';
+import { CampaignDetailsView } from '@/components/campaigns/campaign-details-view';
+import { AddLeadDialog } from '@/components/leads/add-lead-dialog';
 
-export default function ImplementationPage() {
+export default function CampaignsPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
-  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [isAddCampaignOpen, setIsAddCampaignOpen] = useState(false);
+  const [isAddLeadOpen, setIsAddLeadOpen] = useState(false);
+  const [campaignList, setCampaignList] = useState<Campaign[]>(campaigns);
+  const [leadList, setLeadList] = useState<Lead[]>(leads);
+  const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
+
+  const handleAddCampaign = (newCampaign: Campaign) => {
+    setCampaignList((prev) => [newCampaign, ...prev]);
+  };
+  
+  const handleAddLead = (newLead: Lead) => {
+    setLeadList((prev) => [newLead, ...prev]);
+  };
+  
+  const handleSelectCampaign = (campaign: Campaign) => {
+    setSelectedCampaign(campaign);
+  };
+  
+  const handleBackToList = () => {
+    setSelectedCampaign(null);
+  };
+  
+  const campaignLeads = useMemo(() => {
+    if (!selectedCampaign) return [];
+    return leadList.filter(lead => lead.campaignId === selectedCampaign.id);
+  }, [selectedCampaign, leadList]);
 
   return (
     <SidebarProvider defaultOpen>
@@ -68,7 +95,7 @@ export default function ImplementationPage() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton href="/campaigns">
+                <SidebarMenuButton href="/campaigns" isActive>
                   <Megaphone />
                   <span>Campaigns</span>
                 </SidebarMenuButton>
@@ -98,7 +125,7 @@ export default function ImplementationPage() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton href="/implementation" isActive>
+                <SidebarMenuButton href="/implementation">
                   <BookUser />
                   <span>Implementation</span>
                 </SidebarMenuButton>
@@ -118,19 +145,38 @@ export default function ImplementationPage() {
         <SidebarInset>
           <DashboardHeader 
             user={currentUser} 
-            title="Implementation & Training" 
-            description="Manage project delivery and user training for closed deals."
+            title={selectedCampaign ? selectedCampaign.name : "Campaigns"}
+            description={selectedCampaign ? selectedCampaign.type : "Manage marketing campaigns and track performance."}
+            onAddButtonClick={() => selectedCampaign ? setIsAddLeadOpen(true) : setIsAddCampaignOpen(true)}
+            addButtonText={selectedCampaign ? "Add Lead" : "Add Campaign"}
           />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
-            <ImplementationTable onViewDetails={setSelectedLead} leads={initialLeads} />
+            {selectedCampaign ? (
+              <CampaignDetailsView 
+                campaign={selectedCampaign} 
+                leads={campaignLeads}
+                onBack={handleBackToList}
+              />
+            ) : (
+              <CampaignsTable 
+                campaigns={campaignList}
+                onViewDetails={handleSelectCampaign} 
+              />
+            )}
           </main>
         </SidebarInset>
       </div>
-      <LeadDetailsDialog
-        lead={selectedLead}
-        isOpen={!!selectedLead}
-        onOpenChange={(isOpen) => !isOpen && setSelectedLead(null)}
-        currentUser={currentUser}
+      <AddCampaignDialog
+        isOpen={isAddCampaignOpen}
+        onOpenChange={setIsAddCampaignOpen}
+        onCampaignAdded={handleAddCampaign}
+      />
+      <AddLeadDialog
+        isOpen={isAddLeadOpen}
+        onOpenChange={setIsAddLeadOpen}
+        onLeadAdded={handleAddLead}
+        users={users}
+        defaultCampaignId={selectedCampaign?.id}
       />
     </SidebarProvider>
   );

@@ -29,6 +29,7 @@ import {
   FileSignature,
   BookUser,
   Rocket,
+  Megaphone,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -73,6 +74,12 @@ export default function LeadsPage() {
                 <SidebarMenuButton href="/">
                   <LayoutDashboard />
                   <span>Dashboard</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton href="/campaigns">
+                  <Megaphone />
+                  <span>Campaigns</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
