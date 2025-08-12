@@ -26,14 +26,14 @@ import {
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import type { Campaign } from '@/lib/data';
+import type { Campaign, Lead } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '../ui/textarea';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
-import { CalendarIcon, Loader2, Wand2 } from 'lucide-react';
+import { CalendarIcon, Loader2, PlusCircle, Trash2, Wand2 } from 'lucide-react';
 import { Calendar } from '../ui/calendar';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
@@ -41,6 +41,14 @@ import { useState } from 'react';
 import { generateCampaignBriefAction } from '@/app/actions/generate-campaign-brief';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import { Label } from '../ui/label';
+import { Separator } from '../ui/separator';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+
+const leadSchema = z.object({
+    name: z.string().min(1, 'Name is required'),
+    email: z.string().email('Invalid email address'),
+    company: z.string().optional(),
+});
 
 const campaignSchema = z.object({
   name: z.string().min(1, 'Campaign name is required'),
@@ -52,6 +60,7 @@ const campaignSchema = z.object({
   targetAudience: z.string().optional(),
   keyMessages: z.string().optional(),
   goals: z.string().optional(),
+  leads: z.array(leadSchema).optional(),
 });
 
 type CampaignFormValues = z.infer<typeof campaignSchema>;
@@ -59,10 +68,10 @@ type CampaignFormValues = z.infer<typeof campaignSchema>;
 interface AddCampaignDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onCampaignAdded: (campaign: Campaign) => void;
+  onCampaignAndLeadsAdded: (campaign: Campaign, leads: Lead[]) => void;
 }
 
-export function AddCampaignDialog({ isOpen, onOpenChange, onCampaignAdded }: AddCampaignDialogProps) {
+export function AddCampaignDialog({ isOpen, onOpenChange, onCampaignAndLeadsAdded: onCampaignAdded }: AddCampaignDialogProps) {
   const { toast } = useToast();
   const [isGenerating, setIsGenerating] = useState(false);
   const [aiIdea, setAiIdea] = useState('');
@@ -73,7 +82,13 @@ export function AddCampaignDialog({ isOpen, onOpenChange, onCampaignAdded }: Add
       name: '',
       type: 'Conference',
       budget: 10000,
+      leads: [],
     },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "leads",
   });
 
   const handleGenerateBrief = async () => {
@@ -100,21 +115,51 @@ export function AddCampaignDialog({ isOpen, onOpenChange, onCampaignAdded }: Add
   };
 
   const onSubmit = (values: CampaignFormValues) => {
+    const campaignId = `campaign-${Date.now()}`;
     const newCampaign: Campaign = {
-      id: `campaign-${Date.now()}`,
-      ...values,
+      id: campaignId,
+      name: values.name,
+      type: values.type,
       startDate: values.startDate.toISOString(),
       endDate: values.endDate.toISOString(),
+      budget: values.budget,
       description: values.description || '',
       targetAudience: values.targetAudience || '',
       keyMessages: values.keyMessages || '',
       goals: values.goals || '',
     };
+    
+    const newLeads: Lead[] = (values.leads || []).filter(l => l.name && l.email).map(lead => ({
+      id: `lead-${Date.now()}-${Math.random()}`,
+      title: `Lead from ${values.name}`,
+      company: lead.company || 'N/A',
+      value: 0,
+      currency: 'USD',
+      ownerId: 'user-1', // Default owner, can be changed later
+      campaignId: campaignId,
+      contact: {
+        name: lead.name,
+        email: lead.email,
+        phone: '',
+        title: 'N/A',
+      },
+      columnId: 'col-1',
+      score: 50,
+      priority: 'Medium',
+      entryDate: new Date().toISOString(),
+      lastContact: new Date().toISOString(),
+      nextAction: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+      source: values.type,
+      companySize: '11-50',
+      industry: 'N/A',
+      region: 'N/A',
+      followUpCadence: [],
+    }));
 
-    onCampaignAdded(newCampaign);
+    onCampaignAdded(newCampaign, newLeads);
     toast({
       title: 'Campaign Created',
-      description: `${newCampaign.name} has been successfully created.`,
+      description: `${newCampaign.name} with ${newLeads.length} leads has been successfully created.`,
     });
     form.reset();
     onOpenChange(false);
@@ -122,34 +167,35 @@ export function AddCampaignDialog({ isOpen, onOpenChange, onCampaignAdded }: Add
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col">
+      <DialogContent className="sm:max-w-4xl max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Add New Campaign</DialogTitle>
           <DialogDescription>
-            Fill in the details below to create a new campaign.
+            Fill in the details below to create a new campaign and add leads from an event.
           </DialogDescription>
         </DialogHeader>
         <div className="flex-grow overflow-y-auto pr-4 -mr-4">
-          <div className='border rounded-lg p-4 space-y-2'>
-              <Label htmlFor='ai-idea'>Generate Brief with AI</Label>
-              <div className='flex gap-2'>
-                  <Input id='ai-idea' placeholder='e.g., A webinar about Q3 product updates' value={aiIdea} onChange={(e) => setAiIdea(e.target.value)} />
-                  <Button onClick={handleGenerateBrief} disabled={isGenerating}>
-                      {isGenerating ? <Loader2 className='animate-spin' /> : <Wand2 />}
-                      Generate
-                  </Button>
-              </div>
-              {!form.formState.isDirty && (
-                  <Alert>
-                      <AlertTitle>How it works</AlertTitle>
-                      <AlertDescription>
-                          Type a simple idea for a campaign and let AI generate a full brief, including target audience, key messages, and goals.
-                      </AlertDescription>
-                  </Alert>
-              )}
-          </div>
           <Form {...form}>
-            <form id="add-campaign-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 mt-4">
+            <form id="add-campaign-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <div className='border rounded-lg p-4 space-y-2'>
+                  <Label htmlFor='ai-idea'>Generate Brief with AI</Label>
+                  <div className='flex gap-2'>
+                      <Input id='ai-idea' placeholder='e.g., A webinar about Q3 product updates' value={aiIdea} onChange={(e) => setAiIdea(e.target.value)} />
+                      <Button onClick={handleGenerateBrief} disabled={isGenerating}>
+                          {isGenerating ? <Loader2 className='animate-spin' /> : <Wand2 />}
+                          Generate
+                      </Button>
+                  </div>
+                  {!form.formState.isDirty && (
+                      <Alert>
+                          <AlertTitle>How it works</AlertTitle>
+                          <AlertDescription>
+                              Type a simple idea for a campaign and let AI generate a full brief, including target audience, key messages, and goals.
+                          </AlertDescription>
+                      </Alert>
+                  )}
+              </div>
+              
               <FormField
                 control={form.control}
                 name="name"
@@ -178,6 +224,7 @@ export function AddCampaignDialog({ isOpen, onOpenChange, onCampaignAdded }: Add
                               </SelectTrigger>
                               </FormControl>
                               <SelectContent>
+                              <Conference className="mr-2 h-4 w-4" /> <span>Conference</span>
                               <SelectItem value="Conference">Conference</SelectItem>
                               <SelectItem value="Webinar">Webinar</SelectItem>
                               <SelectItem value="Trade Show">Trade Show</SelectItem>
@@ -332,6 +379,77 @@ export function AddCampaignDialog({ isOpen, onOpenChange, onCampaignAdded }: Add
                   </FormItem>
                 )}
               />
+
+              <Separator />
+
+              <Card>
+                <CardHeader>
+                    <CardTitle>Add Leads from Campaign</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    {fields.map((field, index) => (
+                        <div key={field.id} className="grid grid-cols-[1fr_1fr_1fr_auto] gap-2 items-start">
+                            <FormField
+                                control={form.control}
+                                name={`leads.${index}.name`}
+                                render={({ field }) => (
+                                    <FormItem>
+                                        {index === 0 && <FormLabel>Name</FormLabel>}
+                                        <FormControl>
+                                            <Input {...field} placeholder="John Doe" />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name={`leads.${index}.email`}
+                                render={({ field }) => (
+                                    <FormItem>
+                                        {index === 0 && <FormLabel>Email</FormLabel>}
+                                        <FormControl>
+                                            <Input {...field} placeholder="john.d@company.com" />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                             <FormField
+                                control={form.control}
+                                name={`leads.${index}.company`}
+                                render={({ field }) => (
+                                    <FormItem>
+                                        {index === 0 && <FormLabel>Company</FormLabel>}
+                                        <FormControl>
+                                            <Input {...field} placeholder="Company Inc." />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className={cn(index === 0 ? "mt-8" : "")}
+                                onClick={() => remove(index)}
+                            >
+                                <Trash2 className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    ))}
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => append({ name: '', email: '', company: '' })}
+                    >
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Add Lead
+                    </Button>
+                </CardContent>
+              </Card>
+
             </form>
           </Form>
         </div>

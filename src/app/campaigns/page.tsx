@@ -55,8 +55,11 @@ export default function CampaignsPage() {
   const [leadList, setLeadList] = useState<Lead[]>(leads);
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
 
-  const handleAddCampaign = (newCampaign: Campaign) => {
+  const handleAddCampaign = (newCampaign: Campaign, newLeads: Lead[]) => {
     setCampaignList((prev) => [newCampaign, ...prev]);
+    if (newLeads.length > 0) {
+      setLeadList((prev) => [...newLeads, ...prev]);
+    }
   };
   
   const handleAddLead = (newLead: Lead) => {
@@ -169,7 +172,7 @@ export default function CampaignsPage() {
       <AddCampaignDialog
         isOpen={isAddCampaignOpen}
         onOpenChange={setIsAddCampaignOpen}
-        onCampaignAdded={handleAddCampaign}
+        onCampaignAndLeadsAdded={handleAddCampaign}
       />
       <AddLeadDialog
         isOpen={isAddLeadOpen}
