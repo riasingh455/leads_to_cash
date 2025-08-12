@@ -99,7 +99,7 @@ export function AddCampaignDialog({ isOpen, onOpenChange, onCampaignAndLeadsAdde
     setIsGenerating(true);
     const result = await generateCampaignBriefAction({ 
         campaignIdea: aiIdea,
-        companyInfo: "OncoFlow is a B2B SaaS company selling a CRM for sales lifecycle management."
+        companyInfo: "Leads to Cash is a B2B SaaS company selling a CRM for sales lifecycle management."
     });
     if ('error' in result) {
         toast({ variant: 'destructive', title: 'Error generating brief', description: result.error });

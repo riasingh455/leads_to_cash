@@ -27,7 +27,7 @@ export function DashboardHeader({
   onAddButtonClick,
   addButtonText = 'Add Lead',
   exportData,
-  exportFilename = `onco-flow-export-${format(new Date(), 'yyyy-MM-dd')}.csv`
+  exportFilename = `leads-to-cash-export-${format(new Date(), 'yyyy-MM-dd')}.csv`
 }: DashboardHeaderProps) {
 
   const handleExport = () => {

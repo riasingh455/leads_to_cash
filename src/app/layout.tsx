@@ -3,8 +3,8 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: 'OncoFlow',
-  description: 'AI-Powered Lead Lifecycle Management',
+  title: 'Leads to Cash',
+  description: 'From Leads to Cash: AI-Powered Sales Lifecycle Management',
 };
 
 export default function RootLayout({

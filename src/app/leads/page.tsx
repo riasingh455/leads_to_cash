@@ -64,7 +64,7 @@ export default function LeadsPage() {
           <SidebarHeader>
             <div className="flex items-center gap-3">
               <Building className="size-8 text-primary" />
-              <h1 className="text-xl font-semibold font-headline">OncoFlow</h1>
+              <h1 className="text-xl font-semibold font-headline">Leads to Cash</h1>
             </div>
           </SidebarHeader>
           <SidebarContent>
