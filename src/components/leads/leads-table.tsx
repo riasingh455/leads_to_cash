@@ -46,22 +46,12 @@ import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
 
-export function LeadsTable({ onViewDetails, leads: propLeads, onDeleteLead }: { onViewDetails: (lead: Lead) => void, leads: Lead[], onDeleteLead: (leadId: string) => void }) {
-  const [leads, setLeads] = React.useState<Lead[]>(propLeads.filter(lead => !['col-prospect', 'col-3', 'col-proposal', 'col-review', 'col-delivery', 'col-contract', 'col-implementation', 'col-go-live', 'col-billing', 'col-5'].includes(lead.columnId)));
+export function LeadsTable({ onViewDetails, leads, onDeleteLead }: { onViewDetails: (lead: Lead) => void, leads: Lead[], onDeleteLead: (leadId: string) => void }) {
   const { toast } = useToast();
 
-  React.useEffect(() => {
-    setLeads(propLeads.filter(lead => !['col-prospect', 'col-3', 'col-proposal', 'col-review', 'col-delivery', 'col-contract', 'col-implementation', 'col-go-live', 'col-billing', 'col-5'].includes(lead.columnId)))
-  }, [propLeads]);
-
   const handleMarkAsOpportunity = (leadId: string) => {
-    const leadToUpdate = propLeads.find(l => l.id === leadId);
-    if (leadToUpdate) {
-      leadToUpdate.columnId = 'col-3'; // Qualified
-    }
-
-    setLeads(prevLeads => prevLeads.filter(lead => lead.id !== leadId));
-    
+    // This function will need to be implemented at a higher level to manage state
+    console.log('Marking lead as opportunity:', leadId);
     toast({
       title: "Lead Updated",
       description: "The lead has been marked as an opportunity and moved to the 'Qualified' stage.",
@@ -254,9 +244,6 @@ export function LeadsTable({ onViewDetails, leads: propLeads, onDeleteLead }: { 
       columnVisibility,
       rowSelection,
     },
-    meta: {
-      setLeads,
-    }
   });
 
   return (

@@ -18,9 +18,9 @@ interface CampaignDetailsViewProps {
   onAddLead: () => void;
 }
 
-const DetailRow = ({ icon, label, value }: { icon: React.ElementType, label: string, value: React.ReactNode }) => (
+const DetailRow = ({ icon: Icon, label, value }: { icon: React.ElementType, label: string, value: React.ReactNode }) => (
   <div className="flex items-start gap-4">
-    <dt className="flex items-center gap-2 text-muted-foreground"><icon className="w-5 h-5" /> {label}</dt>
+    <dt className="flex items-center gap-2 text-muted-foreground"><Icon className="w-5 h-5" /> {label}</dt>
     <dd className="font-medium">{value}</dd>
   </div>
 );
@@ -127,7 +127,7 @@ export function CampaignDetailsView({ campaign, leads, onBack, onViewLeadDetails
                     </Button>
                 </CardHeader>
                 <CardContent>
-                    <LeadsTable onViewDetails={onViewLeadDetails} initialLeads={leads} />
+                    <LeadsTable onViewDetails={onViewLeadDetails} leads={leads} onDeleteLead={() => {}}/>
                 </CardContent>
             </Card>
         </div>
