@@ -126,7 +126,7 @@ export function CampaignsTable({ campaigns, onViewDetails, onDeleteCampaign }: C
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <AlertDialogTrigger asChild>
-                  <DropdownMenuItem className="text-red-600" onSelect={(e) => e.preventDefault()}>
+                  <DropdownMenuItem className="text-red-600" onSelect={(e) => e.preventDefault()} onClick={(e) => e.stopPropagation()}>
                     Delete
                   </DropdownMenuItem>
                 </AlertDialogTrigger>

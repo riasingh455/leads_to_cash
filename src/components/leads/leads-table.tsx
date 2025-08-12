@@ -208,7 +208,7 @@ export function LeadsTable({ onViewDetails, leads, onDeleteLead }: { onViewDetai
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <AlertDialogTrigger asChild>
-                  <DropdownMenuItem className='text-red-600' onSelect={(e) => e.preventDefault()}>Delete</DropdownMenuItem>
+                  <DropdownMenuItem className='text-red-600' onSelect={(e) => e.preventDefault()} onClick={(e) => e.stopPropagation()}>Delete</DropdownMenuItem>
                 </AlertDialogTrigger>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -239,7 +239,6 @@ export function LeadsTable({ onViewDetails, leads, onDeleteLead }: { onViewDetai
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({
         campaignId: false,
-        entryDate: false,
     });
   const [rowSelection, setRowSelection] = React.useState({});
 
