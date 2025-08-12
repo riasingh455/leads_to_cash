@@ -56,7 +56,10 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
   
   const stageIndex = columns.findIndex(c => c.id === lead.columnId);
   const stages = {
+    newLead: columns.findIndex(c => c.id === 'col-1'),
+    contacted: columns.findIndex(c => c.id === 'col-2'),
     prospect: columns.findIndex(c => c.id === 'col-prospect'),
+    qualified: columns.findIndex(c => c.id === 'col-3'),
     proposal: columns.findIndex(c => c.id === 'col-proposal'),
     review: columns.findIndex(c => c.id === 'col-review'),
     delivery: columns.findIndex(c => c.id === 'col-delivery'),
@@ -64,15 +67,13 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
     implementation: columns.findIndex(c => c.id === 'col-implementation'),
   }
 
-  const isLateStageDeal = stageIndex >= stages.delivery && stageIndex <= stages.contract;
-
   const getVisibleTabs = () => {
     const baseTabs = [
       { id: 'details', label: 'Details', icon: null },
       { id: 'follow-up', label: 'Follow-up', icon: <Handshake className="w-4 h-4 mr-2"/> },
     ];
     
-    if (stageIndex >= stages.prospect && stageIndex < stages.proposal) {
+    if (stageIndex >= stages.prospect && stageIndex <= stages.qualified) {
         baseTabs.push({ id: 'prospecting', label: 'Prospecting', icon: <Target className="w-4 h-4 mr-2" /> });
     }
     
@@ -84,7 +85,7 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
         baseTabs.push({ id: 'review', label: 'Review', icon: <Search className="w-4 h-4 mr-2" /> });
     }
     
-    if (isLateStageDeal) {
+    if (stageIndex >= stages.delivery && stageIndex <= stages.contract) {
       baseTabs.push({ id: 'delivery-contract', label: 'Delivery & Contract', icon: <FileSignature className="w-4 h-4 mr-2" /> });
     }
     
@@ -104,8 +105,8 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
   const visibleTabs = getVisibleTabs();
 
   const getDefaultTab = () => {
-    if (isLateStageDeal) return "delivery-contract";
     if (stageIndex >= stages.implementation) return "implementation";
+    if (stageIndex >= stages.delivery) return "delivery-contract";
     if (stageIndex >= stages.review) return "review";
     if (stageIndex >= stages.proposal) return "proposal";
     if (stageIndex >= stages.prospect) return "prospecting";
@@ -589,4 +590,3 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
     </Dialog>
   );
 }
-
