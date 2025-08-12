@@ -25,6 +25,7 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { cn } from '@/lib/utils';
 
 interface LeadDetailsDialogProps {
   lead: Lead | null;
@@ -65,36 +66,35 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
 
   const isLateStageDeal = tabVisibility.delivery || tabVisibility.contract;
 
-  const visibleTabs = ['details', 'follow-up', 
-    tabVisibility.prospecting && 'prospecting',
-    tabVisibility.proposal && 'proposal',
-    tabVisibility.review && 'review',
-    isLateStageDeal ? 'delivery-contract' : null,
-    !isLateStageDeal && tabVisibility.delivery ? 'delivery' : null,
-    !isLateStageDeal && tabVisibility.contract ? 'contract' : null,
-    'stakeholders', 'next-steps', 'documents'].filter(Boolean) as string[];
+  const visibleTabs = [
+    { id: 'details', label: 'Details', icon: null },
+    { id: 'follow-up', label: 'Follow-up', icon: <Handshake className="w-4 h-4 mr-2"/> },
+    tabVisibility.prospecting && { id: 'prospecting', label: 'Prospecting', icon: <Target className="w-4 h-4 mr-2" /> },
+    tabVisibility.proposal && { id: 'proposal', label: 'Proposal', icon: <FileUp className="w-4 h-4 mr-2" /> },
+    tabVisibility.review && { id: 'review', label: 'Review', icon: <Search className="w-4 h-4 mr-2" /> },
+    isLateStageDeal && { id: 'delivery-contract', label: 'Delivery & Contract', icon: <FileSignature className="w-4 h-4 mr-2" /> },
+    { id: 'stakeholders', label: 'Stakeholders', icon: <Users className="w-4 h-4 mr-2"/>, disabled: !canUseAiFeatures },
+    { id: 'next-steps', label: 'Next Steps', icon: <Lightbulb className="w-4 h-4 mr-2"/>, disabled: !canUseAiFeatures },
+    { id: 'documents', label: 'Documents', icon: <FolderKanban className="w-4 h-4 mr-2"/> }
+  ].filter(Boolean) as ({ id: string, label: string, icon: React.ReactNode, disabled?: boolean})[];
 
+  const defaultTab = isLateStageDeal ? "delivery-contract" : "details";
+  
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl h-[90vh] flex flex-col">
+      <DialogContent className="max-w-5xl h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="font-headline text-2xl">{lead.title}</DialogTitle>
           <DialogDescription>{lead.company}</DialogDescription>
         </DialogHeader>
         <div className="flex-grow overflow-hidden">
-          <Tabs defaultValue={isLateStageDeal ? "delivery-contract" : "details"} className="flex flex-col h-full">
-            <TabsList className={`grid w-full grid-cols-10`}>
-              {visibleTabs.includes('details') && <TabsTrigger value="details">Details</TabsTrigger>}
-              {visibleTabs.includes('follow-up') && <TabsTrigger value="follow-up"><Handshake className="w-4 h-4 mr-2"/>Follow-up</TabsTrigger>}
-              {visibleTabs.includes('prospecting') && <TabsTrigger value="prospecting"><Target className="w-4 h-4 mr-2" />Prospecting</TabsTrigger>}
-              {visibleTabs.includes('proposal') && <TabsTrigger value="proposal"><FileUp className="w-4 h-4 mr-2" />Proposal</TabsTrigger>}
-              {visibleTabs.includes('review') && <TabsTrigger value="review"><Search className="w-4 h-4 mr-2" />Review</TabsTrigger>}
-              {visibleTabs.includes('delivery-contract') && <TabsTrigger value="delivery-contract"><FileSignature className="w-4 h-4 mr-2" />Delivery & Contract</TabsTrigger>}
-              {visibleTabs.includes('delivery') && <TabsTrigger value="delivery"><Presentation className="w-4 h-4 mr-2" />Delivery</TabsTrigger>}
-              {visibleTabs.includes('contract') && <TabsTrigger value="contract"><FileSignature className="w-4 h-4 mr-2" />Contract</TabsTrigger>}
-              {visibleTabs.includes('stakeholders') && <TabsTrigger value="stakeholders" disabled={!canUseAiFeatures}><Users className="w-4 h-4 mr-2"/>Stakeholders</TabsTrigger>}
-              {visibleTabs.includes('next-steps') && <TabsTrigger value="next-steps" disabled={!canUseAiFeatures}><Lightbulb className="w-4 h-4 mr-2"/>Next Steps</TabsTrigger>}
-              {visibleTabs.includes('documents') && <TabsTrigger value="documents"><FolderKanban className="w-4 h-4 mr-2"/>Documents</TabsTrigger>}
+          <Tabs defaultValue={defaultTab} className="flex flex-col h-full">
+            <TabsList className={cn(`grid w-full`, `grid-cols-${visibleTabs.length}`)}>
+              {visibleTabs.map(tab => (
+                <TabsTrigger key={tab.id} value={tab.id} disabled={tab.disabled}>
+                  {tab.icon}{tab.label}
+                </TabsTrigger>
+              ))}
             </TabsList>
             
             <TabsContent value="details" className="flex-grow overflow-auto p-1">
@@ -337,113 +337,114 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
               </TabsContent>
             )}
             
-            <TabsContent value="delivery-contract" className="flex-grow overflow-auto p-1 space-y-4">
-                 <Card>
-                  <CardHeader>
-                    <CardTitle className='flex items-center gap-2'><Presentation className="w-6 h-6 text-primary" />Client Delivery</CardTitle>
-                    <CardDescription>Details of the proposal presentation and client feedback.</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    {lead.clientDeliveryData ? (
-                       <div className="space-y-6">
-                         <div>
-                          <h4 className="font-semibold flex items-center gap-2 mb-2"><Users2 className="w-5 h-5 text-primary" />Client Presentation</h4>
-                           <div className="text-sm grid md:grid-cols-2 gap-x-8 gap-y-2 pl-7">
-                              <DetailRow label="Proposal Sent" value={format(new Date(lead.clientDeliveryData.proposalSentDate), 'PPP')} />
-                              <DetailRow label="Presentation Date" value={format(new Date(lead.clientDeliveryData.proposalPresentationDate), 'PPP')} />
-                              <DetailRow label="Presentation Method" value={lead.clientDeliveryData.presentationMethod} />
-                              <DetailRow label="Decision Maker Present" value={lead.clientDeliveryData.decisionMakerPresent} />
-                              <div className="col-span-2 space-y-1">
-                                <p className="font-medium text-muted-foreground">Attendees:</p>
-                                <p className="whitespace-pre-wrap pl-6">{lead.clientDeliveryData.attendees}</p>
-                              </div>
-                           </div>
-                         </div>
-                         <Separator />
+            {isLateStageDeal && (
+              <TabsContent value="delivery-contract" className="flex-grow overflow-auto p-1 space-y-4">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className='flex items-center gap-2'><Presentation className="w-6 h-6 text-primary" />Client Delivery</CardTitle>
+                      <CardDescription>Details of the proposal presentation and client feedback.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      {lead.clientDeliveryData ? (
+                        <div className="space-y-6">
                           <div>
-                            <h4 className="font-semibold flex items-center gap-2 mb-2"><Info className="w-5 h-5 text-blue-500" />Feedback & Negotiation</h4>
+                            <h4 className="font-semibold flex items-center gap-2 mb-2"><Users2 className="w-5 h-5 text-primary" />Client Presentation</h4>
                             <div className="text-sm grid md:grid-cols-2 gap-x-8 gap-y-2 pl-7">
-                              <DetailRow label="Revision Requested" value={lead.clientDeliveryData.proposalRevisionRequested} />
-                              <DetailRow label="Decision Timeline" value={lead.clientDeliveryData.decisionTimeline} />
-                              <div className="col-span-2 space-y-1">
-                                <p className="font-medium text-muted-foreground">Client Feedback:</p>
-                                <p className="whitespace-pre-wrap pl-6">{lead.clientDeliveryData.clientFeedback}</p>
-                              </div>
-                              <div className="col-span-2 space-y-1">
-                                <p className="font-medium text-muted-foreground">Client Questions/Objections:</p>
-                                <p className="whitespace-pre-wrap pl-6">{lead.clientDeliveryData.clientQuestions}</p>
-                              </div>
-                               <div className="col-span-2 space-y-1">
-                                <p className="font-medium text-muted-foreground">Additional Requirements:</p>
-                                <p className="whitespace-pre-wrap pl-6">{lead.clientDeliveryData.additionalRequirements}</p>
-                              </div>
-                              <div className="col-span-2 space-y-1">
-                                <p className="font-medium text-muted-foreground">Follow-up Actions:</p>
-                                <p className="whitespace-pre-wrap pl-6">{lead.clientDeliveryData.followUpActions}</p>
-                              </div>
-                               <div className="col-span-2 space-y-1">
-                                <p className="font-medium text-muted-foreground">Competitive Situation:</p>
-                                <p className="whitespace-pre-wrap pl-6">{lead.clientDeliveryData.competitiveSituationUpdate}</p>
-                              </div>
+                                <DetailRow label="Proposal Sent" value={lead.clientDeliveryData.proposalSentDate ? format(new Date(lead.clientDeliveryData.proposalSentDate), 'PPP') : 'N/A'} />
+                                <DetailRow label="Presentation Date" value={lead.clientDeliveryData.proposalPresentationDate ? format(new Date(lead.clientDeliveryData.proposalPresentationDate), 'PPP') : 'N/A'} />
+                                <DetailRow label="Presentation Method" value={lead.clientDeliveryData.presentationMethod} />
+                                <DetailRow label="Decision Maker Present" value={lead.clientDeliveryData.decisionMakerPresent} />
+                                <div className="col-span-2 space-y-1">
+                                  <p className="font-medium text-muted-foreground">Attendees:</p>
+                                  <p className="whitespace-pre-wrap pl-6">{lead.clientDeliveryData.attendees}</p>
+                                </div>
                             </div>
                           </div>
-                       </div>
-                    ) : <p className="text-muted-foreground">No client delivery data available.</p>}
-                  </CardContent>
-                 </Card>
-                 <Card>
-                  <CardHeader>
-                    <CardTitle className='flex items-center gap-2'><FileSignature className="w-6 h-6 text-primary" />Contract</CardTitle>
-                    <CardDescription>Details of the legal agreement and final terms.</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    {lead.contractData ? (
-                       <div className="space-y-6">
-                         <div>
-                          <h4 className="font-semibold flex items-center gap-2 mb-2"><Newspaper className="w-5 h-5 text-primary" />Legal & Agreement</h4>
-                           <div className="text-sm grid md:grid-cols-2 gap-x-8 gap-y-2 pl-7">
-                              <DetailRow label="Contract Template" value={lead.contractData.templateUsed} />
-                              <DetailRow label="Contract Version" value={lead.contractData.version} />
-                              <DetailRow label="Legal Review" value={lead.contractData.legalReviewRequired} />
-                              <DetailRow label="Legal Reviewer" value={lead.contractData.legalReviewer || 'N/A'} />
-                              <DetailRow label="Contract Sent" value={lead.contractData.sentDate ? format(new Date(lead.contractData.sentDate), 'PPP') : 'N/A'} />
-                              <DetailRow label="Client Review" value={lead.contractData.clientReviewStatus} />
-                              <DetailRow label="Final Contract Date" value={lead.contractData.finalDate ? format(new Date(lead.contractData.finalDate), 'PPP') : 'N/A'} />
-                              <DetailRow label="Signed Date" value={lead.contractData.signedDate ? format(new Date(lead.contractData.signedDate), 'PPP') : 'N/A'} />
-                              <DetailRow label="Final Value" value={`$${lead.contractData.finalValue.toLocaleString()} ${lead.currency}`} />
-                              <DetailRow label="Payment Terms" value={lead.contractData.paymentTerms} />
-                           </div>
-                         </div>
-                         <Separator />
+                          <Separator />
+                            <div>
+                              <h4 className="font-semibold flex items-center gap-2 mb-2"><Info className="w-5 h-5 text-blue-500" />Feedback & Negotiation</h4>
+                              <div className="text-sm grid md:grid-cols-2 gap-x-8 gap-y-2 pl-7">
+                                <DetailRow label="Revision Requested" value={lead.clientDeliveryData.proposalRevisionRequested} />
+                                <DetailRow label="Decision Timeline" value={lead.clientDeliveryData.decisionTimeline} />
+                                <div className="col-span-2 space-y-1">
+                                  <p className="font-medium text-muted-foreground">Client Feedback:</p>
+                                  <p className="whitespace-pre-wrap pl-6">{lead.clientDeliveryData.clientFeedback}</p>
+                                </div>
+                                <div className="col-span-2 space-y-1">
+                                  <p className="font-medium text-muted-foreground">Client Questions/Objections:</p>
+                                  <p className="whitespace-pre-wrap pl-6">{lead.clientDeliveryData.clientQuestions}</p>
+                                </div>
+                                <div className="col-span-2 space-y-1">
+                                  <p className="font-medium text-muted-foreground">Additional Requirements:</p>
+                                  <p className="whitespace-pre-wrap pl-6">{lead.clientDeliveryData.additionalRequirements}</p>
+                                </div>
+                                <div className="col-span-2 space-y-1">
+                                  <p className="font-medium text-muted-foreground">Follow-up Actions:</p>
+                                  <p className="whitespace-pre-wrap pl-6">{lead.clientDeliveryData.followUpActions}</p>
+                                </div>
+                                <div className="col-span-2 space-y-1">
+                                  <p className="font-medium text-muted-foreground">Competitive Situation:</p>
+                                  <p className="whitespace-pre-wrap pl-6">{lead.clientDeliveryData.competitiveSituationUpdate}</p>
+                                </div>
+                              </div>
+                            </div>
+                        </div>
+                      ) : <p className="text-muted-foreground">No client delivery data available.</p>}
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className='flex items-center gap-2'><FileSignature className="w-6 h-6 text-primary" />Contract</CardTitle>
+                      <CardDescription>Details of the legal agreement and final terms.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      {lead.contractData ? (
+                        <div className="space-y-6">
                           <div>
-                            <h4 className="font-semibold flex items-center gap-2 mb-2"><Info className="w-5 h-5 text-blue-500" />Details & History</h4>
-                            <div className="text-sm grid grid-cols-1 gap-y-2 pl-7">
-                              <div className="space-y-1">
-                                <p className="font-medium text-muted-foreground">Redlines/Changes Requested:</p>
-                                <p className="whitespace-pre-wrap pl-6">{lead.contractData.redlinesRequested}</p>
-                              </div>
-                              <div className="space-y-1">
-                                <p className="font-medium text-muted-foreground">Negotiation Log:</p>
-                                <p className="whitespace-pre-wrap pl-6">{lead.contractData.negotiationLog}</p>
-                              </div>
-                              <div className="space-y-1">
-                                <p className="font-medium text-muted-foreground">Key Clauses:</p>
-                                <p className="whitespace-pre-wrap pl-6">{lead.contractData.keyClauses}</p>
-                              </div>
-                               <div className="space-y-1">
-                                <p className="font-medium text-muted-foreground">Renewal Terms:</p>
-                                <p className="whitespace-pre-wrap pl-6">{lead.contractData.renewalTerms}</p>
-                              </div>
-                              <div className="space-y-1">
-                                <p className="font-medium text-muted-foreground">Success Criteria:</p>
-                                <p className="whitespace-pre-wrap pl-6">{lead.contractData.projectSuccessCriteria}</p>
-                              </div>
+                            <h4 className="font-semibold flex items-center gap-2 mb-2"><Newspaper className="w-5 h-5 text-primary" />Legal & Agreement</h4>
+                            <div className="text-sm grid md:grid-cols-2 gap-x-8 gap-y-2 pl-7">
+                                <DetailRow label="Contract Template" value={lead.contractData.templateUsed} />
+                                <DetailRow label="Contract Version" value={lead.contractData.version} />
+                                <DetailRow label="Legal Review" value={lead.contractData.legalReviewRequired} />
+                                <DetailRow label="Legal Reviewer" value={lead.contractData.legalReviewer || 'N/A'} />
+                                <DetailRow label="Contract Sent" value={lead.contractData.sentDate ? format(new Date(lead.contractData.sentDate), 'PPP') : 'N/A'} />
+                                <DetailRow label="Client Review" value={lead.contractData.clientReviewStatus} />
+                                <DetailRow label="Final Contract Date" value={lead.contractData.finalDate ? format(new Date(lead.contractData.finalDate), 'PPP') : 'N/A'} />
+                                <DetailRow label="Signed Date" value={lead.contractData.signedDate ? format(new Date(lead.contractData.signedDate), 'PPP') : 'N/A'} />
+                                <DetailRow label="Final Value" value={`$${lead.contractData.finalValue.toLocaleString()} ${lead.currency}`} />
+                                <DetailRow label="Payment Terms" value={lead.contractData.paymentTerms} />
                             </div>
                           </div>
-                       </div>
-                    ) : <p className="text-muted-foreground">No contract data available.</p>}
-                  </CardContent>
-                 </Card>
+                          <Separator />
+                            <div>
+                              <h4 className="font-semibold flex items-center gap-2 mb-2"><Info className="w-5 h-5 text-blue-500" />Details & History</h4>
+                              <div className="text-sm grid grid-cols-1 gap-y-2 pl-7">
+                                <div className="space-y-1">
+                                  <p className="font-medium text-muted-foreground">Redlines/Changes Requested:</p>
+                                  <p className="whitespace-pre-wrap pl-6">{lead.contractData.redlinesRequested}</p>
+                                </div>
+                                <div className="space-y-1">
+                                  <p className="font-medium text-muted-foreground">Negotiation Log:</p>
+                                  <p className="whitespace-pre-wrap pl-6">{lead.contractData.negotiationLog}</p>
+                                </div>
+                                <div className="space-y-1">
+                                  <p className="font-medium text-muted-foreground">Key Clauses:</p>
+                                  <p className="whitespace-pre-wrap pl-6">{lead.contractData.keyClauses}</p>
+                                </div>
+                                <div className="space-y-1">
+                                  <p className="font-medium text-muted-foreground">Renewal Terms:</p>
+                                  <p className="whitespace-pre-wrap pl-6">{lead.contractData.renewalTerms}</p>
+                                </div>
+                                <div className="space-y-1">
+                                  <p className="font-medium text-muted-foreground">Success Criteria:</p>
+                                  <p className="whitespace-pre-wrap pl-6">{lead.contractData.projectSuccessCriteria}</p>
+                                </div>
+                              </div>
+                            </div>
+                        </div>
+                      ) : <p className="text-muted-foreground">No contract data available.</p>}
+                    </CardContent>
+                  </Card>
               </TabsContent>
             )}
 
@@ -480,5 +481,3 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
     </Dialog>
   );
 }
-
-    
