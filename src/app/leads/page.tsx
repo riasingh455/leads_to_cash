@@ -75,6 +75,12 @@ export default function LeadsPage() {
                   <span>Dashboard</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton href="/campaigns">
+                  <Megaphone />
+                  <span>Campaigns</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
               <Collapsible className="w-full">
                 <CollapsibleTrigger asChild>
                     <SidebarMenuButton>
@@ -84,12 +90,6 @@ export default function LeadsPage() {
                 </CollapsibleTrigger>
                 <CollapsibleContent>
                   <SidebarMenu className='pl-8'>
-                     <SidebarMenuItem>
-                        <SidebarMenuButton href="/campaigns">
-                          <Megaphone />
-                          <span>Campaigns</span>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
                       <SidebarMenuItem>
                         <SidebarMenuButton href="/leads" isActive>
                           <Users />

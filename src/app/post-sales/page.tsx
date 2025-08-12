@@ -57,6 +57,12 @@ export default function PostSalesPage() {
                   <span>Dashboard</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton href="/campaigns">
+                  <Megaphone />
+                  <span>Campaigns</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
               <Collapsible className="w-full">
                 <CollapsibleTrigger asChild>
                     <SidebarMenuButton>
@@ -66,12 +72,6 @@ export default function PostSalesPage() {
                 </CollapsibleTrigger>
                 <CollapsibleContent>
                   <SidebarMenu className='pl-8'>
-                     <SidebarMenuItem>
-                        <SidebarMenuButton href="/campaigns">
-                          <Megaphone />
-                          <span>Campaigns</span>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
                       <SidebarMenuItem>
                         <SidebarMenuButton href="/leads">
                           <Users />

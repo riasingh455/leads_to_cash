@@ -98,6 +98,12 @@ export default function ProposalsPage() {
                   <span>Dashboard</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton href="/campaigns">
+                  <Megaphone />
+                  <span>Campaigns</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
               <Collapsible className="w-full">
                 <CollapsibleTrigger asChild>
                     <SidebarMenuButton>
@@ -107,12 +113,6 @@ export default function ProposalsPage() {
                 </CollapsibleTrigger>
                 <CollapsibleContent>
                   <SidebarMenu className='pl-8'>
-                     <SidebarMenuItem>
-                        <SidebarMenuButton href="/campaigns">
-                          <Megaphone />
-                          <span>Campaigns</span>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
                       <SidebarMenuItem>
                         <SidebarMenuButton href="/leads">
                           <Users />
