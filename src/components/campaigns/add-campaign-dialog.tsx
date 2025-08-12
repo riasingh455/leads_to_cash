@@ -40,6 +40,7 @@ import { format } from 'date-fns';
 import { useState } from 'react';
 import { generateCampaignBriefAction } from '@/app/actions/generate-campaign-brief';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
+import { Label } from '../ui/label';
 
 const campaignSchema = z.object({
   name: z.string().min(1, 'Campaign name is required'),
