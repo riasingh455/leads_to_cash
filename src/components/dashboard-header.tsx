@@ -42,9 +42,9 @@ export function DashboardHeader({
     <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-sm md:px-6">
       <SidebarTrigger className="md:hidden" />
       <div className="flex flex-1 items-center justify-between gap-4">
-        <div className="flex-1">
-          <h1 className="text-2xl font-bold font-headline">{title}</h1>
-          <p className="text-sm text-muted-foreground hidden md:block">{finalDescription}</p>
+        <div className="flex-1 min-w-0">
+          <h1 className="text-2xl font-bold font-headline truncate">{title}</h1>
+          <p className="text-sm text-muted-foreground hidden md:block truncate">{finalDescription}</p>
         </div>
         <div className="flex items-center gap-4">
           {onAddButtonClick && (
