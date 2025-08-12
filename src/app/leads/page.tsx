@@ -42,21 +42,36 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { users, type User, type Lead } from '@/lib/data';
+import { users, type User, type Lead, leads as initialLeads } from '@/lib/data';
 import { DashboardHeader } from '@/components/dashboard-header';
 import { LeadsTable } from '@/components/leads/leads-table';
 import { LeadDetailsDialog } from '@/components/kanban/lead-details-dialog';
 import { AddLeadDialog } from '@/components/leads/add-lead-dialog';
+import { useToast } from '@/hooks/use-toast';
 
 export default function LeadsPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [isAddLeadOpen, setIsAddLeadOpen] = useState(false);
-  const [leads, setLeads] = useState<Lead[]>([]);
+  const [leads, setLeads] = useState<Lead[]>(initialLeads);
+  const { toast } = useToast();
 
   const handleAddLead = (newLead: Lead) => {
     setLeads((prevLeads) => [newLead, ...prevLeads]);
+    initialLeads.unshift(newLead);
   };
+  
+  const handleDeleteLead = (leadId: string) => {
+    setLeads(prev => prev.filter(l => l.id !== leadId));
+    const leadIndex = initialLeads.findIndex(l => l.id === leadId);
+    if (leadIndex > -1) {
+      initialLeads.splice(leadIndex, 1);
+    }
+    toast({
+      title: "Lead Deleted",
+      description: "The lead has been successfully deleted.",
+    });
+  }
 
   return (
     <SidebarProvider defaultOpen>
@@ -132,7 +147,7 @@ export default function LeadsPage() {
             onAddButtonClick={() => setIsAddLeadOpen(true)}
           />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
-            <LeadsTable onViewDetails={setSelectedLead} />
+            <LeadsTable onViewDetails={setSelectedLead} leads={leads} onDeleteLead={handleDeleteLead}/>
           </main>
         </SidebarInset>
       </div>

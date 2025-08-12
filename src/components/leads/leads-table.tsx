@@ -1,3 +1,4 @@
+
 'use client';
 import * as React from 'react';
 import {
@@ -39,17 +40,22 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { leads as initialLeads, type Lead, users, campaigns } from '@/lib/data';
+import { type Lead, users, campaigns } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
 
-export function LeadsTable({ onViewDetails, initialLeads: propLeads }: { onViewDetails: (lead: Lead) => void, initialLeads?: Lead[] }) {
-  const [leads, setLeads] = React.useState<Lead[]>(propLeads || initialLeads.filter(lead => !['col-prospect', 'col-3', 'col-proposal', 'col-review', 'col-delivery', 'col-5'].includes(lead.columnId)));
+export function LeadsTable({ onViewDetails, leads: propLeads, onDeleteLead }: { onViewDetails: (lead: Lead) => void, leads: Lead[], onDeleteLead: (leadId: string) => void }) {
+  const [leads, setLeads] = React.useState<Lead[]>(propLeads.filter(lead => !['col-prospect', 'col-3', 'col-proposal', 'col-review', 'col-delivery', 'col-contract', 'col-implementation', 'col-go-live', 'col-billing', 'col-5'].includes(lead.columnId)));
   const { toast } = useToast();
 
+  React.useEffect(() => {
+    setLeads(propLeads.filter(lead => !['col-prospect', 'col-3', 'col-proposal', 'col-review', 'col-delivery', 'col-contract', 'col-implementation', 'col-go-live', 'col-billing', 'col-5'].includes(lead.columnId)))
+  }, [propLeads]);
+
   const handleMarkAsOpportunity = (leadId: string) => {
-    const leadToUpdate = initialLeads.find(l => l.id === leadId);
+    const leadToUpdate = propLeads.find(l => l.id === leadId);
     if (leadToUpdate) {
       leadToUpdate.columnId = 'col-3'; // Qualified
     }
@@ -179,29 +185,41 @@ export function LeadsTable({ onViewDetails, initialLeads: propLeads }: { onViewD
       cell: ({ row }) => {
         const lead = row.original;
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <DotsHorizontalIcon className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(lead.id)}
-              >
-                Copy lead ID
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => onViewDetails(lead)}>
-                View details
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleMarkAsOpportunity(lead.id)}>
-                Mark as opportunity
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <AlertDialog>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Open menu</span>
+                  <DotsHorizontalIcon className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuItem onClick={() => onViewDetails(lead)}>
+                  View details
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleMarkAsOpportunity(lead.id)}>
+                  Mark as opportunity
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <AlertDialogTrigger asChild>
+                  <DropdownMenuItem className='text-red-600'>Delete</DropdownMenuItem>
+                </AlertDialogTrigger>
+              </DropdownMenuContent>
+            </DropdownMenu>
+             <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will permanently delete the lead &quot;{lead.title}&quot;. This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={() => onDeleteLead(lead.id)} className="bg-red-600 hover:bg-red-700">Yes, delete</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         );
       },
     },
@@ -305,6 +323,8 @@ export function LeadsTable({ onViewDetails, initialLeads: propLeads }: { onViewD
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
+                  onClick={() => onViewDetails(row.original)}
+                  className='cursor-pointer'
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>

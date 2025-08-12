@@ -41,20 +41,35 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { users, type User, type Lead } from '@/lib/data';
+import { users, type User, type Lead, leads as initialLeads } from '@/lib/data';
 import { DashboardHeader } from '@/components/dashboard-header';
 import { OpportunitiesTable } from '@/components/opportunities/opportunities-table';
 import { LeadDetailsDialog } from '@/components/kanban/lead-details-dialog';
 import { AddLeadDialog } from '@/components/leads/add-lead-dialog';
+import { useToast } from '@/hooks/use-toast';
 
 export default function OpportunitiesPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [isAddLeadOpen, setIsAddLeadOpen] = useState(false);
-  const [leads, setLeads] = useState<Lead[]>([]);
+  const [leads, setLeads] = useState<Lead[]>(initialLeads);
+  const { toast } = useToast();
 
   const handleAddLead = (newLead: Lead) => {
     setLeads((prevLeads) => [newLead, ...prevLeads]);
+    initialLeads.unshift(newLead);
+  };
+  
+  const handleDeleteOpportunity = (leadId: string) => {
+    setLeads(prev => prev.filter(l => l.id !== leadId));
+    const leadIndex = initialLeads.findIndex(l => l.id === leadId);
+    if (leadIndex > -1) {
+      initialLeads.splice(leadIndex, 1);
+    }
+    toast({
+      title: "Opportunity Deleted",
+      description: "The opportunity has been successfully deleted.",
+    });
   };
 
   return (
@@ -131,7 +146,7 @@ export default function OpportunitiesPage() {
             onAddButtonClick={() => setIsAddLeadOpen(true)}
           />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
-            <OpportunitiesTable onViewDetails={setSelectedLead} />
+            <OpportunitiesTable onViewDetails={setSelectedLead} leads={leads} onDeleteOpportunity={handleDeleteOpportunity} />
           </main>
         </SidebarInset>
       </div>

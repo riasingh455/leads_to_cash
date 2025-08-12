@@ -42,16 +42,18 @@ import {
 import { type Lead, users, columns as leadColumns } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { format } from 'date-fns';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
 
 const proposalStageIds = ['col-proposal', 'col-review', 'col-delivery'];
 
 interface ProposalsTableProps {
   onViewDetails: (lead: Lead) => void;
   leads: Lead[];
+  onDeleteProposal: (leadId: string) => void;
 }
 
-export function ProposalsTable({ onViewDetails, leads }: ProposalsTableProps) {
-  const data = React.useMemo(() => leads.filter(lead => proposalStageIds.includes(lead.columnId)), [leads]);
+export function ProposalsTable({ onViewDetails, leads: propLeads, onDeleteProposal }: ProposalsTableProps) {
+  const data = React.useMemo(() => propLeads.filter(lead => proposalStageIds.includes(lead.columnId)), [propLeads]);
   
   const columns: ColumnDef<Lead>[] = [
     {
@@ -158,23 +160,40 @@ export function ProposalsTable({ onViewDetails, leads }: ProposalsTableProps) {
       cell: ({ row }) => {
         const lead = row.original;
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <DotsHorizontalIcon className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => onViewDetails(lead)}>
-                View details
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onViewDetails(lead)}>
-                Edit Proposal
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <AlertDialog>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Open menu</span>
+                  <DotsHorizontalIcon className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuItem onClick={() => onViewDetails(lead)}>
+                  View details
+                </DropdownMenuItem>
+                 <DropdownMenuSeparator />
+                <AlertDialogTrigger asChild>
+                  <DropdownMenuItem className="text-red-600">
+                    Delete Proposal
+                  </DropdownMenuItem>
+                </AlertDialogTrigger>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will permanently delete the proposal for &quot;{lead.title}&quot; and revert it to the &quot;Qualified&quot; stage. This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={() => onDeleteProposal(lead.id)} className="bg-red-600 hover:bg-red-700">Yes, delete proposal</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         );
       },
     },
@@ -271,6 +290,8 @@ export function ProposalsTable({ onViewDetails, leads }: ProposalsTableProps) {
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
+                   onClick={() => onViewDetails(row.original)}
+                  className='cursor-pointer'
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>

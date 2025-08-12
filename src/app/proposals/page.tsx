@@ -46,12 +46,14 @@ import { DashboardHeader } from '@/components/dashboard-header';
 import { LeadDetailsDialog } from '@/components/kanban/lead-details-dialog';
 import { ProposalsTable } from '@/components/proposals/proposals-table';
 import { AddProposalDialog } from '@/components/proposals/add-proposal-dialog';
+import { useToast } from '@/hooks/use-toast';
 
 export default function ProposalsPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [isAddProposalOpen, setIsAddProposalOpen] = useState(false);
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
+  const { toast } = useToast();
 
   const handleAddProposal = (leadId: string, proposalData: any) => {
     setLeads((prevLeads) => {
@@ -70,6 +72,26 @@ export default function ProposalsPage() {
       return prevLeads;
     });
   };
+  
+  const handleDeleteProposal = (leadId: string) => {
+    setLeads(prev => {
+      const leadIndex = prev.findIndex(l => l.id === leadId);
+      if (leadIndex > -1) {
+        const updatedLeads = [...prev];
+        const updatedLead = { ...updatedLeads[leadIndex] };
+        delete updatedLead.proposalData;
+        updatedLead.columnId = 'col-3'; // Revert to qualified
+        updatedLeads[leadIndex] = updatedLead;
+        return updatedLeads;
+      }
+      return prev;
+    })
+    
+    toast({
+      title: "Proposal Deleted",
+      description: "The proposal has been deleted and the opportunity stage was reverted.",
+    });
+  }
 
   return (
     <SidebarProvider defaultOpen>
@@ -146,7 +168,7 @@ export default function ProposalsPage() {
             addButtonText="Add Proposal"
           />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
-            <ProposalsTable onViewDetails={setSelectedLead} leads={leads} />
+            <ProposalsTable onViewDetails={setSelectedLead} leads={leads} onDeleteProposal={handleDeleteProposal} />
           </main>
         </SidebarInset>
       </div>

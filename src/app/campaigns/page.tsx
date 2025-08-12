@@ -47,6 +47,7 @@ import { CampaignsTable } from '@/components/campaigns/campaigns-table';
 import { CampaignDetailsView } from '@/components/campaigns/campaign-details-view';
 import { AddLeadDialog } from '@/components/leads/add-lead-dialog';
 import { LeadDetailsDialog } from '@/components/kanban/lead-details-dialog';
+import { useToast } from '@/hooks/use-toast';
 
 export default function CampaignsPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
@@ -56,6 +57,7 @@ export default function CampaignsPage() {
   const [leadList, setLeadList] = useState<Lead[]>(leads);
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const { toast } = useToast();
 
   const handleAddCampaign = (newCampaign: Campaign, newLeads: Lead[]) => {
     setCampaignList((prev) => [newCampaign, ...prev]);
@@ -66,6 +68,15 @@ export default function CampaignsPage() {
   
   const handleAddLead = (newLead: Lead) => {
     setLeadList((prev) => [newLead, ...prev]);
+  };
+
+  const handleDeleteCampaign = (campaignId: string) => {
+    setCampaignList(prev => prev.filter(c => c.id !== campaignId));
+    setLeadList(prev => prev.map(l => l.campaignId === campaignId ? { ...l, campaignId: undefined } : l));
+    toast({
+      title: 'Campaign Deleted',
+      description: 'The campaign and its associations with leads have been removed.',
+    });
   };
   
   const handleSelectCampaign = (campaign: Campaign) => {
@@ -167,7 +178,8 @@ export default function CampaignsPage() {
             ) : (
               <CampaignsTable 
                 campaigns={campaignList}
-                onViewDetails={handleSelectCampaign} 
+                onViewDetails={handleSelectCampaign}
+                onDeleteCampaign={handleDeleteCampaign}
               />
             )}
           </main>

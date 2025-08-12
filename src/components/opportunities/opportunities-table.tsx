@@ -43,24 +43,31 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { leads as initialLeads, type Lead, users, columns as leadColumns } from '@/lib/data';
+import { type Lead, users, columns as leadColumns } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
 
 const opportunityStageIds = ['col-prospect', 'col-3'];
 const opportunityStages = leadColumns.filter(c => opportunityStageIds.includes(c.id));
 
 interface OpportunitiesTableProps {
   onViewDetails: (lead: Lead) => void;
+  leads: Lead[];
+  onDeleteOpportunity: (leadId: string) => void;
 }
 
-export function OpportunitiesTable({ onViewDetails }: OpportunitiesTableProps) {
+export function OpportunitiesTable({ onViewDetails, leads: propLeads, onDeleteOpportunity }: OpportunitiesTableProps) {
   const { toast } = useToast();
-  const [leads, setLeads] = React.useState<Lead[]>(initialLeads.filter(lead => opportunityStageIds.includes(lead.columnId)));
+  const [leads, setLeads] = React.useState<Lead[]>(propLeads.filter(lead => opportunityStageIds.includes(lead.columnId)));
+
+  React.useEffect(() => {
+    setLeads(propLeads.filter(lead => opportunityStageIds.includes(lead.columnId)))
+  }, [propLeads]);
   
   const handleStageUpdate = (leadId: string, newStageId: string) => {
-    const lead = initialLeads.find(l => l.id === leadId);
+    const lead = propLeads.find(l => l.id === leadId);
     if(lead) {
       lead.columnId = newStageId;
     }
@@ -167,41 +174,55 @@ export function OpportunitiesTable({ onViewDetails }: OpportunitiesTableProps) {
       cell: ({ row }) => {
         const lead = row.original;
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <DotsHorizontalIcon className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(lead.id)}
-              >
-                Copy opportunity ID
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => onViewDetails(lead)}>
-                View details
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleStageUpdate(lead.id, 'col-proposal')}>
-                Create Proposal
-              </DropdownMenuItem>
-              <DropdownMenuSub>
-                <DropdownMenuSubTrigger>Update stage</DropdownMenuSubTrigger>
-                <DropdownMenuPortal>
-                  <DropdownMenuSubContent>
-                    {opportunityStages.map(stage => (
-                      <DropdownMenuItem key={stage.id} onClick={() => handleStageUpdate(lead.id, stage.id)}>
-                        {stage.title}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuSubContent>
-                </DropdownMenuPortal>
-              </DropdownMenuSub>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <AlertDialog>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Open menu</span>
+                  <DotsHorizontalIcon className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuItem onClick={() => onViewDetails(lead)}>
+                  View details
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleStageUpdate(lead.id, 'col-proposal')}>
+                  Create Proposal
+                </DropdownMenuItem>
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>Update stage</DropdownMenuSubTrigger>
+                  <DropdownMenuPortal>
+                    <DropdownMenuSubContent>
+                      {opportunityStages.map(stage => (
+                        <DropdownMenuItem key={stage.id} onClick={() => handleStageUpdate(lead.id, stage.id)}>
+                          {stage.title}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuSubContent>
+                  </DropdownMenuPortal>
+                </DropdownMenuSub>
+                <DropdownMenuSeparator />
+                <AlertDialogTrigger asChild>
+                  <DropdownMenuItem className="text-red-600">
+                    Delete
+                  </DropdownMenuItem>
+                </AlertDialogTrigger>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will permanently delete the opportunity &quot;{lead.title}&quot;. This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => onDeleteOpportunity(lead.id)} className="bg-red-600 hover:bg-red-700">Yes, delete</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+          </AlertDialog>
         );
       },
     },
@@ -298,6 +319,8 @@ export function OpportunitiesTable({ onViewDetails }: OpportunitiesTableProps) {
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
+                  onClick={() => onViewDetails(row.original)}
+                  className='cursor-pointer'
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>

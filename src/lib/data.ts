@@ -204,13 +204,13 @@ export interface Column {
   title: string;
 }
 
-export const users: User[] = [
+export let users: User[] = [
   { id: 'user-1', name: 'Alex Johnson', role: 'Admin', avatar: 'https://placehold.co/100x100.png' },
   { id: 'user-2', name: 'Maria Garcia', role: 'Sales Rep', avatar: 'https://placehold.co/100x100.png' },
   { id: 'user-3', name: 'James Smith', role: 'Sales Rep', avatar: 'https://placehold.co/100x100.png' },
 ];
 
-export const columns: Column[] = [
+export let columns: Column[] = [
   { id: 'col-1', title: 'New Lead' },
   { id: 'col-2', title: 'Contacted' },
   { id: 'col-prospect', title: 'Prospect' },
@@ -225,7 +225,7 @@ export const columns: Column[] = [
   { id: 'col-5', title: 'Closed Won' },
 ];
 
-export const campaigns: Campaign[] = [
+export let campaigns: Campaign[] = [
   { 
     id: 'campaign-1', 
     name: 'Summer Promo 2024', 
@@ -264,7 +264,7 @@ export const campaigns: Campaign[] = [
   }
 ];
 
-export const leads: Lead[] = [
+export let leads: Lead[] = [
   {
     id: 'lead-1',
     title: 'Website Redesign Project',
