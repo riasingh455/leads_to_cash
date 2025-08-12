@@ -59,11 +59,8 @@ export default function CampaignsPage() {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const { toast } = useToast();
 
-  const handleAddCampaign = (newCampaign: Campaign, newLeads: Lead[]) => {
+  const handleAddCampaign = (newCampaign: Campaign) => {
     setCampaignList((prev) => [newCampaign, ...prev]);
-    if (newLeads.length > 0) {
-      setLeadList((prev) => [...newLeads, ...prev]);
-    }
   };
   
   const handleAddLead = (newLead: Lead) => {
@@ -163,8 +160,10 @@ export default function CampaignsPage() {
             user={currentUser} 
             title={selectedCampaign ? selectedCampaign.name : "Campaigns"}
             description={selectedCampaign ? selectedCampaign.type : "Manage marketing campaigns and track performance."}
-            onAddButtonClick={!selectedCampaign ? () => setIsAddCampaignOpen(true) : undefined}
+            onAddButtonClick={() => setIsAddCampaignOpen(true)}
             addButtonText={"Add Campaign"}
+            exportData={selectedCampaign ? campaignLeads : campaignList}
+            exportFilename={selectedCampaign ? `${selectedCampaign.name}-leads.csv` : 'campaigns.csv'}
           />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
             {selectedCampaign ? (
@@ -173,7 +172,6 @@ export default function CampaignsPage() {
                 leads={campaignLeads}
                 onBack={handleBackToList}
                 onViewLeadDetails={setSelectedLead}
-                onAddLead={() => setIsAddLeadOpen(true)}
               />
             ) : (
               <CampaignsTable 
@@ -188,7 +186,7 @@ export default function CampaignsPage() {
       <AddCampaignDialog
         isOpen={isAddCampaignOpen}
         onOpenChange={setIsAddCampaignOpen}
-        onCampaignAndLeadsAdded={handleAddCampaign}
+        onCampaignAdded={handleAddCampaign}
       />
       <AddLeadDialog
         isOpen={isAddLeadOpen}

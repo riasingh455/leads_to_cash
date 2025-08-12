@@ -50,6 +50,8 @@ export default function ClientDeliveryPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
 
+  const deliveryLeads = initialLeads.filter(l => ['col-delivery', 'col-contract'].includes(l.columnId));
+
   return (
     <SidebarProvider defaultOpen>
       <div className="flex min-h-screen">
@@ -121,6 +123,8 @@ export default function ClientDeliveryPage() {
             user={currentUser} 
             title="Client Delivery & Contract" 
             description="Manage the final stages of deal closure and contract finalization."
+            exportData={deliveryLeads}
+            exportFilename='client-delivery.csv'
           />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
             <ClientDeliveryTable onViewDetails={setSelectedLead} leads={initialLeads} />

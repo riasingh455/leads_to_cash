@@ -72,6 +72,8 @@ export default function OpportunitiesPage() {
     });
   };
 
+  const opportunities = leads.filter(l => ['col-prospect', 'col-3'].includes(l.columnId));
+
   return (
     <SidebarProvider defaultOpen>
       <div className="flex min-h-screen">
@@ -144,6 +146,8 @@ export default function OpportunitiesPage() {
             title="Opportunities" 
             description="View and manage qualified sales opportunities." 
             onAddButtonClick={() => setIsAddLeadOpen(true)}
+            exportData={opportunities}
+            exportFilename="opportunities.csv"
           />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
             <OpportunitiesTable onViewDetails={setSelectedLead} leads={leads} onDeleteOpportunity={handleDeleteOpportunity} />

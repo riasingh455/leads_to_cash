@@ -145,6 +145,8 @@ export default function LeadsPage() {
             title="Leads" 
             description="Manage and track all potential leads." 
             onAddButtonClick={() => setIsAddLeadOpen(true)}
+            exportData={leads}
+            exportFilename="leads.csv"
           />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
             <LeadsTable onViewDetails={setSelectedLead} leads={leads} onDeleteLead={handleDeleteLead}/>

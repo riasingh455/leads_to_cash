@@ -43,16 +43,17 @@ import {
 import { Button } from '@/components/ui/button';
 import { DashboardHeader } from '@/components/dashboard-header';
 import { KanbanBoard } from '@/components/kanban/kanban-board';
-import { users, type User, type Lead } from '@/lib/data';
+import { users, type User, type Lead, leads as initialLeads } from '@/lib/data';
 import { AddLeadDialog } from '@/components/leads/add-lead-dialog';
 
 export default function DashboardPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
   const [isAddLeadOpen, setIsAddLeadOpen] = useState(false);
-  const [leads, setLeads] = useState<Lead[]>([]);
+  const [leads, setLeads] = useState<Lead[]>(initialLeads);
 
   const handleAddLead = (newLead: Lead) => {
     setLeads((prevLeads) => [newLead, ...prevLeads]);
+    initialLeads.unshift(newLead);
   };
 
   return (
@@ -122,7 +123,12 @@ export default function DashboardPage() {
           </SidebarFooter>
         </Sidebar>
         <SidebarInset>
-          <DashboardHeader user={currentUser} onAddButtonClick={() => setIsAddLeadOpen(true)} />
+          <DashboardHeader 
+            user={currentUser} 
+            onAddButtonClick={() => setIsAddLeadOpen(true)}
+            exportData={leads}
+            exportFilename='dashboard-leads.csv'
+          />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
             <KanbanBoard currentUser={currentUser} />
           </main>

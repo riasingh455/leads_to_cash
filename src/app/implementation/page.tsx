@@ -49,6 +49,8 @@ export default function ImplementationPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
 
+  const implementationLeads = initialLeads.filter(l => l.columnId === 'col-implementation');
+
   return (
     <SidebarProvider defaultOpen>
       <div className="flex min-h-screen">
@@ -120,6 +122,8 @@ export default function ImplementationPage() {
             user={currentUser} 
             title="Implementation & Training" 
             description="Manage project delivery and user training for closed deals."
+            exportData={implementationLeads}
+            exportFilename='implementation.csv'
           />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
             <ImplementationTable onViewDetails={setSelectedLead} leads={initialLeads} />

@@ -51,6 +51,8 @@ export default function PostSalesPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
 
+  const postSalesLeads = initialLeads.filter(l => ['col-go-live', 'col-billing'].includes(l.columnId));
+
   return (
     <SidebarProvider defaultOpen>
       <div className="flex min-h-screen">
@@ -122,6 +124,8 @@ export default function PostSalesPage() {
             user={currentUser} 
             title="Go-Live & Handoff" 
             description="Manage the final stages of the customer lifecycle."
+            exportData={postSalesLeads}
+            exportFilename='post-sales.csv'
           />
           <main className="flex-1 p-4 md:p-6 lg:p-8 space-y-8">
             <div>

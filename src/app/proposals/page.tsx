@@ -93,6 +93,8 @@ export default function ProposalsPage() {
     });
   }
 
+  const proposalLeads = leads.filter(l => ['col-proposal', 'col-review', 'col-delivery'].includes(l.columnId));
+
   return (
     <SidebarProvider defaultOpen>
       <div className="flex min-h-screen">
@@ -166,6 +168,8 @@ export default function ProposalsPage() {
             description="Track and manage deals in the late stages of the sales cycle." 
             onAddButtonClick={() => setIsAddProposalOpen(true)}
             addButtonText="Add Proposal"
+            exportData={proposalLeads}
+            exportFilename="proposals.csv"
           />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
             <ProposalsTable onViewDetails={setSelectedLead} leads={leads} onDeleteProposal={handleDeleteProposal} />
