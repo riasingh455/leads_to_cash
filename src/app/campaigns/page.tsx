@@ -28,6 +28,7 @@ import {
   BookUser,
   Rocket,
   Megaphone,
+  Workflow,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -48,6 +49,7 @@ import { CampaignDetailsView } from '@/components/campaigns/campaign-details-vie
 import { AddLeadDialog } from '@/components/leads/add-lead-dialog';
 import { LeadDetailsDialog } from '@/components/kanban/lead-details-dialog';
 import { useToast } from '@/hooks/use-toast';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 export default function CampaignsPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
@@ -107,57 +109,67 @@ export default function CampaignsPage() {
                   <span>Dashboard</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton href="/campaigns" isActive>
-                  <Megaphone />
-                  <span>Campaigns</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton href="/leads">
-                  <Users />
-                  <span>Leads</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton href="/opportunities">
-                  <Briefcase />
-                  <span>Opportunities</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton href="/proposals">
-                  <ClipboardCheck />
-                  <span>Proposals & Internal Review</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton href="/client-delivery">
-                  <FileSignature />
-                  <span>Client Delivery & Contracts</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton href="/implementation">
-                  <BookUser />
-                  <span>Implementation</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton href="/post-sales">
-                  <Rocket />
-                  <span>Go-Live & Handoff</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              <Collapsible className="w-full">
+                <CollapsibleTrigger asChild>
+                    <SidebarMenuButton>
+                        <Workflow />
+                        <span>Workflow</span>
+                    </SidebarMenuButton>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <SidebarMenu className='pl-8'>
+                     <SidebarMenuItem>
+                        <SidebarMenuButton href="/campaigns" isActive>
+                          <Megaphone />
+                          <span>Campaigns</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                      <SidebarMenuItem>
+                        <SidebarMenuButton href="/leads">
+                          <Users />
+                          <span>Leads</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                      <SidebarMenuItem>
+                        <SidebarMenuButton href="/opportunities">
+                          <Briefcase />
+                          <span>Opportunities</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                      <SidebarMenuItem>
+                        <SidebarMenuButton href="/proposals">
+                          <ClipboardCheck />
+                          <span>Proposals & Internal Review</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                      <SidebarMenuItem>
+                        <SidebarMenuButton href="/client-delivery">
+                          <FileSignature />
+                          <span>Client Delivery & Contracts</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                      <SidebarMenuItem>
+                        <SidebarMenuButton href="/implementation">
+                          <BookUser />
+                          <span>Implementation</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                      <SidebarMenuItem>
+                        <SidebarMenuButton href="/post-sales">
+                          <Rocket />
+                          <span>Go-Live & Handoff</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                  </SidebarMenu>
+                </CollapsibleContent>
+              </Collapsible>
             </SidebarMenu>
           </SidebarContent>
-          <SidebarFooter>
-            <UserMenu user={currentUser} setUser={setCurrentUser} />
-          </SidebarFooter>
         </Sidebar>
         <SidebarInset>
           <DashboardHeader 
             user={currentUser} 
+            setUser={setCurrentUser}
             title={selectedCampaign ? selectedCampaign.name : "Campaigns"}
             description={selectedCampaign ? selectedCampaign.type : "Manage marketing campaigns and track performance."}
             onAddButtonClick={() => setIsAddCampaignOpen(true)}
@@ -172,6 +184,7 @@ export default function CampaignsPage() {
                 leads={campaignLeads}
                 onBack={handleBackToList}
                 onViewLeadDetails={setSelectedLead}
+                onAddLead={() => setIsAddLeadOpen(true)}
               />
             ) : (
               <CampaignsTable 
@@ -186,7 +199,10 @@ export default function CampaignsPage() {
       <AddCampaignDialog
         isOpen={isAddCampaignOpen}
         onOpenChange={setIsAddCampaignOpen}
-        onCampaignAdded={handleAddCampaign}
+        onCampaignAndLeadsAdded={(campaign, leads) => {
+          handleAddCampaign(campaign);
+          leads.forEach(handleAddLead);
+        }}
       />
       <AddLeadDialog
         isOpen={isAddLeadOpen}
@@ -202,59 +218,5 @@ export default function CampaignsPage() {
         currentUser={currentUser}
       />
     </SidebarProvider>
-  );
-}
-
-function UserMenu({ user, setUser }: { user: User, setUser: (user: User) => void }) {
-  const { toggleSidebar } = useSidebar();
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          className="group-data-[collapsible=icon]:w-full group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
-        >
-          <div className="flex w-full items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src={user.avatar} />
-                <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-              </Avatar>
-              <div className="hidden text-left group-data-[collapsible=icon]:hidden">
-                <p className="font-medium">{user.name}</p>
-                <p className="text-xs text-muted-foreground">{user.role}</p>
-              </div>
-            </div>
-            <ChevronsUpDown className="hidden h-4 w-4 text-muted-foreground group-data-[collapsible=icon]:hidden" />
-          </div>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-64" side="top" align="start">
-        <DropdownMenuLabel>My Account</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuRadioGroup value={user.id} onValueChange={(id) => setUser(users.find(u => u.id === id)!)}>
-          <DropdownMenuLabel>Switch Role</DropdownMenuLabel>
-          {users.map((u) => (
-            <DropdownMenuRadioItem key={u.id} value={u.id}>
-              {u.name} ({u.role})
-            </DropdownMenuRadioItem>
-          ))}
-        </DropdownMenuRadioGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <UserCircle className="mr-2 h-4 w-4" />
-          <span>Profile</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem>
-          <Settings className="mr-2 h-4 w-4" />
-          <span>Settings</span>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => toggleSidebar()}>
-          <LogOut className="mr-2 h-4 w-4" />
-          <span>Log out</span>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
   );
 }

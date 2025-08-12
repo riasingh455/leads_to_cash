@@ -6,9 +6,11 @@ import { Plus } from 'lucide-react';
 import type { User } from '@/lib/data';
 import { exportToCsv } from '@/lib/utils';
 import { format } from 'date-fns';
+import { UserMenu } from './user-menu';
 
 interface DashboardHeaderProps {
   user: User;
+  setUser: (user: User) => void;
   title?: string;
   description?: string;
   onAddButtonClick?: () => void;
@@ -19,8 +21,9 @@ interface DashboardHeaderProps {
 
 export function DashboardHeader({ 
   user,
+  setUser,
   title = "Leads Dashboard",
-  description = `Welcome back, ${user.name}.`,
+  description,
   onAddButtonClick,
   addButtonText = 'Add Lead',
   exportData,
@@ -32,23 +35,26 @@ export function DashboardHeader({
       exportToCsv(exportData, exportFilename);
     }
   };
+  
+  const finalDescription = description || `Welcome back, ${user.name}.`;
 
   return (
     <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-sm md:px-6">
       <SidebarTrigger className="md:hidden" />
-      <div className="flex flex-1 items-center justify-between">
-        <div className="flex flex-col">
+      <div className="flex flex-1 items-center justify-between gap-4">
+        <div className="flex-1">
           <h1 className="text-2xl font-bold font-headline">{title}</h1>
-          <p className="text-sm text-muted-foreground">{description}</p>
+          <p className="text-sm text-muted-foreground hidden md:block">{finalDescription}</p>
         </div>
         <div className="flex items-center gap-4">
-          <Button variant="outline" onClick={handleExport} disabled={!exportData || exportData.length === 0}>Export Data</Button>
           {onAddButtonClick && (
-            <Button onClick={onAddButtonClick}>
+            <Button onClick={onAddButtonClick} className='hidden sm:inline-flex'>
               <Plus className="mr-2 h-4 w-4" />
               {addButtonText}
             </Button>
           )}
+           <Button variant="outline" onClick={handleExport} disabled={!exportData || exportData.length === 0} className='hidden sm:inline-flex'>Export Data</Button>
+          <UserMenu user={user} setUser={setUser} />
         </div>
       </div>
     </header>
