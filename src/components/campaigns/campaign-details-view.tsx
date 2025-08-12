@@ -3,7 +3,7 @@
 import React from 'react';
 import type { Campaign, Lead } from '@/lib/data';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Calendar, DollarSign, Target, Briefcase, Users, MessageSquare, Goal, TrendingUp } from 'lucide-react';
+import { ArrowLeft, Calendar, DollarSign, Target, Briefcase, Users, MessageSquare, Goal, TrendingUp, Plus } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Separator } from '../ui/separator';
 import { format } from 'date-fns';
@@ -15,6 +15,7 @@ interface CampaignDetailsViewProps {
   leads: Lead[];
   onBack: () => void;
   onViewLeadDetails: (lead: Lead) => void;
+  onAddLead: () => void;
 }
 
 const DetailRow = ({ icon, label, value }: { icon: React.ElementType, label: string, value: React.ReactNode }) => (
@@ -33,7 +34,7 @@ const DetailCard = ({ title, children }: { title: string, children: React.ReactN
     </Card>
 )
 
-export function CampaignDetailsView({ campaign, leads, onBack, onViewLeadDetails }: CampaignDetailsViewProps) {
+export function CampaignDetailsView({ campaign, leads, onBack, onViewLeadDetails, onAddLead }: CampaignDetailsViewProps) {
     
   const totalLeads = leads.length;
   const totalValue = leads.reduce((sum, lead) => sum + lead.value, 0);
@@ -118,7 +119,13 @@ export function CampaignDetailsView({ campaign, leads, onBack, onViewLeadDetails
         </div>
         <div className="md:col-span-2">
             <Card>
-                <CardHeader><CardTitle>Leads from this Campaign</CardTitle></CardHeader>
+                <CardHeader className="flex-row items-center justify-between">
+                    <CardTitle>Leads from this Campaign</CardTitle>
+                    <Button onClick={onAddLead} size="sm">
+                        <Plus className="mr-2 h-4 w-4" />
+                        Add Lead
+                    </Button>
+                </CardHeader>
                 <CardContent>
                     <LeadsTable onViewDetails={onViewLeadDetails} initialLeads={leads} />
                 </CardContent>

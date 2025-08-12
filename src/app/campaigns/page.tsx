@@ -152,8 +152,8 @@ export default function CampaignsPage() {
             user={currentUser} 
             title={selectedCampaign ? selectedCampaign.name : "Campaigns"}
             description={selectedCampaign ? selectedCampaign.type : "Manage marketing campaigns and track performance."}
-            onAddButtonClick={() => selectedCampaign ? setIsAddLeadOpen(true) : setIsAddCampaignOpen(true)}
-            addButtonText={selectedCampaign ? "Add Lead" : "Add Campaign"}
+            onAddButtonClick={!selectedCampaign ? () => setIsAddCampaignOpen(true) : undefined}
+            addButtonText={"Add Campaign"}
           />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
             {selectedCampaign ? (
@@ -162,6 +162,7 @@ export default function CampaignsPage() {
                 leads={campaignLeads}
                 onBack={handleBackToList}
                 onViewLeadDetails={setSelectedLead}
+                onAddLead={() => setIsAddLeadOpen(true)}
               />
             ) : (
               <CampaignsTable 
