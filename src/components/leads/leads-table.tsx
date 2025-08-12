@@ -162,6 +162,21 @@ export function LeadsTable({ onViewDetails, leads, onDeleteLead }: { onViewDetai
       cell: ({ row }) => <div>{format(new Date(row.getValue('lastContact')), 'PPP')}</div>,
     },
     {
+        accessorKey: 'entryDate',
+        header: ({ column }) => {
+          return (
+            <Button
+              variant="ghost"
+              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+            >
+              Entry Date
+              <CaretSortIcon className="ml-2 h-4 w-4" />
+            </Button>
+          );
+        },
+        cell: ({ row }) => <div>{format(new Date(row.getValue('entryDate')), 'PPP')}</div>,
+    },
+    {
       accessorKey: 'campaignId',
       header: 'Campaign',
       cell: ({ row }) => {
@@ -224,6 +239,7 @@ export function LeadsTable({ onViewDetails, leads, onDeleteLead }: { onViewDetai
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({
         campaignId: false,
+        entryDate: false,
     });
   const [rowSelection, setRowSelection] = React.useState({});
 
