@@ -2,6 +2,7 @@
 export interface User {
   id: string;
   name: string;
+  email: string;
   role: 'Admin' | 'Sales Rep';
   avatar: string;
 }
@@ -217,9 +218,9 @@ export interface Column {
 }
 
 export let users: User[] = [
-  { id: 'user-1', name: 'Alex Johnson', role: 'Admin', avatar: 'https://placehold.co/100x100.png' },
-  { id: 'user-2', name: 'Maria Garcia', role: 'Sales Rep', avatar: 'https://placehold.co/100x100.png' },
-  { id: 'user-3', name: 'James Smith', role: 'Sales Rep', avatar: 'https://placehold.co/100x100.png' },
+  { id: 'user-1', name: 'Alex Johnson', email: 'alex.j@oncosparc.com', role: 'Admin', avatar: 'https://placehold.co/100x100.png' },
+  { id: 'user-2', name: 'Maria Garcia', email: 'maria.g@oncosparc.com', role: 'Sales Rep', avatar: 'https://placehold.co/100x100.png' },
+  { id: 'user-3', name: 'James Smith', email: 'james.s@oncosparc.com', role: 'Sales Rep', avatar: 'https://placehold.co/100x100.png' },
 ];
 
 export let columns: Column[] = [

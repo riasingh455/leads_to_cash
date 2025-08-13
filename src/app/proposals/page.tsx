@@ -92,7 +92,7 @@ export default function ProposalsPage() {
           <SidebarHeader>
             <div className="flex items-center gap-3">
               <Building className="size-8 text-primary" />
-              <h1 className="text-xl font-semibold font-headline">Leads to Cash</h1>
+              <h1 className="text-xl font-semibold font-headline">OncoFlow</h1>
             </div>
           </SidebarHeader>
           <SidebarContent>
@@ -166,21 +166,26 @@ export default function ProposalsPage() {
             </SidebarMenu>
           </SidebarContent>
           <SidebarFooter>
-            <div className="flex items-center justify-between gap-2">
-              <div className='text-center text-sm'>
-                  <p className='font-bold'>{currentUser.role}</p>
-              </div>
-              <ThemeSwitcher />
+            <div className='text-left text-sm p-2'>
+              <p className='text-muted-foreground'>Logged in as</p>
+              <p className='font-bold'>{currentUser.role}</p>
             </div>
-            <Separator className="my-2" />
-            <div className='text-center text-sm'>
-              <Button variant='ghost' className='w-full justify-start'>
+            <Separator className="my-1" />
+            <div className='p-2'>
+              <Button variant='ghost' className='w-full justify-start p-2 h-auto'>
                 <LogOut className="mr-2 h-4 w-4" />
                 Logout
               </Button>
-              <p className='font-semibold mt-2'>{currentUser.name}</p>
-              <p className='text-xs text-muted-foreground'>Version 1.0.0</p>
             </div>
+            <Separator className="my-1" />
+            <div className='text-left text-sm p-2'>
+              <p className='font-bold'>{currentUser.name}</p>
+              <p className='text-muted-foreground'>{currentUser.email}</p>
+            </div>
+             <div className='text-left text-xs p-2 text-muted-foreground'>
+                Version 1.0.0
+            </div>
+            <ThemeSwitcher />
           </SidebarFooter>
         </Sidebar>
         <SidebarInset>
