@@ -1,3 +1,4 @@
+
 'use client';
 import React, { useState, useEffect } from 'react';
 import { KanbanColumn } from './kanban-column';
@@ -14,9 +15,9 @@ export function KanbanBoard({ currentUser }: { currentUser: User }) {
 
   useEffect(() => {
     // Filter leads based on user role
-    const filteredLeads = currentUser.role === 'Sales Rep'
-      ? initialLeads.filter(lead => lead.ownerId === currentUser.id)
-      : initialLeads;
+    const filteredLeads = currentUser.role === 'Admin'
+      ? initialLeads
+      : initialLeads.filter(lead => lead.ownerId === currentUser.id);
     setLeads(filteredLeads);
   }, [currentUser]);
 
@@ -54,7 +55,7 @@ export function KanbanBoard({ currentUser }: { currentUser: User }) {
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 items-start">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
         {columns.map((column) => (
           <KanbanColumn
             key={column.id}
