@@ -180,7 +180,7 @@ export function LeadsTable({ onViewDetails, leads, onDeleteLead, onMarkAsProspec
                   <DotsHorizontalIcon className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
                 <DropdownMenuItem onClick={() => onViewDetails(lead)}>
                   View details
@@ -190,7 +190,7 @@ export function LeadsTable({ onViewDetails, leads, onDeleteLead, onMarkAsProspec
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <AlertDialogTrigger asChild>
-                  <DropdownMenuItem className='text-red-600' onSelect={(e) => e.preventDefault()} onClick={(e) => e.stopPropagation()}>Delete</DropdownMenuItem>
+                  <DropdownMenuItem className='text-red-600' onSelect={(e) => e.preventDefault()}>Delete</DropdownMenuItem>
                 </AlertDialogTrigger>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -203,7 +203,7 @@ export function LeadsTable({ onViewDetails, leads, onDeleteLead, onMarkAsProspec
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={(e) => { e.stopPropagation(); onDeleteLead(lead.id);}} className="bg-red-600 hover:bg-red-700">Yes, delete</AlertDialogAction>
+                <AlertDialogAction onClick={() => onDeleteLead(lead.id)} className="bg-red-600 hover:bg-red-700">Yes, delete</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
