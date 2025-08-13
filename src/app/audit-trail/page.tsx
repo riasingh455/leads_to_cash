@@ -119,7 +119,7 @@ export default function AuditTrailPage() {
             </SidebarMenu>
           </SidebarContent>
           <SidebarFooter>
-            <div className='text-left text-sm p-2'>
+            <div className='text-left text-sm p-2 space-y-0.5'>
               <p className='text-muted-foreground'>Logged in as</p>
               <p className='font-bold'>{currentUser.role}</p>
             </div>
@@ -131,7 +131,7 @@ export default function AuditTrailPage() {
               </Button>
             </div>
             <Separator className="my-1" />
-            <div className='text-left text-sm p-2'>
+            <div className='text-left text-sm p-2 space-y-0.5'>
               <p className='font-bold'>{currentUser.name}</p>
               <p className='text-muted-foreground'>{currentUser.email}</p>
             </div>
