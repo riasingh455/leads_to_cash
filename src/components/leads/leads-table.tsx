@@ -45,7 +45,7 @@ import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
 
-export function LeadsTable({ onViewDetails, leads, onDeleteLead }: { onViewDetails: (lead: Lead) => void, leads: Lead[], onDeleteLead: (leadId: string) => void }) {
+export function LeadsTable({ onViewDetails, leads, onDeleteLead, onMarkAsProspect }: { onViewDetails: (lead: Lead) => void, leads: Lead[], onDeleteLead: (leadId: string) => void, onMarkAsProspect: (lead: Lead) => void }) {
   const { toast } = useToast();
 
   const handleMarkAsOpportunity = (leadId: string) => {
@@ -179,6 +179,9 @@ export function LeadsTable({ onViewDetails, leads, onDeleteLead }: { onViewDetai
                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
                 <DropdownMenuItem onClick={() => onViewDetails(lead)}>
                   View details
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onMarkAsProspect(lead)}>
+                  Mark as Prospect
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => handleMarkAsOpportunity(lead.id)}>
                   Mark as opportunity

@@ -25,7 +25,7 @@ import {
   Building,
   Workflow,
 } from 'lucide-react';
-import { users, type User, type Lead, leads as initialLeads } from '@/lib/data';
+import { users, type User, type Lead, leads as initialLeads, ProspectData } from '@/lib/data';
 import { DashboardHeader } from '@/components/dashboard-header';
 import { LeadsTable } from '@/components/leads/leads-table';
 import { LeadDetailsDialog } from '@/components/kanban/lead-details-dialog';
@@ -33,10 +33,12 @@ import { AddLeadDialog } from '@/components/leads/add-lead-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ThemeSwitcher } from '@/components/theme-switcher';
+import { MarkAsProspectDialog } from '@/components/leads/mark-as-prospect-dialog';
 
 export default function LeadsPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [prospectLead, setProspectLead] = useState<Lead | null>(null);
   const [isAddLeadOpen, setIsAddLeadOpen] = useState(false);
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
   const { toast } = useToast();
@@ -57,6 +59,22 @@ export default function LeadsPage() {
       description: "The lead has been successfully deleted.",
     });
   }
+  
+  const handleMarkAsProspect = (leadId: string, prospectData: ProspectData) => {
+    const leadIndex = initialLeads.findIndex(l => l.id === leadId);
+    if (leadIndex > -1) {
+        initialLeads[leadIndex] = {
+            ...initialLeads[leadIndex],
+            prospectData,
+            columnId: 'col-prospect',
+        };
+        setLeads([...initialLeads]);
+        toast({
+            title: "Lead Updated",
+            description: "The lead has been marked as a prospect.",
+        });
+    }
+  };
 
   return (
     <SidebarProvider defaultOpen>
@@ -147,7 +165,7 @@ export default function LeadsPage() {
             exportFilename="leads.csv"
           />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
-            <LeadsTable onViewDetails={setSelectedLead} leads={leads} onDeleteLead={handleDeleteLead}/>
+            <LeadsTable onViewDetails={setSelectedLead} leads={leads} onDeleteLead={handleDeleteLead} onMarkAsProspect={setProspectLead}/>
           </main>
         </SidebarInset>
       </div>
@@ -162,6 +180,12 @@ export default function LeadsPage() {
         onOpenChange={setIsAddLeadOpen}
         onLeadAdded={handleAddLead}
         users={users}
+      />
+      <MarkAsProspectDialog
+        lead={prospectLead}
+        isOpen={!!prospectLead}
+        onOpenChange={() => setProspectLead(null)}
+        onProspectMarked={handleMarkAsProspect}
       />
     </SidebarProvider>
   );
