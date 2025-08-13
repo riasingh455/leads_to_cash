@@ -66,7 +66,7 @@ export default function LeadsPage() {
         initialLeads[leadIndex] = {
             ...initialLeads[leadIndex],
             prospectData,
-            columnId: 'col-prospect',
+            columnId: 'col-prospect', // This moves it to the opportunities section now
         };
         setLeads([...initialLeads]);
         toast({

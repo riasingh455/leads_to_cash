@@ -58,7 +58,7 @@ export default function OpportunitiesPage() {
     });
   };
 
-  const opportunities = leads.filter(l => ['col-prospect', 'col-3'].includes(l.columnId));
+  const opportunities = leads.filter(l => ['col-prospect'].includes(l.columnId));
 
   return (
     <SidebarProvider defaultOpen>
@@ -164,7 +164,7 @@ export default function OpportunitiesPage() {
         onOpenChange={setIsAddLeadOpen}
         onLeadAdded={handleAddLead}
         users={users}
-        defaultStage="col-3"
+        defaultStage="col-prospect"
       />
     </SidebarProvider>
   );

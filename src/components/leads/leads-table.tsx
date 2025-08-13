@@ -53,7 +53,7 @@ export function LeadsTable({ onViewDetails, leads, onDeleteLead, onMarkAsProspec
     console.log('Marking lead as opportunity:', leadId);
     toast({
       title: "Lead Updated",
-      description: "The lead has been marked as an opportunity and moved to the 'Qualified' stage.",
+      description: "The lead has been marked as an opportunity and moved to the 'Prospect' stage.",
     });
   };
   
@@ -61,7 +61,12 @@ export function LeadsTable({ onViewDetails, leads, onDeleteLead, onMarkAsProspec
     {
       accessorKey: 'title',
       header: 'Title',
-      cell: ({ row }) => <div>{row.getValue('title')}</div>,
+      cell: ({ row }) => (
+        <div className="flex items-center gap-2">
+          {row.original.prospectData && <Badge variant="outline">Prospect</Badge>}
+          <span>{row.getValue('title')}</span>
+        </div>
+      ),
     },
     {
       accessorKey: 'company',
@@ -180,11 +185,8 @@ export function LeadsTable({ onViewDetails, leads, onDeleteLead, onMarkAsProspec
                 <DropdownMenuItem onClick={() => onViewDetails(lead)}>
                   View details
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onMarkAsProspect(lead)}>
+                <DropdownMenuItem onClick={() => onMarkAsProspect(lead)} disabled={!!lead.prospectData}>
                   Mark as Prospect
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleMarkAsOpportunity(lead.id)}>
-                  Mark as opportunity
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <AlertDialogTrigger asChild>

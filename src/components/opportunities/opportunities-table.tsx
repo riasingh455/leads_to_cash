@@ -48,7 +48,7 @@ import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
 
-const opportunityStageIds = ['col-prospect', 'col-3'];
+const opportunityStageIds = ['col-prospect'];
 const opportunityStages = leadColumns.filter(c => opportunityStageIds.includes(c.id));
 
 interface OpportunitiesTableProps {
@@ -164,18 +164,6 @@ export function OpportunitiesTable({ onViewDetails, leads: propLeads, onDeleteOp
                 <DropdownMenuItem onClick={() => onViewDetails(lead)}>
                   View details
                 </DropdownMenuItem>
-                <DropdownMenuSub>
-                  <DropdownMenuSubTrigger>Update stage</DropdownMenuSubTrigger>
-                  <DropdownMenuPortal>
-                    <DropdownMenuSubContent>
-                      {opportunityStages.map(stage => (
-                        <DropdownMenuItem key={stage.id} onClick={() => handleStageUpdate(lead.id, stage.id)}>
-                          {stage.title}
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuSubContent>
-                  </DropdownMenuPortal>
-                </DropdownMenuSub>
                 <DropdownMenuSeparator />
                 <AlertDialogTrigger asChild>
                   <DropdownMenuItem className="text-red-600" onSelect={(e) => e.preventDefault()} onClick={(e) => e.stopPropagation()}>

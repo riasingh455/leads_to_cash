@@ -66,7 +66,7 @@ export default function ProposalsPage() {
         const updatedLeads = [...prev];
         const updatedLead = { ...updatedLeads[leadIndex] };
         delete updatedLead.proposalData;
-        updatedLead.columnId = 'col-3'; // Revert to qualified
+        updatedLead.columnId = 'col-prospect'; // Revert to prospect
         updatedLeads[leadIndex] = updatedLead;
         return updatedLeads;
       }

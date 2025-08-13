@@ -216,7 +216,6 @@ export let columns: Column[] = [
   { id: 'col-1', title: 'New Lead' },
   { id: 'col-2', title: 'Contacted' },
   { id: 'col-prospect', title: 'Prospect' },
-  { id: 'col-3', title: 'Qualified' },
   { id: 'col-proposal', title: 'Proposal' },
   { id: 'col-review', title: 'Internal Review' },
   { id: 'col-delivery', title: 'Client Delivery' },
@@ -694,5 +693,3 @@ export let leads: Lead[] = [
     },
   },
 ];
-
-    
