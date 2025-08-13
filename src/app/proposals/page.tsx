@@ -25,6 +25,7 @@ import {
   Building,
   Workflow,
   History,
+  LogOut,
 } from 'lucide-react';
 import { users, type User, type Lead, leads as initialLeads } from '@/lib/data';
 import { DashboardHeader } from '@/components/dashboard-header';
@@ -34,6 +35,8 @@ import { AddProposalDialog } from '@/components/proposals/add-proposal-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ThemeSwitcher } from '@/components/theme-switcher';
+import { Separator } from '@/components/ui/separator';
+import { Button } from '@/components/ui/button';
 
 export default function ProposalsPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
@@ -163,7 +166,21 @@ export default function ProposalsPage() {
             </SidebarMenu>
           </SidebarContent>
           <SidebarFooter>
-            <ThemeSwitcher />
+            <div className="flex items-center justify-between gap-2">
+              <div className='text-center text-sm'>
+                  <p className='font-bold'>{currentUser.role}</p>
+              </div>
+              <ThemeSwitcher />
+            </div>
+            <Separator className="my-2" />
+            <div className='text-center text-sm'>
+              <Button variant='ghost' className='w-full justify-start'>
+                <LogOut className="mr-2 h-4 w-4" />
+                Logout
+              </Button>
+              <p className='font-semibold mt-2'>{currentUser.name}</p>
+              <p className='text-xs text-muted-foreground'>Version 1.0.0</p>
+            </div>
           </SidebarFooter>
         </Sidebar>
         <SidebarInset>
@@ -180,6 +197,9 @@ export default function ProposalsPage() {
           <main className="flex-1 p-4 md:p-6 lg:p-8">
             <ProposalsTable onViewDetails={setSelectedLead} leads={leads} onDeleteProposal={handleDeleteProposal} />
           </main>
+          <footer className="border-t p-4 text-center text-sm text-muted-foreground">
+            © Copyright 2025. Outamation Inc. All rights reserved.
+          </footer>
         </SidebarInset>
       </div>
       <LeadDetailsDialog

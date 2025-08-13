@@ -24,12 +24,15 @@ import {
   Building,
   Workflow,
   History,
+  LogOut,
 } from 'lucide-react';
 import { users, auditLogs, type User, type AuditLog } from '@/lib/data';
 import { DashboardHeader } from '@/components/dashboard-header';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ThemeSwitcher } from '@/components/theme-switcher';
 import { AuditTrailTable } from '@/components/audit-trail/audit-trail-table';
+import { Separator } from '@/components/ui/separator';
+import { Button } from '@/components/ui/button';
 
 export default function AuditTrailPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
@@ -116,7 +119,21 @@ export default function AuditTrailPage() {
             </SidebarMenu>
           </SidebarContent>
           <SidebarFooter>
-            <ThemeSwitcher />
+            <div className="flex items-center justify-between gap-2">
+              <div className='text-center text-sm'>
+                  <p className='font-bold'>{currentUser.role}</p>
+              </div>
+              <ThemeSwitcher />
+            </div>
+            <Separator className="my-2" />
+            <div className='text-center text-sm'>
+              <Button variant='ghost' className='w-full justify-start'>
+                <LogOut className="mr-2 h-4 w-4" />
+                Logout
+              </Button>
+              <p className='font-semibold mt-2'>{currentUser.name}</p>
+              <p className='text-xs text-muted-foreground'>Version 1.0.0</p>
+            </div>
           </SidebarFooter>
         </Sidebar>
         <SidebarInset>
@@ -131,6 +148,9 @@ export default function AuditTrailPage() {
           <main className="flex-1 p-4 md:p-6 lg:p-8">
             <AuditTrailTable logs={logs} />
           </main>
+          <footer className="border-t p-4 text-center text-sm text-muted-foreground">
+            © Copyright 2025. Outamation Inc. All rights reserved.
+          </footer>
         </SidebarInset>
       </div>
     </SidebarProvider>

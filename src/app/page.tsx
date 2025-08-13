@@ -27,6 +27,7 @@ import {
   DollarSign,
   TrendingUp,
   BarChart,
+  LogOut,
 } from 'lucide-react';
 import { DashboardHeader } from '@/components/dashboard-header';
 import { KanbanBoard } from '@/components/kanban/kanban-board';
@@ -44,6 +45,8 @@ import {
   ChartLegendContent,
 } from '@/components/ui/chart';
 import { BarChart as RechartsBarChart, Bar, XAxis, YAxis, CartesianGrid, Legend } from 'recharts';
+import { Separator } from '@/components/ui/separator';
+import { Button } from '@/components/ui/button';
 
 export default function DashboardPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
@@ -161,7 +164,21 @@ export default function DashboardPage() {
             </SidebarMenu>
           </SidebarContent>
           <SidebarFooter>
-            <ThemeSwitcher />
+            <div className="flex items-center justify-between gap-2">
+              <div className='text-center text-sm'>
+                  <p className='font-bold'>{currentUser.role}</p>
+              </div>
+              <ThemeSwitcher />
+            </div>
+            <Separator className="my-2" />
+            <div className='text-center text-sm'>
+              <Button variant='ghost' className='w-full justify-start'>
+                <LogOut className="mr-2 h-4 w-4" />
+                Logout
+              </Button>
+              <p className='font-semibold mt-2'>{currentUser.name}</p>
+              <p className='text-xs text-muted-foreground'>Version 1.0.0</p>
+            </div>
           </SidebarFooter>
         </Sidebar>
         <SidebarInset>
@@ -241,6 +258,9 @@ export default function DashboardPage() {
 
             <KanbanBoard currentUser={currentUser} />
           </main>
+          <footer className="border-t p-4 text-center text-sm text-muted-foreground">
+            © Copyright 2025. Outamation Inc. All rights reserved.
+          </footer>
         </SidebarInset>
       </div>
       <AddLeadDialog
