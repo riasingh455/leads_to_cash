@@ -20,7 +20,6 @@ import {
 } from '@tanstack/react-table';
 
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -59,28 +58,6 @@ export function LeadsTable({ onViewDetails, leads, onDeleteLead }: { onViewDetai
   };
   
   const columns: ColumnDef<Lead>[] = [
-    {
-      id: 'select',
-      header: ({ table }) => (
-        <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && 'indeterminate')
-          }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-    },
     {
       accessorKey: 'title',
       header: 'Title',
@@ -240,7 +217,6 @@ export function LeadsTable({ onViewDetails, leads, onDeleteLead }: { onViewDetai
     React.useState<VisibilityState>({
         campaignId: false,
     });
-  const [rowSelection, setRowSelection] = React.useState({});
 
   const table = useReactTable({
     data: leads,
@@ -252,12 +228,10 @@ export function LeadsTable({ onViewDetails, leads, onDeleteLead }: { onViewDetai
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
     state: {
       sorting,
       columnFilters,
       columnVisibility,
-      rowSelection,
     },
   });
 
@@ -353,8 +327,7 @@ export function LeadsTable({ onViewDetails, leads, onDeleteLead }: { onViewDetai
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} of{' '}
-          {table.getFilteredRowModel().rows.length} row(s) selected.
+          {table.getFilteredRowModel().rows.length} row(s).
         </div>
         <div className="space-x-2">
           <Button
