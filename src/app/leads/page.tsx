@@ -24,6 +24,7 @@ import {
   Megaphone,
   Building,
   Workflow,
+  History,
 } from 'lucide-react';
 import { users, type User, type Lead, leads as initialLeads, ProspectData } from '@/lib/data';
 import { DashboardHeader } from '@/components/dashboard-header';
@@ -147,6 +148,12 @@ export default function LeadsPage() {
                   </SidebarMenu>
                 </CollapsibleContent>
               </Collapsible>
+              <SidebarMenuItem>
+                <SidebarMenuButton href="/audit-trail">
+                  <History />
+                  <span>Audit Trail</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarContent>
           <SidebarFooter>

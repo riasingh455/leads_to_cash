@@ -11,7 +11,6 @@ import {
   SidebarMenuButton,
   SidebarFooter,
   SidebarInset,
-  useSidebar,
 } from '@/components/ui/sidebar';
 import {
   LayoutDashboard,
@@ -26,20 +25,15 @@ import {
   Workflow,
   History,
 } from 'lucide-react';
-import { users, type User, type Lead, leads as initialLeads } from '@/lib/data';
+import { users, auditLogs, type User, type AuditLog } from '@/lib/data';
 import { DashboardHeader } from '@/components/dashboard-header';
-import { LeadDetailsDialog } from '@/components/kanban/lead-details-dialog';
-import { GoLiveTable } from '@/components/post-sales/go-live-table';
-import { BillingTable } from '@/components/post-sales/billing-table';
-import { Separator } from '@/components/ui/separator';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ThemeSwitcher } from '@/components/theme-switcher';
+import { AuditTrailTable } from '@/components/audit-trail/audit-trail-table';
 
-export default function PostSalesPage() {
+export default function AuditTrailPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
-  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
-
-  const postSalesLeads = initialLeads.filter(l => ['col-go-live', 'col-billing'].includes(l.columnId));
+  const [logs] = useState<AuditLog[]>(auditLogs);
 
   return (
     <SidebarProvider defaultOpen>
@@ -105,7 +99,7 @@ export default function PostSalesPage() {
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                       <SidebarMenuItem>
-                        <SidebarMenuButton href="/post-sales" isActive>
+                        <SidebarMenuButton href="/post-sales">
                           <Rocket />
                           <span>Go-Live & Handoff</span>
                         </SidebarMenuButton>
@@ -114,7 +108,7 @@ export default function PostSalesPage() {
                 </CollapsibleContent>
               </Collapsible>
               <SidebarMenuItem>
-                <SidebarMenuButton href="/audit-trail">
+                <SidebarMenuButton href="/audit-trail" isActive>
                   <History />
                   <span>Audit Trail</span>
                 </SidebarMenuButton>
@@ -129,30 +123,16 @@ export default function PostSalesPage() {
           <DashboardHeader 
             user={currentUser} 
             setUser={setCurrentUser}
-            title="Go-Live & Handoff" 
-            description="Manage the final stages of the customer lifecycle."
-            exportData={postSalesLeads}
-            exportFilename='post-sales.csv'
+            title="Audit Trail" 
+            description="View a complete history of all changes made in the application." 
+            exportData={logs}
+            exportFilename="audit-trail.csv"
           />
-          <main className="flex-1 p-4 md:p-6 lg:p-8 space-y-8">
-            <div>
-              <h2 className="text-2xl font-bold font-headline mb-4">Go-Live & Initial Support</h2>
-              <GoLiveTable onViewDetails={setSelectedLead} leads={initialLeads} />
-            </div>
-            <Separator />
-            <div>
-              <h2 className="text-2xl font-bold font-headline mb-4">Billing & Handoff</h2>
-              <BillingTable onViewDetails={setSelectedLead} leads={initialLeads} />
-            </div>
+          <main className="flex-1 p-4 md:p-6 lg:p-8">
+            <AuditTrailTable logs={logs} />
           </main>
         </SidebarInset>
       </div>
-      <LeadDetailsDialog
-        lead={selectedLead}
-        isOpen={!!selectedLead}
-        onOpenChange={(isOpen) => !isOpen && setSelectedLead(null)}
-        currentUser={currentUser}
-      />
     </SidebarProvider>
   );
 }

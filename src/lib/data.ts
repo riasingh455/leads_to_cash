@@ -160,6 +160,16 @@ export interface ChangeOrderData {
   auditTrail: { date: string; action: string; user: string }[];
 }
 
+export interface AuditLog {
+  id: string;
+  user: string;
+  action: string;
+  entity: string;
+  entityId: string;
+  timestamp: string;
+  details: string;
+}
+
 
 export interface Lead {
   id: string;
@@ -691,5 +701,53 @@ export let leads: Lead[] = [
       referralRequestMade: 'No',
       caseStudyOpportunity: 'Yes',
     },
+  },
+];
+
+export let auditLogs: AuditLog[] = [
+  {
+    id: 'log-1',
+    user: 'Alex Johnson',
+    action: 'Created',
+    entity: 'Lead',
+    entityId: 'lead-1',
+    timestamp: '2024-05-01T10:00:00Z',
+    details: 'New lead "Website Redesign Project" created via website form.',
+  },
+  {
+    id: 'log-2',
+    user: 'Maria Garcia',
+    action: 'Updated',
+    entity: 'Lead',
+    entityId: 'lead-1',
+    timestamp: '2024-05-20T10:00:00Z',
+    details: 'Logged a call with Jane Doe. Next action set to 2024-06-05.',
+  },
+  {
+    id: 'log-3',
+    user: 'System',
+    action: 'Updated',
+    entity: 'Lead',
+    entityId: 'lead-3',
+    timestamp: '2024-05-07T10:00:00Z',
+    details: 'Lead stage changed from "Contacted" to "Prospect".',
+  },
+  {
+    id: 'log-4',
+    user: 'Alex Johnson',
+    action: 'Deleted',
+    entity: 'Campaign',
+    entityId: 'campaign-temp',
+    timestamp: '2024-05-21T11:00:00Z',
+    details: 'Deleted campaign "Old Spring Promo".',
+  },
+  {
+    id: 'log-5',
+    user: 'James Smith',
+    action: 'Created',
+    entity: 'Proposal',
+    entityId: 'proposal-1',
+    timestamp: '2024-05-26T10:00:00Z',
+    details: 'Created proposal for "E-commerce Platform".',
   },
 ];

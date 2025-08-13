@@ -24,6 +24,7 @@ import {
   Megaphone,
   Building,
   Workflow,
+  History,
 } from 'lucide-react';
 import { DashboardHeader } from '@/components/dashboard-header';
 import { KanbanBoard } from '@/components/kanban/kanban-board';
@@ -114,6 +115,12 @@ export default function DashboardPage() {
                   </SidebarMenu>
                 </CollapsibleContent>
               </Collapsible>
+              <SidebarMenuItem>
+                <SidebarMenuButton href="/audit-trail">
+                  <History />
+                  <span>Audit Trail</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarContent>
           <SidebarFooter>
@@ -128,9 +135,9 @@ export default function DashboardPage() {
             exportData={leads}
             exportFilename='dashboard-leads.csv'
           />
-          <main className="flex-1 p-4 md:p-6 lg:p-8">
-            <KanbanBoard currentUser={currentUser} />
-          </main>
+          <footer className="border-t p-6 text-center text-sm text-muted-foreground">
+            © Copyright 2025. Outamation Inc. All rights reserved.
+          </footer>
         </SidebarInset>
       </div>
       <AddLeadDialog

@@ -29,6 +29,7 @@ import {
   Rocket,
   Megaphone,
   Workflow,
+  History,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -164,6 +165,12 @@ export default function CampaignsPage() {
                   </SidebarMenu>
                 </CollapsibleContent>
               </Collapsible>
+              <SidebarMenuItem>
+                <SidebarMenuButton href="/audit-trail">
+                  <History />
+                  <span>Audit Trail</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarContent>
           <SidebarFooter>
