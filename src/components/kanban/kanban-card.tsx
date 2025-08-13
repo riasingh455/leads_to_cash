@@ -41,7 +41,7 @@ export function KanbanCard({ lead, onDragStart, onClick, currentUser }: KanbanCa
     >
       <CardHeader>
         <div className="flex justify-between items-start">
-          <CardTitle className="text-base font-semibold font-headline">{lead.title}</CardTitle>
+          <CardTitle className="text-base font-semibold font-headline truncate">{lead.title}</CardTitle>
           <div className="flex items-center gap-2">
             <Target className="w-4 h-4 text-muted-foreground" />
             <span className="font-bold text-lg">{lead.score}</span>
