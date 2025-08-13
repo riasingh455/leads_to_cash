@@ -198,6 +198,7 @@ export interface Lead {
   goLiveAndSupportData?: GoLiveAndSupportData;
   billingAndHandoffData?: BillingAndHandoffData;
   changeOrders?: ChangeOrderData[];
+  marketingCampaign?: string;
 }
 
 export interface Column {

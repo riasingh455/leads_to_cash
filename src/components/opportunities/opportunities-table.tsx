@@ -167,6 +167,9 @@ export function OpportunitiesTable({ onViewDetails, leads: propLeads, onDeleteOp
                 <DropdownMenuItem onClick={() => handleStageUpdate(lead.id, 'col-proposal')}>
                   Create Proposal
                 </DropdownMenuItem>
+                <DropdownMenuItem>
+                  Mark as Prospect
+                </DropdownMenuItem>
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger>Update stage</DropdownMenuSubTrigger>
                   <DropdownMenuPortal>
