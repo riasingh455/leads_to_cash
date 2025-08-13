@@ -32,6 +32,7 @@ import { ProposalsTable } from '@/components/proposals/proposals-table';
 import { AddProposalDialog } from '@/components/proposals/add-proposal-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { ThemeSwitcher } from '@/components/theme-switcher';
 
 export default function ProposalsPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
@@ -154,6 +155,9 @@ export default function ProposalsPage() {
               </Collapsible>
             </SidebarMenu>
           </SidebarContent>
+          <SidebarFooter>
+            <ThemeSwitcher />
+          </SidebarFooter>
         </Sidebar>
         <SidebarInset>
           <DashboardHeader 

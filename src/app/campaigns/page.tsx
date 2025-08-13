@@ -50,6 +50,7 @@ import { AddLeadDialog } from '@/components/leads/add-lead-dialog';
 import { LeadDetailsDialog } from '@/components/kanban/lead-details-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { ThemeSwitcher } from '@/components/theme-switcher';
 
 export default function CampaignsPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
@@ -165,6 +166,9 @@ export default function CampaignsPage() {
               </Collapsible>
             </SidebarMenu>
           </SidebarContent>
+          <SidebarFooter>
+            <ThemeSwitcher />
+          </SidebarFooter>
         </Sidebar>
         <SidebarInset>
           <DashboardHeader 

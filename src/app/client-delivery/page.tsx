@@ -30,6 +30,7 @@ import { DashboardHeader } from '@/components/dashboard-header';
 import { LeadDetailsDialog } from '@/components/kanban/lead-details-dialog';
 import { ClientDeliveryTable } from '@/components/client-delivery/client-delivery-table';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { ThemeSwitcher } from '@/components/theme-switcher';
 
 export default function ClientDeliveryPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
@@ -111,6 +112,9 @@ export default function ClientDeliveryPage() {
               </Collapsible>
             </SidebarMenu>
           </SidebarContent>
+          <SidebarFooter>
+            <ThemeSwitcher />
+          </SidebarFooter>
         </Sidebar>
         <SidebarInset>
           <DashboardHeader 

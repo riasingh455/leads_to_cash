@@ -32,6 +32,7 @@ import { GoLiveTable } from '@/components/post-sales/go-live-table';
 import { BillingTable } from '@/components/post-sales/billing-table';
 import { Separator } from '@/components/ui/separator';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { ThemeSwitcher } from '@/components/theme-switcher';
 
 export default function PostSalesPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
@@ -113,6 +114,9 @@ export default function PostSalesPage() {
               </Collapsible>
             </SidebarMenu>
           </SidebarContent>
+          <SidebarFooter>
+            <ThemeSwitcher />
+          </SidebarFooter>
         </Sidebar>
         <SidebarInset>
           <DashboardHeader 

@@ -30,6 +30,7 @@ import { KanbanBoard } from '@/components/kanban/kanban-board';
 import { users, type User, type Lead, leads as initialLeads } from '@/lib/data';
 import { AddLeadDialog } from '@/components/leads/add-lead-dialog';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
+import { ThemeSwitcher } from '@/components/theme-switcher';
 
 export default function DashboardPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
@@ -115,6 +116,9 @@ export default function DashboardPage() {
               </Collapsible>
             </SidebarMenu>
           </SidebarContent>
+          <SidebarFooter>
+            <ThemeSwitcher />
+          </SidebarFooter>
         </Sidebar>
         <SidebarInset>
           <DashboardHeader 
