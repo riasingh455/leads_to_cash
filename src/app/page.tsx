@@ -1,6 +1,6 @@
 
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   SidebarProvider,
   Sidebar,
@@ -11,7 +11,6 @@ import {
   SidebarMenuButton,
   SidebarFooter,
   SidebarInset,
-  useSidebar,
 } from '@/components/ui/sidebar';
 import {
   LayoutDashboard,
@@ -25,13 +24,26 @@ import {
   Building,
   Workflow,
   History,
+  DollarSign,
+  TrendingUp,
+  BarChart,
 } from 'lucide-react';
 import { DashboardHeader } from '@/components/dashboard-header';
 import { KanbanBoard } from '@/components/kanban/kanban-board';
-import { users, type User, type Lead, leads as initialLeads } from '@/lib/data';
+import { users, type User, type Lead, leads as initialLeads, columns } from '@/lib/data';
 import { AddLeadDialog } from '@/components/leads/add-lead-dialog';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
 import { ThemeSwitcher } from '@/components/theme-switcher';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { formatCurrency } from '@/lib/utils';
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+} from '@/components/ui/chart';
+import { BarChart as RechartsBarChart, Bar, XAxis, YAxis, CartesianGrid, Legend } from 'recharts';
 
 export default function DashboardPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
@@ -39,9 +51,34 @@ export default function DashboardPage() {
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
 
   const handleAddLead = (newLead: Lead) => {
-    setLeads((prevLeads) => [newLead, ...prevLeads]);
+    const updatedLeads = [newLead, ...leads];
+    setLeads(updatedLeads);
     initialLeads.unshift(newLead);
   };
+  
+  const kpiData = useMemo(() => {
+    const totalPipelineValue = leads.reduce((sum, lead) => sum + lead.value, 0);
+    const wonLeads = leads.filter(l => l.columnId === 'col-5');
+    const wonRevenue = wonLeads.reduce((sum, lead) => sum + lead.value, 0);
+    const newLeadsCount = leads.filter(l => new Date(l.entryDate) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)).length;
+    const conversionRate = leads.length > 0 ? (wonLeads.length / leads.length) * 100 : 0;
+    
+    return { totalPipelineValue, wonRevenue, newLeadsCount, conversionRate };
+  }, [leads]);
+  
+  const pipelineChartData = useMemo(() => {
+    return columns
+      .map(col => {
+        const stageLeads = leads.filter(lead => lead.columnId === col.id);
+        if (stageLeads.length === 0) return null;
+        return {
+          name: col.title,
+          leads: stageLeads.length,
+          value: stageLeads.reduce((sum, l) => sum + l.value, 0)
+        }
+      })
+      .filter(Boolean);
+  }, [leads]);
 
   return (
     <SidebarProvider defaultOpen>
@@ -135,9 +172,75 @@ export default function DashboardPage() {
             exportData={leads}
             exportFilename='dashboard-leads.csv'
           />
-          <footer className="border-t p-6 text-center text-sm text-muted-foreground">
-            © Copyright 2025. Outamation Inc. All rights reserved.
-          </footer>
+           <main className="flex-1 p-4 md:p-6 lg:p-8 space-y-8">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Total Pipeline Value</CardTitle>
+                        <DollarSign className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{formatCurrency(kpiData.totalPipelineValue)}</div>
+                        <p className="text-xs text-muted-foreground">Across all active leads</p>
+                    </CardContent>
+                </Card>
+                 <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Won Revenue</CardTitle>
+                        <DollarSign className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{formatCurrency(kpiData.wonRevenue)}</div>
+                         <p className="text-xs text-muted-foreground">From all closed-won deals</p>
+                    </CardContent>
+                </Card>
+                 <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">New Leads</CardTitle>
+                        <Users className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">+{kpiData.newLeadsCount}</div>
+                        <p className="text-xs text-muted-foreground">In the last 30 days</p>
+                    </CardContent>
+                </Card>
+                 <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Conversion Rate</CardTitle>
+                        <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{kpiData.conversionRate.toFixed(1)}%</div>
+                         <p className="text-xs text-muted-foreground">Lead-to-won conversion</p>
+                    </CardContent>
+                </Card>
+            </div>
+            
+             <Card>
+              <CardHeader>
+                <CardTitle>Pipeline Overview</CardTitle>
+              </CardHeader>
+              <CardContent>
+                 <ChartContainer config={{}} className="h-[250px] w-full">
+                  <RechartsBarChart data={pipelineChartData} accessibilityLayer>
+                    <CartesianGrid vertical={false} />
+                    <XAxis
+                      dataKey="name"
+                      tickLine={false}
+                      tickMargin={10}
+                      axisLine={false}
+                      tickFormatter={(value) => value.slice(0, 15)}
+                    />
+                    <YAxis />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Bar dataKey="leads" fill="var(--color-primary)" radius={4} />
+                  </RechartsBarChart>
+                </ChartContainer>
+              </CardContent>
+            </Card>
+
+            <KanbanBoard currentUser={currentUser} />
+          </main>
         </SidebarInset>
       </div>
       <AddLeadDialog

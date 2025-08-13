@@ -318,10 +318,10 @@ SidebarRail.displayName = "SidebarRail"
 
 const SidebarInset = React.forwardRef<
   HTMLDivElement,
-  React.ComponentProps<"main">
+  React.ComponentProps<"div">
 >(({ className, children, ...props }, ref) => {
   return (
-    <main
+    <div
       ref={ref}
       className={cn(
         "relative flex min-h-svh flex-1 flex-col bg-background",
@@ -330,11 +330,8 @@ const SidebarInset = React.forwardRef<
       )}
       {...props}
     >
-      <div className="flex-1">{children}</div>
-      <footer className="border-t p-6 text-center text-sm text-muted-foreground">
-        © Copyright 2025. Outamation Inc. All rights reserved.
-      </footer>
-    </main>
+      {children}
+    </div>
   );
 });
 SidebarInset.displayName = "SidebarInset"
