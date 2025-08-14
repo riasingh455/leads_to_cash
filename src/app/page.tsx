@@ -30,7 +30,6 @@ import {
   LogOut,
 } from 'lucide-react';
 import { DashboardHeader } from '@/components/dashboard-header';
-import { KanbanBoard } from '@/components/kanban/kanban-board';
 import { users, type User, type Lead, leads as initialLeads, columns } from '@/lib/data';
 import { AddLeadDialog } from '@/components/leads/add-lead-dialog';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
@@ -41,10 +40,8 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-  ChartLegend,
-  ChartLegendContent,
 } from '@/components/ui/chart';
-import { BarChart as RechartsBarChart, Bar, XAxis, YAxis, CartesianGrid, Legend } from 'recharts';
+import { BarChart as RechartsBarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 
@@ -261,7 +258,6 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-            <KanbanBoard currentUser={currentUser} />
           </main>
           <footer className="border-t p-4 text-center text-sm text-muted-foreground">
             © Copyright 2025. Outamation Inc. All rights reserved.
