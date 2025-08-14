@@ -119,23 +119,22 @@ export default function AuditTrailPage() {
             </SidebarMenu>
           </SidebarContent>
           <SidebarFooter>
-            <div className='text-left text-sm p-2 space-y-0.5'>
-              <p className='text-muted-foreground'>Logged in as</p>
-              <p className='font-bold'>{currentUser.role}</p>
-            </div>
-            <Separator className="my-1" />
             <div className='p-2'>
-              <Button variant='ghost' className='w-full justify-start p-2 h-auto'>
+              <div className='text-left text-sm space-y-0.5 mb-2'>
+                <p className='text-muted-foreground text-xs'>Logged in as</p>
+                <p className='font-bold'>{currentUser.role}</p>
+              </div>
+              <Button variant='ghost' className='w-full justify-start p-2 h-auto mb-2'>
                 <LogOut className="mr-2 h-4 w-4" />
                 Logout
               </Button>
+              <Separator className="my-1" />
+              <div className='text-left text-sm space-y-0.5 mt-2'>
+                <p className='font-bold'>{currentUser.name}</p>
+                <p className='text-muted-foreground'>{currentUser.email}</p>
+              </div>
             </div>
-            <Separator className="my-1" />
-            <div className='text-left text-sm p-2 space-y-0.5'>
-              <p className='font-bold'>{currentUser.name}</p>
-              <p className='text-muted-foreground'>{currentUser.email}</p>
-            </div>
-             <div className='text-left text-xs p-2 text-muted-foreground'>
+            <div className='text-left text-xs p-2 text-muted-foreground'>
                 Version 1.0.0
             </div>
             <ThemeSwitcher />
