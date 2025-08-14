@@ -127,7 +127,7 @@ export function CampaignDetailsView({ campaign, leads, onBack, onViewLeadDetails
                     </Button>
                 </CardHeader>
                 <CardContent>
-                    <LeadsTable onViewDetails={onViewLeadDetails} leads={leads} onDeleteLead={() => {}}/>
+                    <LeadsTable onViewDetails={onViewLeadDetails} leads={leads} onDeleteLead={() => {}} onMarkAsProspect={() => {}} />
                 </CardContent>
             </Card>
         </div>
