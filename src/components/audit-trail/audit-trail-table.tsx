@@ -23,6 +23,10 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import {
@@ -34,7 +38,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { type AuditLog } from '@/lib/data';
+import { type AuditLog, users } from '@/lib/data';
 import { format, formatDistanceToNow } from 'date-fns';
 
 interface AuditTrailTableProps {
@@ -69,6 +73,9 @@ export function AuditTrailTable({ logs }: AuditTrailTableProps) {
       accessorKey: 'user',
       header: 'User',
       cell: ({ row }) => <div>{row.getValue('user')}</div>,
+      filterFn: (row, id, value) => {
+        return value.includes(row.getValue(id))
+      },
     },
     {
       accessorKey: 'action',
@@ -102,6 +109,9 @@ export function AuditTrailTable({ logs }: AuditTrailTableProps) {
     { id: 'timestamp', desc: true },
   ]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({});
+
 
   const table = useReactTable({
     data: logs,
@@ -112,15 +122,19 @@ export function AuditTrailTable({ logs }: AuditTrailTableProps) {
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    onColumnVisibilityChange: setColumnVisibility,
     state: {
       sorting,
       columnFilters,
+      columnVisibility,
     },
   });
+  
+  const selectedUser = table.getColumn('user')?.getFilterValue() as string || "all";
 
   return (
     <div className="w-full">
-      <div className="flex items-center py-4">
+      <div className="flex items-center py-4 gap-4">
         <Input
           placeholder="Filter by details..."
           value={(table.getColumn('details')?.getFilterValue() as string) ?? ''}
@@ -129,9 +143,31 @@ export function AuditTrailTable({ logs }: AuditTrailTableProps) {
           }
           className="max-w-sm"
         />
+         <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="ml-auto">
+                    {selectedUser === 'all' ? 'All Users' : selectedUser}
+                    <ChevronDownIcon className="ml-2 h-4 w-4" />
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+                <DropdownMenuRadioGroup
+                    value={selectedUser}
+                    onValueChange={(value) => {
+                        table.getColumn('user')?.setFilterValue(value === "all" ? null : value)
+                    }}
+                >
+                    <DropdownMenuRadioItem value="all">All Users</DropdownMenuRadioItem>
+                    <DropdownMenuSeparator />
+                    {users.map(user => (
+                        <DropdownMenuRadioItem key={user.id} value={user.name}>{user.name}</DropdownMenuRadioItem>
+                    ))}
+                </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+        </DropdownMenu>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
+            <Button variant="outline">
               Columns <ChevronDownIcon className="ml-2 h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
