@@ -48,11 +48,11 @@ const TimestampCell = ({ timestamp }: { timestamp: string }) => {
         setIsMounted(true);
     }, []);
 
-    const date = new Date(timestamp);
-
     if (!isMounted) {
-        return <div suppressHydrationWarning>{format(date, 'PPP p')}</div>;
+        return <div suppressHydrationWarning>{format(new Date(timestamp), 'PPP p')}</div>;
     }
+
+    const date = new Date(timestamp);
 
     return (
         <div title={format(date, 'PPP p')}>
@@ -104,6 +104,9 @@ export function AuditTrailTable({ logs }: AuditTrailTableProps) {
         if (action === 'Deleted') variant = 'destructive';
         return <Badge variant={variant}>{action}</Badge>;
       },
+       filterFn: (row, id, value) => {
+        return value ? value === row.getValue(id) : true
+      },
     },
     {
       accessorKey: 'entity',
@@ -148,10 +151,12 @@ export function AuditTrailTable({ logs }: AuditTrailTableProps) {
   });
   
   const selectedUser = table.getColumn('user')?.getFilterValue() as string || "all";
+  const selectedAction = table.getColumn('action')?.getFilterValue() as string || "all";
+  const uniqueActions = [...new Set(logs.map(log => log.action))];
 
   return (
     <div className="w-full">
-      <div className="flex items-center py-4 gap-4">
+      <div className="flex items-center py-4 gap-2">
         <Input
           placeholder="Filter by details..."
           value={(table.getColumn('details')?.getFilterValue() as string) ?? ''}
@@ -162,7 +167,7 @@ export function AuditTrailTable({ logs }: AuditTrailTableProps) {
         />
          <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="ml-auto">
+                <Button variant="outline">
                     {selectedUser === 'all' ? 'All Users' : selectedUser}
                     <ChevronDownIcon className="ml-2 h-4 w-4" />
                 </Button>
@@ -182,9 +187,31 @@ export function AuditTrailTable({ logs }: AuditTrailTableProps) {
                 </DropdownMenuRadioGroup>
             </DropdownMenuContent>
         </DropdownMenu>
+         <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="outline">
+                    {selectedAction === 'all' ? 'All Actions' : selectedAction}
+                    <ChevronDownIcon className="ml-2 h-4 w-4" />
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+                <DropdownMenuRadioGroup
+                    value={selectedAction}
+                    onValueChange={(value) => {
+                        table.getColumn('action')?.setFilterValue(value === "all" ? null : value)
+                    }}
+                >
+                    <DropdownMenuRadioItem value="all">All Actions</DropdownMenuRadioItem>
+                    <DropdownMenuSeparator />
+                    {uniqueActions.map(action => (
+                        <DropdownMenuRadioItem key={action} value={action}>{action}</DropdownMenuRadioItem>
+                    ))}
+                </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+        </DropdownMenu>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline">
+            <Button variant="outline" className="ml-auto">
               Columns <ChevronDownIcon className="ml-2 h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
