@@ -41,6 +41,27 @@ import { Badge } from '@/components/ui/badge';
 import { type AuditLog, users } from '@/lib/data';
 import { format, formatDistanceToNow } from 'date-fns';
 
+const TimestampCell = ({ timestamp }: { timestamp: string }) => {
+    const [isMounted, setIsMounted] = React.useState(false);
+
+    React.useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    const date = new Date(timestamp);
+
+    if (!isMounted) {
+        return <div suppressHydrationWarning>{format(date, 'PPP p')}</div>;
+    }
+
+    return (
+        <div title={format(date, 'PPP p')}>
+            {formatDistanceToNow(date, { addSuffix: true })}
+        </div>
+    );
+};
+
+
 interface AuditTrailTableProps {
   logs: AuditLog[];
 }
@@ -61,12 +82,8 @@ export function AuditTrailTable({ logs }: AuditTrailTableProps) {
         );
       },
       cell: ({ row }) => {
-        const date = new Date(row.getValue('timestamp'));
-        return (
-          <div title={format(date, 'PPP p')}>
-            {formatDistanceToNow(date, { addSuffix: true })}
-          </div>
-        );
+        const timestamp = row.getValue('timestamp') as string;
+        return <TimestampCell timestamp={timestamp} />;
       },
     },
     {
