@@ -74,7 +74,7 @@ export function AuditTrailTable({ logs }: AuditTrailTableProps) {
       header: 'User',
       cell: ({ row }) => <div>{row.getValue('user')}</div>,
       filterFn: (row, id, value) => {
-        return value.includes(row.getValue(id))
+        return value ? value === row.getValue(id) : true
       },
     },
     {
