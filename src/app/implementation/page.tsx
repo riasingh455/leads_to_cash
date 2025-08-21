@@ -27,7 +27,7 @@ import {
   History,
   LogOut,
 } from 'lucide-react';
-import { users, type User, type Lead, leads as initialLeads } from '@/lib/data';
+import { users, type User, type Lead, leads as initialLeads, type GoLiveAndSupportData } from '@/lib/data';
 import { DashboardHeader } from '@/components/dashboard-header';
 import { LeadDetailsDialog } from '@/components/kanban/lead-details-dialog';
 import { ImplementationTable } from '@/components/implementation/implementation-table';
@@ -35,12 +35,38 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { ThemeSwitcher } from '@/components/theme-switcher';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
+import { MoveToGoLiveDialog } from '@/components/implementation/move-to-go-live-dialog';
 
 export default function ImplementationPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [leads, setLeads] = useState<Lead[]>(initialLeads);
+  const [moveToGoLiveLead, setMoveToGoLiveLead] = useState<Lead | null>(null);
+  const { toast } = useToast();
 
-  const implementationLeads = initialLeads.filter(l => l.columnId === 'col-implementation');
+  const handleMoveToGoLive = (leadId: string, goLiveData: GoLiveAndSupportData) => {
+    setLeads(prev => {
+      const leadIndex = prev.findIndex(l => l.id === leadId);
+      if (leadIndex > -1) {
+        const updatedLeads = [...prev];
+        const updatedLead = { ...updatedLeads[leadIndex] };
+        updatedLead.stage = 'Post-Sales';
+        updatedLead.columnId = 'col-go-live';
+        updatedLead.goLiveAndSupportData = goLiveData;
+        updatedLeads[leadIndex] = updatedLead;
+        return updatedLeads;
+      }
+      return prev;
+    });
+    setMoveToGoLiveLead(null);
+    toast({
+        title: 'Moved to Go-Live & Handoff',
+        description: 'The deal has been advanced to the post-sales stage.'
+    })
+  }
+
+  const implementationLeads = initialLeads.filter(l => l.stage === 'Implementation');
 
   return (
     <SidebarProvider defaultOpen>
@@ -154,7 +180,7 @@ export default function ImplementationPage() {
             exportFilename='implementation.csv'
           />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
-            <ImplementationTable onViewDetails={setSelectedLead} leads={initialLeads} />
+            <ImplementationTable onViewDetails={setSelectedLead} leads={leads} onMoveToGoLive={setMoveToGoLiveLead} />
           </main>
           <footer className="border-t p-4 text-center text-sm text-muted-foreground">
             © Copyright 2025. Outamation Inc. All rights reserved.
@@ -166,6 +192,12 @@ export default function ImplementationPage() {
         isOpen={!!selectedLead}
         onOpenChange={(isOpen) => !isOpen && setSelectedLead(null)}
         currentUser={currentUser}
+      />
+      <MoveToGoLiveDialog
+        isOpen={!!moveToGoLiveLead}
+        onOpenChange={() => setMoveToGoLiveLead(null)}
+        lead={moveToGoLiveLead}
+        onMoveToGoLive={handleMoveToGoLive}
       />
     </SidebarProvider>
   );

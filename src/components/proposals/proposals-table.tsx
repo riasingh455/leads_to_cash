@@ -49,10 +49,11 @@ interface ProposalsTableProps {
   onViewDetails: (lead: Lead) => void;
   leads: Lead[];
   onDeleteProposal: (leadId: string) => void;
+  onMoveToClientDelivery: (lead: Lead) => void;
 }
 
-export function ProposalsTable({ onViewDetails, leads: propLeads, onDeleteProposal }: ProposalsTableProps) {
-  const data = React.useMemo(() => propLeads.filter(lead => proposalStageIds.includes(lead.columnId)), [propLeads]);
+export function ProposalsTable({ onViewDetails, leads: propLeads, onDeleteProposal, onMoveToClientDelivery }: ProposalsTableProps) {
+  const data = React.useMemo(() => propLeads.filter(lead => lead.stage === 'Proposal'), [propLeads]);
   
   const columns: ColumnDef<Lead>[] = [
     {
@@ -149,6 +150,9 @@ export function ProposalsTable({ onViewDetails, leads: propLeads, onDeletePropos
                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
                 <DropdownMenuItem onClick={() => onViewDetails(lead)}>
                   View details
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onMoveToClientDelivery(lead)}>
+                  Move to Client Delivery
                 </DropdownMenuItem>
                  <DropdownMenuSeparator />
                 <AlertDialogTrigger asChild>

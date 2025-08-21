@@ -43,15 +43,14 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { format } from 'date-fns';
 import { Badge } from '../ui/badge';
 
-const deliveryStageIds = ['col-delivery', 'col-contract'];
-
 interface ClientDeliveryTableProps {
   onViewDetails: (lead: Lead) => void;
   leads: Lead[];
+  onMoveToImplementation: (lead: Lead) => void;
 }
 
-export function ClientDeliveryTable({ onViewDetails, leads }: ClientDeliveryTableProps) {
-  const data = React.useMemo(() => leads.filter(lead => deliveryStageIds.includes(lead.columnId)), [leads]);
+export function ClientDeliveryTable({ onViewDetails, leads, onMoveToImplementation }: ClientDeliveryTableProps) {
+  const data = React.useMemo(() => leads.filter(lead => lead.stage === 'Client-Delivery'), [leads]);
   
   const columns: ColumnDef<Lead>[] = [
     {
@@ -147,6 +146,9 @@ export function ClientDeliveryTable({ onViewDetails, leads }: ClientDeliveryTabl
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuItem onClick={() => onViewDetails(lead)}>
                 View details
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onMoveToImplementation(lead)}>
+                Move to Implementation
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

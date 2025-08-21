@@ -21,6 +21,8 @@ export interface Campaign {
 }
 
 export type LeadStatus = 'Unaware' | 'Engaged' | 'Prospect' | 'Qualified' | 'Future Opportunity' | 'Disqualified';
+export type LeadStage = 'Lead' | 'Opportunity' | 'Proposal' | 'Client-Delivery' | 'Implementation' | 'Post-Sales';
+
 
 export interface StatusUpdate {
   status: LeadStatus;
@@ -207,6 +209,7 @@ export interface Lead {
   currency: 'USD' | 'EUR' | 'GBP';
   score: number;
   status: LeadStatus;
+  stage: LeadStage;
   statusHistory: StatusUpdate[];
   priority: 'High' | 'Medium' | 'Low';
   columnId: string;
@@ -323,6 +326,7 @@ export let leads: Lead[] = [
     nextAction: '2024-06-05T10:00:00Z',
     source: 'Website',
     status: 'Unaware',
+    stage: 'Lead',
     statusHistory: [
       { status: 'Unaware', date: '2024-05-01T10:00:00Z', notes: 'Initial import from website form.', updatedBy: 'system' }
     ],
@@ -356,6 +360,7 @@ export let leads: Lead[] = [
     nextAction: '2024-06-02T14:30:00Z',
     source: 'Referral',
     status: 'Qualified',
+    stage: 'Opportunity',
     statusHistory: [
        { status: 'Unaware', date: '2024-05-03T12:00:00Z', notes: 'Initial import from referral.', updatedBy: 'system' },
        { status: 'Engaged', date: '2024-05-05T09:00:00Z', notes: 'Responded to initial email.', updatedBy: 'user-3' },
@@ -391,6 +396,7 @@ export let leads: Lead[] = [
     nextAction: '2024-06-10T09:00:00Z',
     source: 'Cold Call',
     status: 'Prospect',
+    stage: 'Lead',
      statusHistory: [
        { status: 'Unaware', date: '2024-05-05T14:00:00Z', notes: 'Sourced from list.', updatedBy: 'system' },
        { status: 'Engaged', date: '2024-05-06T16:00:00Z', notes: 'Positive initial call.', updatedBy: 'user-2' },
@@ -435,6 +441,7 @@ export let leads: Lead[] = [
     nextAction: '2024-06-04T11:00:00Z',
     source: 'LinkedIn',
     status: 'Unaware',
+    stage: 'Lead',
     statusHistory: [],
     region: 'North America',
     contact: {
@@ -462,6 +469,7 @@ export let leads: Lead[] = [
     nextAction: '2024-06-01T16:00:00Z',
     source: 'Partner',
     status: 'Qualified',
+    stage: 'Proposal',
     statusHistory: [],
     campaignId: 'campaign-2',
     region: 'EMEA',
@@ -514,6 +522,7 @@ export let leads: Lead[] = [
     nextAction: '2024-06-08T12:00:00Z',
     source: 'Webinar',
     status: 'Qualified',
+    stage: 'Proposal',
     statusHistory: [],
     region: 'APAC',
     contact: {
@@ -551,6 +560,7 @@ export let leads: Lead[] = [
     nextAction: '2024-06-03T15:00:00Z',
     source: 'Conference',
     status: 'Qualified',
+    stage: 'Client-Delivery',
     statusHistory: [],
     campaignId: 'campaign-3',
     region: 'North America',
@@ -596,6 +606,7 @@ export let leads: Lead[] = [
     nextAction: '2024-06-20T10:00:00Z',
     source: 'Ad Campaign',
     status: 'Qualified',
+    stage: 'Client-Delivery',
     statusHistory: [],
     region: 'EMEA',
     contact: {
@@ -642,6 +653,7 @@ export let leads: Lead[] = [
     nextAction: '2024-06-20T15:00:00Z',
     source: 'Conference',
     status: 'Qualified',
+    stage: 'Implementation',
     statusHistory: [],
     region: 'North America',
     contact: {
@@ -712,6 +724,7 @@ export let leads: Lead[] = [
     nextAction: '2024-07-01T10:00:00Z',
     source: 'Website',
     status: 'Qualified',
+    stage: 'Post-Sales',
     statusHistory: [],
     region: 'North America',
     contact: {
@@ -754,6 +767,7 @@ export let leads: Lead[] = [
     nextAction: '2024-07-15T10:00:00Z',
     source: 'Referral',
     status: 'Qualified',
+    stage: 'Post-Sales',
     statusHistory: [],
     region: 'EMEA',
     contact: {

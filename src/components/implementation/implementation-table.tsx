@@ -42,15 +42,14 @@ import { type Lead, users } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { format } from 'date-fns';
 
-const implementationStageIds = ['col-implementation'];
-
 interface ImplementationTableProps {
   onViewDetails: (lead: Lead) => void;
   leads: Lead[];
+  onMoveToGoLive: (lead: Lead) => void;
 }
 
-export function ImplementationTable({ onViewDetails, leads }: ImplementationTableProps) {
-  const data = React.useMemo(() => leads.filter(lead => implementationStageIds.includes(lead.columnId)), [leads]);
+export function ImplementationTable({ onViewDetails, leads, onMoveToGoLive }: ImplementationTableProps) {
+  const data = React.useMemo(() => leads.filter(lead => lead.stage === 'Implementation'), [leads]);
   
   const columns: ColumnDef<Lead>[] = [
     {
@@ -115,6 +114,9 @@ export function ImplementationTable({ onViewDetails, leads }: ImplementationTabl
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuItem onClick={() => onViewDetails(lead)}>
                 View details
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onMoveToGoLive(lead)}>
+                Move to Go-Live
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

@@ -27,7 +27,7 @@ import {
   History,
   LogOut,
 } from 'lucide-react';
-import { users, type User, type Lead, leads as initialLeads } from '@/lib/data';
+import { users, type User, type Lead, leads as initialLeads, type ContractData } from '@/lib/data';
 import { DashboardHeader } from '@/components/dashboard-header';
 import { LeadDetailsDialog } from '@/components/kanban/lead-details-dialog';
 import { ClientDeliveryTable } from '@/components/client-delivery/client-delivery-table';
@@ -35,12 +35,38 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { ThemeSwitcher } from '@/components/theme-switcher';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
+import { MoveToImplementationDialog } from '@/components/client-delivery/move-to-implementation-dialog';
 
 export default function ClientDeliveryPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [leads, setLeads] = useState<Lead[]>(initialLeads);
+  const [moveToImplementationLead, setMoveToImplementationLead] = useState<Lead | null>(null);
+  const { toast } = useToast();
 
-  const deliveryLeads = initialLeads.filter(l => ['col-delivery', 'col-contract'].includes(l.columnId));
+  const handleMoveToImplementation = (leadId: string, contractData: ContractData) => {
+    setLeads(prev => {
+      const leadIndex = prev.findIndex(l => l.id === leadId);
+      if (leadIndex > -1) {
+        const updatedLeads = [...prev];
+        const updatedLead = { ...updatedLeads[leadIndex] };
+        updatedLead.stage = 'Implementation';
+        updatedLead.columnId = 'col-implementation';
+        updatedLead.contractData = contractData;
+        updatedLeads[leadIndex] = updatedLead;
+        return updatedLeads;
+      }
+      return prev;
+    });
+    setMoveToImplementationLead(null);
+    toast({
+        title: 'Moved to Implementation',
+        description: 'The deal has been advanced to the implementation stage.'
+    })
+  }
+
+  const deliveryLeads = initialLeads.filter(l => l.stage === 'Client-Delivery');
 
   return (
     <SidebarProvider defaultOpen>
@@ -154,7 +180,7 @@ export default function ClientDeliveryPage() {
             exportFilename='client-delivery.csv'
           />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
-            <ClientDeliveryTable onViewDetails={setSelectedLead} leads={initialLeads} />
+            <ClientDeliveryTable onViewDetails={setSelectedLead} leads={leads} onMoveToImplementation={setMoveToImplementationLead} />
           </main>
           <footer className="border-t p-4 text-center text-sm text-muted-foreground">
             © Copyright 2025. Outamation Inc. All rights reserved.
@@ -166,6 +192,13 @@ export default function ClientDeliveryPage() {
         isOpen={!!selectedLead}
         onOpenChange={(isOpen) => !isOpen && setSelectedLead(null)}
         currentUser={currentUser}
+      />
+      <MoveToImplementationDialog
+        isOpen={!!moveToImplementationLead}
+        onOpenChange={() => setMoveToImplementationLead(null)}
+        lead={moveToImplementationLead}
+        onMoveToImplementation={handleMoveToImplementation}
+        users={users}
       />
     </SidebarProvider>
   );

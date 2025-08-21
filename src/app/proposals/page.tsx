@@ -27,7 +27,7 @@ import {
   History,
   LogOut,
 } from 'lucide-react';
-import { users, type User, type Lead, leads as initialLeads } from '@/lib/data';
+import { users, type User, type Lead, leads as initialLeads, type InternalReviewData } from '@/lib/data';
 import { DashboardHeader } from '@/components/dashboard-header';
 import { LeadDetailsDialog } from '@/components/kanban/lead-details-dialog';
 import { ProposalsTable } from '@/components/proposals/proposals-table';
@@ -37,12 +37,14 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { ThemeSwitcher } from '@/components/theme-switcher';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
+import { MoveToClientDeliveryDialog } from '@/components/proposals/move-to-client-delivery-dialog';
 
 export default function ProposalsPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [isAddProposalOpen, setIsAddProposalOpen] = useState(false);
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
+  const [moveToClientDeliveryLead, setMoveToClientDeliveryLead] = useState<Lead | null>(null);
   const { toast } = useToast();
 
   const handleAddProposal = (leadId: string, proposalData: any) => {
@@ -52,6 +54,7 @@ export default function ProposalsPage() {
         const updatedLeads = [...prevLeads];
         const updatedLead = { ...updatedLeads[leadIndex] };
         updatedLead.columnId = 'col-proposal';
+        updatedLead.stage = 'Proposal';
         updatedLead.proposalData = {
           ...proposalData,
           revisionHistory: [{ version: 1, date: new Date().toISOString(), notes: 'Initial draft' }],
@@ -70,6 +73,7 @@ export default function ProposalsPage() {
         const updatedLeads = [...prev];
         const updatedLead = { ...updatedLeads[leadIndex] };
         delete updatedLead.proposalData;
+        updatedLead.stage = 'Opportunity';
         updatedLead.columnId = 'col-prospect'; // Revert to prospect
         updatedLeads[leadIndex] = updatedLead;
         return updatedLeads;
@@ -92,6 +96,27 @@ export default function ProposalsPage() {
       setSelectedLead(updatedLead);
     }
   };
+  
+  const handleMoveToClientDelivery = (leadId: string, reviewData: InternalReviewData) => {
+    setLeads(prev => {
+      const leadIndex = prev.findIndex(l => l.id === leadId);
+      if (leadIndex > -1) {
+        const updatedLeads = [...prev];
+        const updatedLead = { ...updatedLeads[leadIndex] };
+        updatedLead.stage = 'Client-Delivery';
+        updatedLead.columnId = 'col-delivery';
+        updatedLead.internalReviewData = reviewData;
+        updatedLeads[leadIndex] = updatedLead;
+        return updatedLeads;
+      }
+      return prev;
+    });
+    setMoveToClientDeliveryLead(null);
+    toast({
+        title: 'Moved to Client Delivery',
+        description: 'The deal has been advanced to the client delivery stage.'
+    })
+  }
 
   const proposalLeads = leads.filter(l => ['col-proposal', 'col-review', 'col-delivery'].includes(l.columnId));
 
@@ -209,7 +234,12 @@ export default function ProposalsPage() {
             exportFilename="proposals.csv"
           />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
-            <ProposalsTable onViewDetails={setSelectedLead} leads={leads} onDeleteProposal={handleDeleteProposal} />
+            <ProposalsTable 
+                onViewDetails={setSelectedLead} 
+                leads={leads} 
+                onDeleteProposal={handleDeleteProposal} 
+                onMoveToClientDelivery={setMoveToClientDeliveryLead}
+            />
           </main>
           <footer className="border-t p-4 text-center text-sm text-muted-foreground">
             © Copyright 2025. Outamation Inc. All rights reserved.
@@ -228,6 +258,13 @@ export default function ProposalsPage() {
         onOpenChange={setIsAddProposalOpen}
         onProposalAdded={handleAddProposal}
         leads={leads}
+      />
+      <MoveToClientDeliveryDialog
+        isOpen={!!moveToClientDeliveryLead}
+        onOpenChange={() => setMoveToClientDeliveryLead(null)}
+        lead={moveToClientDeliveryLead}
+        onMoveToClientDelivery={handleMoveToClientDelivery}
+        users={users}
       />
     </SidebarProvider>
   );
