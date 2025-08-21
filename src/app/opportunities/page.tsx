@@ -27,7 +27,7 @@ import {
   History,
   LogOut,
 } from 'lucide-react';
-import { users, type User, type Lead, leads as initialLeads } from '@/lib/data';
+import { users, type User, type Lead, leads as initialLeads, type LeadStatus, type StatusUpdate } from '@/lib/data';
 import { DashboardHeader } from '@/components/dashboard-header';
 import { OpportunitiesTable } from '@/components/opportunities/opportunities-table';
 import { LeadDetailsDialog } from '@/components/kanban/lead-details-dialog';
@@ -37,6 +37,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { ThemeSwitcher } from '@/components/theme-switcher';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
+import { ChangeStatusDialogs } from '@/components/leads/change-status-dialogs';
 
 export default function OpportunitiesPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
@@ -44,9 +45,11 @@ export default function OpportunitiesPage() {
   const [isAddLeadOpen, setIsAddLeadOpen] = useState(false);
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
   const { toast } = useToast();
+  const [statusChangeLead, setStatusChangeLead] = useState<{lead: Lead, status: LeadStatus} | null>(null);
 
   const handleAddLead = (newLead: Lead) => {
-    setLeads((prevLeads) => [newLead, ...prevLeads]);
+    const updatedLeads = [newLead, ...leads];
+    setLeads(updatedLeads);
     initialLeads.unshift(newLead);
   };
   
@@ -60,6 +63,37 @@ export default function OpportunitiesPage() {
       title: "Opportunity Deleted",
       description: "The opportunity has been successfully deleted.",
     });
+  };
+
+  const handleChangeStatus = (leadId: string, status: LeadStatus, data?: any) => {
+    const leadIndex = initialLeads.findIndex(l => l.id === leadId);
+    if (leadIndex > -1) {
+        const lead = initialLeads[leadIndex];
+        lead.status = status;
+        const newStatusUpdate: StatusUpdate = {
+            status,
+            date: new Date().toISOString(),
+            notes: `Status changed to ${status}`,
+            updatedBy: currentUser.id,
+            data,
+        };
+        lead.statusHistory.push(newStatusUpdate);
+
+        if (status === 'Future Opportunity' && data) {
+            lead.futureOpportunityData = data;
+        }
+         if (status === 'Disqualified' && data) {
+            lead.disqualifiedData = data;
+        }
+        
+        initialLeads[leadIndex] = lead;
+        // This will force a re-render and re-filter of opportunities
+        setLeads([...initialLeads]);
+        toast({
+            title: "Opportunity Updated",
+            description: `The opportunity status has been changed to ${status}.`,
+        });
+    }
   };
 
   const opportunities = leads.filter(l => l.status === 'Qualified');
@@ -177,7 +211,12 @@ export default function OpportunitiesPage() {
             exportFilename="opportunities.csv"
           />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
-            <OpportunitiesTable onViewDetails={setSelectedLead} leads={leads} onDeleteOpportunity={handleDeleteOpportunity} />
+            <OpportunitiesTable 
+              onViewDetails={setSelectedLead} 
+              leads={leads} 
+              onDeleteOpportunity={handleDeleteOpportunity}
+              onChangeStatus={setStatusChangeLead}
+            />
           </main>
           <footer className="border-t p-4 text-center text-sm text-muted-foreground">
             © Copyright 2025. Outamation Inc. All rights reserved.
@@ -196,6 +235,11 @@ export default function OpportunitiesPage() {
         onLeadAdded={handleAddLead}
         users={users}
         defaultStage="col-prospect"
+      />
+       <ChangeStatusDialogs
+        statusChangeLead={statusChangeLead}
+        onOpenChange={() => setStatusChangeLead(null)}
+        onStatusChanged={handleChangeStatus}
       />
     </SidebarProvider>
   );

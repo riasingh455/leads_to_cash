@@ -42,7 +42,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { type Lead, users, columns as leadColumns } from '@/lib/data';
+import { type Lead, users, columns as leadColumns, type LeadStatus } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
@@ -52,9 +52,10 @@ interface OpportunitiesTableProps {
   onViewDetails: (lead: Lead) => void;
   leads: Lead[];
   onDeleteOpportunity: (leadId: string) => void;
+  onChangeStatus: (change: {lead: Lead, status: LeadStatus}) => void;
 }
 
-export function OpportunitiesTable({ onViewDetails, leads: propLeads, onDeleteOpportunity }: OpportunitiesTableProps) {
+export function OpportunitiesTable({ onViewDetails, leads: propLeads, onDeleteOpportunity, onChangeStatus }: OpportunitiesTableProps) {
   const { toast } = useToast();
   const [leads, setLeads] = React.useState<Lead[]>(propLeads.filter(lead => lead.status === 'Qualified'));
 
@@ -161,6 +162,16 @@ export function OpportunitiesTable({ onViewDetails, leads: propLeads, onDeleteOp
                 <DropdownMenuItem onClick={() => onViewDetails(lead)}>
                   View details
                 </DropdownMenuItem>
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>Change Status</DropdownMenuSubTrigger>
+                  <DropdownMenuPortal>
+                    <DropdownMenuSubContent>
+                      <DropdownMenuItem onClick={() => onChangeStatus({lead, status: 'Qualified'})}>Qualified (Opportunity)</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => onChangeStatus({lead, status: 'Future Opportunity'})}>Future Opportunity</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => onChangeStatus({lead, status: 'Disqualified'})}>Disqualified</DropdownMenuItem>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuPortal>
+                </DropdownMenuSub>
                 <DropdownMenuSeparator />
                 <AlertDialogTrigger asChild>
                   <DropdownMenuItem className="text-red-600" onSelect={(e) => e.preventDefault()} onClick={(e) => e.stopPropagation()}>
