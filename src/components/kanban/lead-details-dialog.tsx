@@ -14,7 +14,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Phone, Mail, Users, Lightbulb, FolderKanban, Briefcase, Calendar, Handshake, Target, CheckCircle, Clock, Search, FileCheck2, UserCheck, ShieldCheck, DollarSign, AlertTriangle, Building, Truck, Presentation, FileUp, Edit, Info, Users2, FileSignature, Newspaper, BookUser, Rocket, Receipt, GitBranch, History } from 'lucide-react';
+import { FileText, Phone, Mail, Users, Lightbulb, FolderKanban, Briefcase, Calendar, Handshake, Target, CheckCircle, Clock, Search, FileCheck2, UserCheck, ShieldCheck, DollarSign, AlertTriangle, Building, Truck, Presentation, FileUp, Edit, Info, Users2, FileSignature, Newspaper, BookUser, Rocket, Receipt, GitBranch, History, NotebookText, XCircle, Star, CalendarClock, MessageSquareQuote } from 'lucide-react';
 import type { Lead, User } from '@/lib/data';
 import { users, columns } from '@/lib/data';
 import { format } from 'date-fns';
@@ -34,12 +34,25 @@ interface LeadDetailsDialogProps {
   currentUser: User;
 }
 
-const DetailRow = ({ label, value, fullWidth = false }: { label: string; value: React.ReactNode, fullWidth?: boolean }) => (
+const DetailRow = ({ label, value, fullWidth = false, className }: { label: string; value: React.ReactNode, fullWidth?: boolean, className?: string }) => (
     <>
-        <span className="font-medium text-muted-foreground">{label}:</span>
-        <span className={`break-words ${fullWidth ? 'col-span-full' : ''}`}>{value}</span>
+        <dt className={cn("font-medium text-muted-foreground flex items-center gap-1", className)}>{label}:</dt>
+        <dd className={`break-words ${fullWidth ? 'col-span-full' : ''}`}>{value}</dd>
     </>
 );
+
+const StatusDetailSection = ({ title, icon: Icon, children }: { title: string, icon: React.ElementType, children: React.ReactNode }) => (
+    <div className='mt-2 border-l-2 pl-4 ml-4'>
+        <h4 className="font-semibold text-sm flex items-center gap-2 mb-2">
+            <Icon className="w-4 h-4 text-muted-foreground" />
+            {title}
+        </h4>
+        <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+            {children}
+        </div>
+    </div>
+)
+
 
 export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: LeadDetailsDialogProps) {
   if (!lead) return null;
@@ -216,9 +229,9 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
                       const updater = users.find(u => u.id === update.updatedBy);
                       return (
                         <li key={index} className="flex items-start gap-4 p-3 rounded-md border bg-muted/50">
-                          <div className="flex flex-col items-center">
-                              <div className="bg-primary text-primary-foreground rounded-full h-8 w-8 flex items-center justify-center font-bold">{index + 1}</div>
-                              {index < lead.statusHistory.length - 1 && <div className="w-px h-8 bg-border my-1"></div>}
+                           <div className="flex flex-col items-center pt-1">
+                              <div className="bg-primary text-primary-foreground rounded-full h-8 w-8 flex items-center justify-center font-bold">{lead.statusHistory.length - index}</div>
+                              {index < lead.statusHistory.length - 1 && <div className="w-px h-full min-h-8 bg-border my-1"></div>}
                           </div>
                           <div className="flex-grow">
                             <div className="flex justify-between items-center">
@@ -228,11 +241,44 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
                               </p>
                             </div>
                             <p className="text-sm mt-1">{update.notes}</p>
+                            
+                            {update.status === 'Prospect' && update.data && (
+                                <StatusDetailSection title="Prospect Details" icon={Target}>
+                                    <DetailRow label="Response Date" value={format(new Date(update.data.responseDate), 'PPP')} />
+                                    <DetailRow label="Engagement Type" value={update.data.engagementType} />
+                                    <DetailRow label="Contact Quality" value={update.data.contactQuality} />
+                                    <DetailRow label="Demo/Call Date" value={update.data.demoDate ? format(new Date(update.data.demoDate), 'PPP') : 'N/A'} />
+                                    <DetailRow label="Pain Points" value={update.data.painPoints} fullWidth/>
+                                    <DetailRow label="Next Steps" value={update.data.nextSteps} fullWidth/>
+                                </StatusDetailSection>
+                            )}
+
+                            {update.status === 'Future Opportunity' && update.data && (
+                                <StatusDetailSection title="Future Opportunity" icon={CalendarClock}>
+                                    <DetailRow label="Reminder Date" value={format(new Date(update.data.reminderDate), 'PPP')} />
+                                    <DetailRow label="Reason" value={update.data.reason} />
+                                </StatusDetailSection>
+                            )}
+
+                            {update.status === 'Disqualified' && update.data && (
+                                <StatusDetailSection title="Disqualification Details" icon={XCircle}>
+                                    <DetailRow label="Reason" value={update.data.reason} />
+                                    {update.data.competitor && <DetailRow label="Competitor" value={update.data.competitor} />}
+                                </StatusDetailSection>
+                            )}
+
+                            {(update.status === 'Unaware' || update.status === 'Engaged' || update.status === 'Qualified') && update.data?.notes && (
+                                <StatusDetailSection title="Notes" icon={MessageSquareQuote}>
+                                    <p className="col-span-2 text-xs">{update.data.notes}</p>
+                                </StatusDetailSection>
+                            )}
+
+
                              <p className="text-xs text-muted-foreground mt-2">Updated by: {updater?.name || 'System'}</p>
                           </div>
                         </li>
                       )
-                    })}
+                    }).reverse()}
                     {lead.statusHistory.length === 0 && <p className="text-muted-foreground">No status changes recorded yet.</p>}
                   </ul>
                 </CardContent>
@@ -733,3 +779,6 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
     </Dialog>
   );
 }
+
+
+    
