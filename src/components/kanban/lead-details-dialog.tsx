@@ -15,7 +15,7 @@ import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { FileText, Phone, Mail, Users, Lightbulb, FolderKanban, Briefcase, Calendar, Handshake, Target, CheckCircle, Clock, Search, FileCheck2, UserCheck, ShieldCheck, DollarSign, AlertTriangle, Building, Truck, Presentation, FileUp, Edit, Info, Users2, FileSignature, Newspaper, BookUser, Rocket, Receipt, GitBranch, History, NotebookText, XCircle, Star, CalendarClock, MessageSquareQuote } from 'lucide-react';
-import type { Lead, User, ProposalData } from '@/lib/data';
+import type { Lead, User, ProposalData, ProposalRevision } from '@/lib/data';
 import { users, columns } from '@/lib/data';
 import { format } from 'date-fns';
 import { StakeholderIdentification } from '../ai/stakeholder-identification';
@@ -68,34 +68,41 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser, onU
 
   if (!lead) return null;
 
-  const handleProposalChange = (field: keyof ProposalData, value: any) => {
+  const handleProposalChange = (field: keyof Omit<ProposalData, 'revisionHistory'>, value: any) => {
     if (!proposalData) return;
     setProposalData({ ...proposalData, [field]: value });
   };
   
-  const handleSaveChanges = () => {
-    if (!proposalData || !onUpdateLead) return;
-    const updatedLead = { ...lead, proposalData: proposalData };
-    onUpdateLead(updatedLead);
-    toast({ title: "Proposal Saved", description: "Your changes to the proposal have been saved."});
-  };
-  
   const handleAddRevision = (notes: string) => {
-    if (!proposalData || !onUpdateLead) return;
-    const newRevision = {
-      version: proposalData.revisionHistory.length + 1,
+    if (!proposalData || !onUpdateLead || !lead.proposalData) return;
+    
+    // Create a snapshot of the current proposal state before updating
+    const previousState: Omit<ProposalData, 'revisionHistory'> = {
+      templateUsed: lead.proposalData.templateUsed,
+      servicesIncluded: lead.proposalData.servicesIncluded,
+      pricingStructure: lead.proposalData.pricingStructure,
+      projectDuration: lead.proposalData.projectDuration,
+      resourceRequirements: lead.proposalData.resourceRequirements,
+      termsVersion: lead.proposalData.termsVersion,
+    };
+
+    const newRevision: ProposalRevision = {
+      version: lead.proposalData.revisionHistory.length + 1,
       date: new Date().toISOString(),
       notes,
+      previousState,
     };
-    const updatedProposalData = {
-      ...proposalData,
-      revisionHistory: [...proposalData.revisionHistory, newRevision],
+    
+    const updatedProposalData: ProposalData = {
+      ...proposalData, // This contains the newly edited data from the form
+      revisionHistory: [...lead.proposalData.revisionHistory, newRevision],
     };
+
     const updatedLead = { ...lead, proposalData: updatedProposalData };
     onUpdateLead(updatedLead);
-    setProposalData(updatedProposalData);
+    setProposalData(updatedProposalData); // Ensure local state is also updated
     setIsAddRevisionOpen(false);
-    toast({ title: "Revision Added", description: "A new version of the proposal has been recorded." });
+    toast({ title: "Revision Added", description: "A new version of the proposal has been saved." });
   };
 
 
@@ -461,8 +468,7 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser, onU
                         </div>
                     </CardContent>
                     <CardFooter className='gap-2'>
-                        <Button onClick={handleSaveChanges}>Save Changes</Button>
-                        <Button variant='outline' onClick={() => setIsAddRevisionOpen(true)}>Add New Revision</Button>
+                        <Button variant='outline' onClick={() => setIsAddRevisionOpen(true)}>Save as New Revision</Button>
                     </CardFooter>
                 </Card>
               ) : (

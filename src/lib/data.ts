@@ -53,6 +53,14 @@ export interface DisqualifiedData {
     competitor?: string;
 }
 
+export interface ProposalRevision {
+  version: number;
+  date: string;
+  notes: string;
+  previousState: Omit<ProposalData, 'revisionHistory'>;
+}
+
+
 export interface ProposalData {
   templateUsed: string;
   servicesIncluded: string;
@@ -60,11 +68,7 @@ export interface ProposalData {
   projectDuration: string; // e.g., '3 months'
   resourceRequirements: string;
   termsVersion: string;
-  revisionHistory: {
-    version: number;
-    date: string;
-    notes: string;
-  }[];
+  revisionHistory: ProposalRevision[];
 }
 
 export interface InternalReviewData {
@@ -478,7 +482,19 @@ export let leads: Lead[] = [
       projectDuration: '4 months',
       resourceRequirements: '1 PM, 2 Devs, 1 QA',
       termsVersion: 'v3.2',
-      revisionHistory: [{ version: 1, date: '2024-05-26T10:00:00Z', notes: 'Initial draft' }],
+      revisionHistory: [{ 
+        version: 1, 
+        date: '2024-05-26T10:00:00Z', 
+        notes: 'Initial draft',
+        previousState: {
+          templateUsed: 'Enterprise E-commerce v2.0',
+          servicesIncluded: 'Platform setup, custom theme, data migration',
+          pricingStructure: 'Fixed',
+          projectDuration: '3 months',
+          resourceRequirements: '1 PM, 1 Dev, 1 QA',
+          termsVersion: 'v3.1',
+        }
+      }],
     },
   },
   {
