@@ -157,7 +157,7 @@ export function OpportunitiesTable({ onViewDetails, leads: propLeads, onDeleteOp
                   <DotsHorizontalIcon className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
                 <DropdownMenuItem onClick={() => onViewDetails(lead)}>
                   View details

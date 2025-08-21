@@ -31,7 +31,6 @@ import { users, type User, type Lead, leads as initialLeads, type LeadStatus, ty
 import { DashboardHeader } from '@/components/dashboard-header';
 import { OpportunitiesTable } from '@/components/opportunities/opportunities-table';
 import { LeadDetailsDialog } from '@/components/kanban/lead-details-dialog';
-import { AddLeadDialog } from '@/components/leads/add-lead-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ThemeSwitcher } from '@/components/theme-switcher';
@@ -42,16 +41,9 @@ import { ChangeStatusDialogs } from '@/components/leads/change-status-dialogs';
 export default function OpportunitiesPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
-  const [isAddLeadOpen, setIsAddLeadOpen] = useState(false);
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
   const { toast } = useToast();
   const [statusChangeLead, setStatusChangeLead] = useState<{lead: Lead, status: LeadStatus} | null>(null);
-
-  const handleAddLead = (newLead: Lead) => {
-    const updatedLeads = [newLead, ...leads];
-    setLeads(updatedLeads);
-    initialLeads.unshift(newLead);
-  };
   
   const handleDeleteOpportunity = (leadId: string) => {
     setLeads(prev => prev.filter(l => l.id !== leadId));
@@ -206,7 +198,6 @@ export default function OpportunitiesPage() {
             setUser={setCurrentUser}
             title="Opportunities" 
             description="View and manage qualified sales opportunities." 
-            onAddButtonClick={() => setIsAddLeadOpen(true)}
             exportData={opportunities}
             exportFilename="opportunities.csv"
           />
@@ -228,13 +219,6 @@ export default function OpportunitiesPage() {
         isOpen={!!selectedLead}
         onOpenChange={(isOpen) => !isOpen && setSelectedLead(null)}
         currentUser={currentUser}
-      />
-      <AddLeadDialog
-        isOpen={isAddLeadOpen}
-        onOpenChange={setIsAddLeadOpen}
-        onLeadAdded={handleAddLead}
-        users={users}
-        defaultStage="col-prospect"
       />
        <ChangeStatusDialogs
         statusChangeLead={statusChangeLead}
