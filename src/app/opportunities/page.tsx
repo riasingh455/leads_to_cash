@@ -37,6 +37,7 @@ import { ThemeSwitcher } from '@/components/theme-switcher';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { ChangeStatusDialogs } from '@/components/leads/change-status-dialogs';
+import { AddProposalDialog } from '@/components/proposals/add-proposal-dialog';
 
 export default function OpportunitiesPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
@@ -44,6 +45,7 @@ export default function OpportunitiesPage() {
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
   const { toast } = useToast();
   const [statusChangeLead, setStatusChangeLead] = useState<{lead: Lead, status: LeadStatus} | null>(null);
+  const [proposalLead, setProposalLead] = useState<Lead | null>(null);
   
   const handleDeleteOpportunity = (leadId: string) => {
     setLeads(prev => prev.filter(l => l.id !== leadId));
@@ -86,6 +88,32 @@ export default function OpportunitiesPage() {
             description: `The opportunity status has been changed to ${status}.`,
         });
     }
+  };
+  
+  const handleAddProposal = (leadId: string, proposalData: any) => {
+    setLeads((prevLeads) => {
+      const leadIndex = prevLeads.findIndex(l => l.id === leadId);
+      if (leadIndex !== -1) {
+        const updatedLeads = [...prevLeads];
+        const updatedLead = { ...updatedLeads[leadIndex] };
+        updatedLead.columnId = 'col-proposal';
+        updatedLead.proposalData = {
+          ...proposalData,
+          revisionHistory: [{ version: 1, date: new Date().toISOString(), notes: 'Initial draft' }],
+        };
+        updatedLeads[leadIndex] = updatedLead;
+        
+        // Update master list
+        const initialLeadIndex = initialLeads.findIndex(l => l.id === leadId);
+        if (initialLeadIndex !== -1) {
+          initialLeads[initialLeadIndex] = updatedLead;
+        }
+
+        return updatedLeads;
+      }
+      return prevLeads;
+    });
+    setProposalLead(null);
   };
 
   const opportunities = leads.filter(l => l.status === 'Qualified');
@@ -207,6 +235,7 @@ export default function OpportunitiesPage() {
               leads={leads} 
               onDeleteOpportunity={handleDeleteOpportunity}
               onChangeStatus={setStatusChangeLead}
+              onMoveToProposal={setProposalLead}
             />
           </main>
           <footer className="border-t p-4 text-center text-sm text-muted-foreground">
@@ -224,6 +253,13 @@ export default function OpportunitiesPage() {
         statusChangeLead={statusChangeLead}
         onOpenChange={() => setStatusChangeLead(null)}
         onStatusChanged={handleChangeStatus}
+      />
+      <AddProposalDialog
+        isOpen={!!proposalLead}
+        onOpenChange={() => setProposalLead(null)}
+        onProposalAdded={handleAddProposal}
+        leads={leads}
+        defaultLeadId={proposalLead?.id}
       />
     </SidebarProvider>
   );

@@ -47,37 +47,24 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
+import { Badge } from '../ui/badge';
 
 interface OpportunitiesTableProps {
   onViewDetails: (lead: Lead) => void;
   leads: Lead[];
   onDeleteOpportunity: (leadId: string) => void;
   onChangeStatus: (change: {lead: Lead, status: LeadStatus}) => void;
+  onMoveToProposal: (lead: Lead) => void;
 }
 
-export function OpportunitiesTable({ onViewDetails, leads: propLeads, onDeleteOpportunity, onChangeStatus }: OpportunitiesTableProps) {
+export function OpportunitiesTable({ onViewDetails, leads: propLeads, onDeleteOpportunity, onChangeStatus, onMoveToProposal }: OpportunitiesTableProps) {
   const { toast } = useToast();
   const [leads, setLeads] = React.useState<Lead[]>(propLeads.filter(lead => lead.status === 'Qualified'));
 
   React.useEffect(() => {
-    setLeads(propLeads.filter(lead => lead.status === 'Qualified'))
+    setLeads(propLeads.filter(lead => lead.status === 'Qualified' && !lead.proposalData))
   }, [propLeads]);
   
-  const handleStageUpdate = (leadId: string, newStageId: string) => {
-    const lead = propLeads.find(l => l.id === leadId);
-    if(lead) {
-      lead.columnId = newStageId;
-    }
-    
-    setLeads(prev => prev.filter(l => l.id !== leadId));
-    
-    const stage = leadColumns.find(s => s.id === newStageId);
-    toast({
-      title: 'Opportunity Updated',
-      description: `Stage changed to "${stage?.title}"`,
-    });
-  };
-
   const columns: ColumnDef<Lead>[] = [
     {
       accessorKey: 'title',
@@ -87,7 +74,7 @@ export function OpportunitiesTable({ onViewDetails, leads: propLeads, onDeleteOp
         return (
             <div className='flex flex-col'>
                 <span className="font-medium">{row.getValue('title')}</span>
-                <span className="text-xs text-muted-foreground">{stage?.title}</span>
+                <Badge variant="outline" className="w-fit mt-1">{stage?.title}</Badge>
             </div>
         )
       }
@@ -161,6 +148,9 @@ export function OpportunitiesTable({ onViewDetails, leads: propLeads, onDeleteOp
                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
                 <DropdownMenuItem onClick={() => onViewDetails(lead)}>
                   View details
+                </DropdownMenuItem>
+                 <DropdownMenuItem onClick={() => onMoveToProposal(lead)}>
+                  Move to Proposal
                 </DropdownMenuItem>
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger>Change Status</DropdownMenuSubTrigger>
@@ -290,7 +280,10 @@ export function OpportunitiesTable({ onViewDetails, leads: propLeads, onDeleteOp
                   className='cursor-pointer'
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} onClick={(e) => {
+                      const isDropdown = (e.target as HTMLElement).closest('[data-radix-dropdown-menu-content]');
+                      if (isDropdown) e.stopPropagation();
+                    }}>
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()

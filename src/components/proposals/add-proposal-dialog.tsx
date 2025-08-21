@@ -32,6 +32,7 @@ import { z } from 'zod';
 import type { Lead } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '../ui/textarea';
+import { useEffect } from 'react';
 
 const proposalSchema = z.object({
   leadId: z.string().min(1, 'Please select a lead.'),
@@ -50,14 +51,15 @@ interface AddProposalDialogProps {
   onOpenChange: (open: boolean) => void;
   onProposalAdded: (leadId: string, proposal: Omit<ProposalFormValues, 'leadId'>) => void;
   leads: Lead[];
+  defaultLeadId?: string;
 }
 
 const proposalReadyStages = ['col-1', 'col-2', 'col-3', 'col-prospect'];
 
-export function AddProposalDialog({ isOpen, onOpenChange, onProposalAdded, leads }: AddProposalDialogProps) {
+export function AddProposalDialog({ isOpen, onOpenChange, onProposalAdded, leads, defaultLeadId }: AddProposalDialogProps) {
   const { toast } = useToast();
   
-  const availableLeads = leads.filter(lead => proposalReadyStages.includes(lead.columnId) && !lead.proposalData);
+  const availableLeads = leads.filter(lead => (proposalReadyStages.includes(lead.columnId) || lead.status === 'Qualified') && !lead.proposalData);
 
   const form = useForm<ProposalFormValues>({
     resolver: zodResolver(proposalSchema),
@@ -71,6 +73,12 @@ export function AddProposalDialog({ isOpen, onOpenChange, onProposalAdded, leads
       termsVersion: 'v1.0',
     },
   });
+  
+  useEffect(() => {
+    if (defaultLeadId) {
+      form.setValue('leadId', defaultLeadId);
+    }
+  }, [defaultLeadId, form]);
 
   const onSubmit = (values: ProposalFormValues) => {
     const { leadId, ...proposalData } = values;
@@ -101,7 +109,7 @@ export function AddProposalDialog({ isOpen, onOpenChange, onProposalAdded, leads
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Assign to Lead/Opportunity</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value} disabled={!!defaultLeadId}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a lead to create a proposal for..." />
