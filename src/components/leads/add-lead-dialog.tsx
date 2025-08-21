@@ -29,7 +29,7 @@ import { Button } from '@/components/ui/button';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import type { Lead, User } from '@/lib/data';
+import type { Lead, User, StatusUpdate } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
 import { campaigns } from '@/lib/data';
 import { Textarea } from '../ui/textarea';
@@ -49,6 +49,7 @@ const leadSchema = z.object({
   value: z.coerce.number().optional(),
   ownerId: z.string().optional(),
   campaignId: z.string().optional(),
+  status: z.enum(['Unaware', 'Engaged', 'Prospect']),
 });
 
 type LeadFormValues = z.infer<typeof leadSchema>;
@@ -82,10 +83,23 @@ export function AddLeadDialog({ isOpen, onOpenChange, onLeadAdded, users, defaul
       value: 0,
       ownerId: salesReps[0]?.id || '',
       campaignId: defaultCampaignId || 'none',
+      status: 'Unaware',
     },
   });
 
   const onSubmit = (values: LeadFormValues) => {
+    const status = values.status;
+    let columnId = 'col-1';
+    if (status === 'Engaged') columnId = 'col-2';
+    if (status === 'Prospect') columnId = 'col-prospect';
+
+    const initialStatusUpdate: StatusUpdate = {
+        status,
+        date: new Date().toISOString(),
+        notes: 'Lead created with this status.',
+        updatedBy: values.ownerId || 'system',
+    };
+
     const newLead: Lead = {
       id: `lead-${Date.now()}`,
       title: values.title || 'New Lead',
@@ -100,9 +114,11 @@ export function AddLeadDialog({ isOpen, onOpenChange, onLeadAdded, users, defaul
         phone: values.contactPhone || '',
         title: values.contactTitle || '',
       },
-      columnId: defaultStage,
+      columnId: defaultStage !== 'col-1' ? defaultStage : columnId,
       score: 50, // Default score
       priority: 'Medium',
+      status: status,
+      statusHistory: [initialStatusUpdate],
       entryDate: new Date().toISOString(),
       lastContact: new Date().toISOString(),
       nextAction: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
@@ -362,6 +378,28 @@ export function AddLeadDialog({ isOpen, onOpenChange, onLeadAdded, users, defaul
                   )}
                 />
               </div>
+               <FormField
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Initial Status *</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select an initial status" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Unaware">Unaware</SelectItem>
+                        <SelectItem value="Engaged">Engaged</SelectItem>
+                        <SelectItem value="Prospect">Prospect</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="ownerId"
