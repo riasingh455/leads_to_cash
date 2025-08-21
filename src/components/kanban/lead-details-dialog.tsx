@@ -28,6 +28,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { AddRevisionDialog } from '../proposals/add-revision-dialog';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
 
 interface LeadDetailsDialogProps {
   lead: Lead | null;
@@ -460,15 +461,34 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser, onU
                         </div>
                         <div>
                           <h4 className="font-semibold mb-2 mt-4 flex items-center gap-2"><Edit className="w-4 h-4"/>Revision History</h4>
-                          <ul className="space-y-2">
+                           <Accordion type="single" collapsible className="w-full">
                             {proposalData.revisionHistory.map(rev => (
-                               <li key={rev.version} className="flex gap-4 text-sm border-l-2 pl-4">
-                                <div>V{rev.version}</div>
-                                <div>{format(new Date(rev.date), 'PPP')}</div>
-                                <div className="text-muted-foreground">{rev.notes}</div>
-                               </li>
-                            ))}
-                          </ul>
+                               <AccordionItem value={`item-${rev.version}`} key={rev.version}>
+                                 <AccordionTrigger>
+                                    <div className="flex gap-4 text-sm items-center">
+                                        <Badge>V{rev.version}</Badge>
+                                        <span>{format(new Date(rev.date), 'PPP')}</span>
+                                        <span className="text-muted-foreground font-normal italic">&quot;{rev.notes}&quot;</span>
+                                    </div>
+                                 </AccordionTrigger>
+                                 <AccordionContent>
+                                    <Card className="bg-muted/50">
+                                        <CardHeader><CardTitle className="text-base">Details for Version {rev.version}</CardTitle></CardHeader>
+                                        <CardContent className="space-y-2 text-xs">
+                                             <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                                                <DetailRow label="Template" value={rev.previousState.templateUsed} />
+                                                <DetailRow label="Pricing" value={rev.previousState.pricingStructure} />
+                                                <DetailRow label="Duration" value={rev.previousState.projectDuration} />
+                                                <DetailRow label="Terms Version" value={rev.previousState.termsVersion} />
+                                                <DetailRow label="Resources" value={rev.previousState.resourceRequirements} fullWidth />
+                                                <DetailRow label="Services" value={rev.previousState.servicesIncluded} fullWidth />
+                                             </div>
+                                        </CardContent>
+                                    </Card>
+                                 </AccordionContent>
+                               </AccordionItem>
+                            )).reverse()}
+                          </Accordion>
                         </div>
                     </CardContent>
                     <CardFooter className='gap-2'>
@@ -851,3 +871,4 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser, onU
     
 
     
+
