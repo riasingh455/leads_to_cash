@@ -82,7 +82,11 @@ export function ChangeStatusDialogs({ statusChangeLead, onOpenChange, onStatusCh
   });
 
   const disqualifiedForm = useForm<DisqualifiedValues>({
-    resolver: zodResolver(disqualifiedSchema)
+    resolver: zodResolver(disqualifiedSchema),
+    defaultValues: {
+      competitor: '',
+      notes: '',
+    },
   });
 
   const handleUnawareEngagedSubmit = (values: UnawareEngagedValues) => {
@@ -242,7 +246,7 @@ export function ChangeStatusDialogs({ statusChangeLead, onOpenChange, onStatusCh
                                 <FormLabel>Reason</FormLabel>
                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                     <FormControl>
-                                    <SelectTrigger><SelectValue /></SelectTrigger>
+                                    <SelectTrigger><SelectValue placeholder="Select a reason" /></SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
                                         <SelectItem value="Not a fit">Not a fit</SelectItem>

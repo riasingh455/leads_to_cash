@@ -53,7 +53,7 @@ export type ProspectFormValues = z.infer<typeof prospectSchema>;
 interface MarkAsProspectDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onProspectMarked: (prospectData: ProspectData) => void;
+  onProspectMarked: (prospectData: ProspectFormValues) => void;
   lead: Lead | null;
 }
 
@@ -74,13 +74,7 @@ export function MarkAsProspectDialog({ isOpen, onOpenChange, onProspectMarked, l
   const onSubmit = (values: ProspectFormValues) => {
     if (!lead) return;
     
-    const prospectData: ProspectData = {
-        ...values,
-        responseDate: values.responseDate.toISOString(),
-        demoDate: values.demoDate?.toISOString(),
-    };
-    
-    onProspectMarked(prospectData);
+    onProspectMarked(values);
     form.reset();
     onOpenChange(false);
   };
@@ -147,7 +141,7 @@ export function MarkAsProspectDialog({ isOpen, onOpenChange, onProspectMarked, l
                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                     <FormControl>
                                     <SelectTrigger>
-                                        <SelectValue />
+                                        <SelectValue placeholder="Select engagement type" />
                                     </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
@@ -171,7 +165,7 @@ export function MarkAsProspectDialog({ isOpen, onOpenChange, onProspectMarked, l
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                                 <FormControl>
                                 <SelectTrigger>
-                                    <SelectValue />
+                                    <SelectValue placeholder="Select contact quality" />
                                 </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
@@ -207,7 +201,7 @@ export function MarkAsProspectDialog({ isOpen, onOpenChange, onProspectMarked, l
                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                     <FormControl>
                                     <SelectTrigger>
-                                        <SelectValue />
+                                        <SelectValue placeholder="Select an option" />
                                     </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
