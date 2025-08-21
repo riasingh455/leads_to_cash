@@ -75,7 +75,7 @@ export function BulkImportDialog({ isOpen, onOpenChange, onLeadsImported, users 
           };
           
           return {
-            title: `Lead for ${leadObject.company}` || 'New Lead from Import',
+            title: leadObject.title || 'New Lead from Import',
             company: leadObject.company || 'N/A',
             contact: {
               name: leadObject.name || 'N/A',
@@ -176,20 +176,22 @@ export function BulkImportDialog({ isOpen, onOpenChange, onLeadsImported, users 
                             <TableHeader className='sticky top-0 bg-background'>
                                 <TableRow>
                                     <TableHead>Name</TableHead>
+                                    <TableHead>Title</TableHead>
                                     <TableHead>Company</TableHead>
-                                    <TableHead>Email</TableHead>
-                                    <TableHead>Phone</TableHead>
                                     <TableHead>Address</TableHead>
+                                    <TableHead>Phone</TableHead>
+                                    <TableHead>Email</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {parsedLeads.map((lead, index) => (
                                     <TableRow key={index}>
                                         <TableCell>{lead.contact.name}</TableCell>
+                                        <TableCell>{lead.contact.title}</TableCell>
                                         <TableCell>{lead.company}</TableCell>
-                                        <TableCell>{lead.contact.email}</TableCell>
-                                        <TableCell>{lead.contact.phone}</TableCell>
                                         <TableCell>{lead.region}</TableCell>
+                                        <TableCell>{lead.contact.phone}</TableCell>
+                                        <TableCell>{lead.contact.email}</TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
