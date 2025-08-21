@@ -27,7 +27,7 @@ import {
   History,
   LogOut,
 } from 'lucide-react';
-import { users, type User, type Lead, leads as initialLeads, ProspectData } from '@/lib/data';
+import { users, type User, type Lead, leads as initialLeads, ProspectData, type LeadStatus, type StatusUpdate } from '@/lib/data';
 import { DashboardHeader } from '@/components/dashboard-header';
 import { LeadsTable } from '@/components/leads/leads-table';
 import { LeadDetailsDialog } from '@/components/kanban/lead-details-dialog';
@@ -38,14 +38,17 @@ import { ThemeSwitcher } from '@/components/theme-switcher';
 import { MarkAsProspectDialog } from '@/components/leads/mark-as-prospect-dialog';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
+import { ChangeStatusDialogs } from '@/components/leads/change-status-dialogs';
 
 export default function LeadsPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
-  const [prospectLead, setProspectLead] = useState<Lead | null>(null);
   const [isAddLeadOpen, setIsAddLeadOpen] = useState(false);
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
   const { toast } = useToast();
+  
+  const [statusChangeLead, setStatusChangeLead] = useState<{lead: Lead, status: LeadStatus} | null>(null);
+
 
   const handleAddLead = (newLead: Lead) => {
     setLeads((prevLeads) => [newLead, ...prevLeads]);
@@ -64,21 +67,39 @@ export default function LeadsPage() {
     });
   }
   
-  const handleMarkAsProspect = (leadId: string, prospectData: ProspectData) => {
+  const handleChangeStatus = (leadId: string, status: LeadStatus, data?: any) => {
     const leadIndex = initialLeads.findIndex(l => l.id === leadId);
     if (leadIndex > -1) {
-        initialLeads[leadIndex] = {
-            ...initialLeads[leadIndex],
-            prospectData,
+        const lead = initialLeads[leadIndex];
+        lead.status = status;
+        const newStatusUpdate: StatusUpdate = {
+            status,
+            date: new Date().toISOString(),
+            notes: `Status changed to ${status}`,
+            updatedBy: currentUser.id,
+            data,
         };
+        lead.statusHistory.push(newStatusUpdate);
+
+        if (status === 'Prospect' && data) {
+            lead.prospectData = data;
+        }
+        if (status === 'Future Opportunity' && data) {
+            lead.futureOpportunityData = data;
+        }
+         if (status === 'Disqualified' && data) {
+            lead.disqualifiedData = data;
+        }
+        
+        initialLeads[leadIndex] = lead;
         setLeads([...initialLeads]);
         toast({
             title: "Lead Updated",
-            description: "The lead has been marked as a prospect.",
+            description: `The lead status has been changed to ${status}.`,
         });
     }
   };
-
+  
   return (
     <SidebarProvider defaultOpen>
       <div className="flex min-h-screen">
@@ -192,7 +213,7 @@ export default function LeadsPage() {
             exportFilename="leads.csv"
           />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
-            <LeadsTable onViewDetails={setSelectedLead} leads={leads} onDeleteLead={handleDeleteLead} onMarkAsProspect={setProspectLead}/>
+            <LeadsTable onViewDetails={setSelectedLead} leads={leads} onDeleteLead={handleDeleteLead} onChangeStatus={setStatusChangeLead} />
           </main>
           <footer className="border-t p-4 text-center text-sm text-muted-foreground">
             © Copyright 2025. Outamation Inc. All rights reserved.
@@ -211,11 +232,10 @@ export default function LeadsPage() {
         onLeadAdded={handleAddLead}
         users={users}
       />
-      <MarkAsProspectDialog
-        lead={prospectLead}
-        isOpen={!!prospectLead}
-        onOpenChange={() => setProspectLead(null)}
-        onProspectMarked={handleMarkAsProspect}
+      <ChangeStatusDialogs
+        statusChangeLead={statusChangeLead}
+        onOpenChange={() => setStatusChangeLead(null)}
+        onStatusChanged={handleChangeStatus}
       />
     </SidebarProvider>
   );

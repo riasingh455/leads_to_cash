@@ -14,7 +14,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Phone, Mail, Users, Lightbulb, FolderKanban, Briefcase, Calendar, Handshake, Target, CheckCircle, Clock, Search, FileCheck2, UserCheck, ShieldCheck, DollarSign, AlertTriangle, Building, Truck, Presentation, FileUp, Edit, Info, Users2, FileSignature, Newspaper, BookUser, Rocket, Receipt, GitBranch } from 'lucide-react';
+import { FileText, Phone, Mail, Users, Lightbulb, FolderKanban, Briefcase, Calendar, Handshake, Target, CheckCircle, Clock, Search, FileCheck2, UserCheck, ShieldCheck, DollarSign, AlertTriangle, Building, Truck, Presentation, FileUp, Edit, Info, Users2, FileSignature, Newspaper, BookUser, Rocket, Receipt, GitBranch, History } from 'lucide-react';
 import type { Lead, User } from '@/lib/data';
 import { users, columns } from '@/lib/data';
 import { format } from 'date-fns';
@@ -72,6 +72,7 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
   const getVisibleTabs = () => {
     const baseTabs = [
       { id: 'details', label: 'Details', icon: null },
+      { id: 'status-history', label: 'Status History', icon: <History className="w-4 h-4 mr-2"/> },
       { id: 'follow-up', label: 'Follow-up', icon: <Handshake className="w-4 h-4 mr-2"/> },
     ];
     
@@ -136,7 +137,7 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
       <DialogContent className="max-w-5xl h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="font-headline text-2xl">{lead.title}</DialogTitle>
-          <DialogDescription>{lead.company}</DialogDescription>
+          <DialogDescription>{lead.company} - <Badge>{lead.status}</Badge></DialogDescription>
         </DialogHeader>
         <div className="flex-grow overflow-hidden">
           <Tabs defaultValue={defaultTab} className="flex flex-col h-full">
@@ -202,6 +203,42 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
                 </CardContent>
               </Card>
             </TabsContent>
+
+            <TabsContent value="status-history" className="flex-grow overflow-auto p-1">
+               <Card>
+                <CardHeader>
+                  <CardTitle>Status History</CardTitle>
+                  <CardDescription>A log of all status changes for this lead.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-4">
+                    {lead.statusHistory.map((update, index) => {
+                      const updater = users.find(u => u.id === update.updatedBy);
+                      return (
+                        <li key={index} className="flex items-start gap-4 p-3 rounded-md border bg-muted/50">
+                          <div className="flex flex-col items-center">
+                              <div className="bg-primary text-primary-foreground rounded-full h-8 w-8 flex items-center justify-center font-bold">{index + 1}</div>
+                              {index < lead.statusHistory.length - 1 && <div className="w-px h-8 bg-border my-1"></div>}
+                          </div>
+                          <div className="flex-grow">
+                            <div className="flex justify-between items-center">
+                              <p className="font-semibold"><Badge>{update.status}</Badge></p>
+                              <p className="text-sm text-muted-foreground">
+                                {format(new Date(update.date), 'PPP, p')}
+                              </p>
+                            </div>
+                            <p className="text-sm mt-1">{update.notes}</p>
+                             <p className="text-xs text-muted-foreground mt-2">Updated by: {updater?.name || 'System'}</p>
+                          </div>
+                        </li>
+                      )
+                    })}
+                    {lead.statusHistory.length === 0 && <p className="text-muted-foreground">No status changes recorded yet.</p>}
+                  </ul>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
             <TabsContent value="follow-up" className="flex-grow overflow-auto p-1">
                <Card>
                 <CardHeader>

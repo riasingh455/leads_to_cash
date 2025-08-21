@@ -20,6 +20,17 @@ export interface Campaign {
   goals: string;
 }
 
+export type LeadStatus = 'Unaware' | 'Engaged' | 'Prospect' | 'Qualified' | 'Future Opportunity' | 'Disqualified';
+
+export interface StatusUpdate {
+  status: LeadStatus;
+  date: string;
+  notes: string;
+  updatedBy: string; // userId
+  data?: any;
+}
+
+
 export interface ProspectData {
   responseDate: string;
   engagementType: 'Phone response' | 'Email reply' | 'Meeting request' | 'Other';
@@ -30,6 +41,16 @@ export interface ProspectData {
   competitorAwareness: string;
   painPoints: string;
   nextSteps: string;
+}
+
+export interface FutureOpportunityData {
+    reminderDate: string;
+    reason: string;
+}
+
+export interface DisqualifiedData {
+    reason: 'Not a fit' | 'No budget' | 'No timeline' | 'Went with competitor' | 'Unresponsive' | 'Other';
+    competitor?: string;
 }
 
 export interface ProposalData {
@@ -181,6 +202,8 @@ export interface Lead {
   value: number;
   currency: 'USD' | 'EUR' | 'GBP';
   score: number;
+  status: LeadStatus;
+  statusHistory: StatusUpdate[];
   priority: 'High' | 'Medium' | 'Low';
   columnId: string;
   ownerId: string;
@@ -201,6 +224,8 @@ export interface Lead {
       method: 'Email' | 'Call' | 'LinkedIn' | 'Meeting';
   }[];
   prospectData?: ProspectData;
+  futureOpportunityData?: FutureOpportunityData;
+  disqualifiedData?: DisqualifiedData;
   proposalData?: ProposalData;
   internalReviewData?: InternalReviewData;
   clientDeliveryData?: ClientDeliveryData;
@@ -293,6 +318,10 @@ export let leads: Lead[] = [
     lastContact: '2024-05-20T10:00:00Z',
     nextAction: '2024-06-05T10:00:00Z',
     source: 'Website',
+    status: 'Unaware',
+    statusHistory: [
+      { status: 'Unaware', date: '2024-05-01T10:00:00Z', notes: 'Initial import from website form.', updatedBy: 'system' }
+    ],
     campaignId: 'campaign-1',
     region: 'North America',
     contact: {
@@ -322,6 +351,11 @@ export let leads: Lead[] = [
     lastContact: '2024-05-28T14:30:00Z',
     nextAction: '2024-06-02T14:30:00Z',
     source: 'Referral',
+    status: 'Engaged',
+    statusHistory: [
+       { status: 'Unaware', date: '2024-05-03T12:00:00Z', notes: 'Initial import from referral.', updatedBy: 'system' },
+       { status: 'Engaged', date: '2024-05-05T09:00:00Z', notes: 'Responded to initial email.', updatedBy: 'user-3' },
+    ],
     region: 'EMEA',
     contact: {
       name: 'John Smith',
@@ -350,6 +384,12 @@ export let leads: Lead[] = [
     lastContact: '2024-05-15T09:00:00Z',
     nextAction: '2024-06-10T09:00:00Z',
     source: 'Cold Call',
+    status: 'Prospect',
+     statusHistory: [
+       { status: 'Unaware', date: '2024-05-05T14:00:00Z', notes: 'Sourced from list.', updatedBy: 'system' },
+       { status: 'Engaged', date: '2024-05-06T16:00:00Z', notes: 'Positive initial call.', updatedBy: 'user-2' },
+       { status: 'Prospect', date: '2024-05-07T10:00:00Z', notes: 'Lead has shown high intent.', updatedBy: 'user-2' },
+    ],
     region: 'APAC',
     contact: {
       name: 'Emily White',
@@ -388,6 +428,8 @@ export let leads: Lead[] = [
     lastContact: '2024-05-29T11:00:00Z',
     nextAction: '2024-06-04T11:00:00Z',
     source: 'LinkedIn',
+    status: 'Unaware',
+    statusHistory: [],
     region: 'North America',
     contact: {
       name: 'Michael Brown',
@@ -413,6 +455,8 @@ export let leads: Lead[] = [
     lastContact: '2024-05-25T16:00:00Z',
     nextAction: '2024-06-01T16:00:00Z',
     source: 'Partner',
+    status: 'Qualified',
+    statusHistory: [],
     campaignId: 'campaign-2',
     region: 'EMEA',
     contact: {
@@ -451,6 +495,8 @@ export let leads: Lead[] = [
     lastContact: '2024-05-18T12:00:00Z',
     nextAction: '2024-06-08T12:00:00Z',
     source: 'Webinar',
+    status: 'Qualified',
+    statusHistory: [],
     region: 'APAC',
     contact: {
       name: 'Kevin Lee',
@@ -486,6 +532,8 @@ export let leads: Lead[] = [
     lastContact: '2024-05-22T15:00:00Z',
     nextAction: '2024-06-03T15:00:00Z',
     source: 'Conference',
+    status: 'Qualified',
+    statusHistory: [],
     campaignId: 'campaign-3',
     region: 'North America',
     contact: {
@@ -529,6 +577,8 @@ export let leads: Lead[] = [
     lastContact: '2024-05-01T10:00:00Z',
     nextAction: '2024-06-20T10:00:00Z',
     source: 'Ad Campaign',
+    status: 'Qualified',
+    statusHistory: [],
     region: 'EMEA',
     contact: {
       name: 'Fatima Ahmed',
@@ -573,6 +623,8 @@ export let leads: Lead[] = [
     lastContact: '2024-06-10T15:00:00Z',
     nextAction: '2024-06-20T15:00:00Z',
     source: 'Conference',
+    status: 'Qualified',
+    statusHistory: [],
     region: 'North America',
     contact: {
       name: 'Ben Carter',
@@ -641,6 +693,8 @@ export let leads: Lead[] = [
     lastContact: '2024-06-25T10:00:00Z',
     nextAction: '2024-07-01T10:00:00Z',
     source: 'Website',
+    status: 'Qualified',
+    statusHistory: [],
     region: 'North America',
     contact: {
       name: 'Linda Kim',
@@ -681,6 +735,8 @@ export let leads: Lead[] = [
     lastContact: '2024-07-01T10:00:00Z',
     nextAction: '2024-07-15T10:00:00Z',
     source: 'Referral',
+    status: 'Qualified',
+    statusHistory: [],
     region: 'EMEA',
     contact: {
       name: 'Marcus Wright',

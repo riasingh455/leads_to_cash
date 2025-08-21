@@ -28,6 +28,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+  DropdownMenuPortal,
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import {
@@ -39,23 +43,13 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { type Lead, users, campaigns } from '@/lib/data';
+import { type Lead, users, campaigns, type LeadStatus } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
 
-export function LeadsTable({ onViewDetails, leads, onDeleteLead, onMarkAsProspect }: { onViewDetails: (lead: Lead) => void, leads: Lead[], onDeleteLead: (leadId: string) => void, onMarkAsProspect: (lead: Lead) => void }) {
-  const { toast } = useToast();
-
-  const handleMarkAsOpportunity = (leadId: string) => {
-    // This function will need to be implemented at a higher level to manage state
-    console.log('Marking lead as opportunity:', leadId);
-    toast({
-      title: "Lead Updated",
-      description: "The lead has been marked as an opportunity and moved to the 'Prospect' stage.",
-    });
-  };
+export function LeadsTable({ onViewDetails, leads, onDeleteLead, onChangeStatus }: { onViewDetails: (lead: Lead) => void, leads: Lead[], onDeleteLead: (leadId: string) => void, onChangeStatus: (change: {lead: Lead, status: LeadStatus}) => void }) {
   
   const columns: ColumnDef<Lead>[] = [
     {
@@ -63,7 +57,6 @@ export function LeadsTable({ onViewDetails, leads, onDeleteLead, onMarkAsProspec
       header: 'Title',
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
-          {row.original.prospectData && <Badge variant="outline">Prospect</Badge>}
           <span>{row.getValue('title')}</span>
         </div>
       ),
@@ -72,6 +65,11 @@ export function LeadsTable({ onViewDetails, leads, onDeleteLead, onMarkAsProspec
       accessorKey: 'company',
       header: 'Company',
       cell: ({ row }) => <div>{row.getValue('company')}</div>,
+    },
+     {
+      accessorKey: 'status',
+      header: 'Status',
+      cell: ({ row }) => <Badge variant='secondary'>{row.getValue('status')}</Badge>,
     },
     {
       accessorKey: 'ownerId',
@@ -115,34 +113,6 @@ export function LeadsTable({ onViewDetails, leads, onDeleteLead, onMarkAsProspec
         return <div className="text-right font-medium">{formatted}</div>;
       },
     },
-      {
-      accessorKey: 'score',
-      header: ({ column }) => (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-            className="text-right w-full"
-          >
-            Lead Score
-            <CaretSortIcon className="ml-2 h-4 w-4" />
-          </Button>
-        ),
-      cell: ({ row }) => <div className="text-right">{row.getValue('score')}</div>,
-    },
-    {
-      accessorKey: 'priority',
-      header: 'Priority',
-      cell: ({ row }) => (
-        <Badge variant={row.getValue('priority') === 'High' ? 'destructive' : 'secondary'}>
-          {row.getValue('priority')}
-        </Badge>
-      ),
-    },
-    {
-      accessorKey: 'lastContact',
-      header: 'Last Contact',
-      cell: ({ row }) => <div>{format(new Date(row.getValue('lastContact')), 'PPP')}</div>,
-    },
     {
         accessorKey: 'entryDate',
         header: ({ column }) => {
@@ -185,9 +155,19 @@ export function LeadsTable({ onViewDetails, leads, onDeleteLead, onMarkAsProspec
                 <DropdownMenuItem onClick={() => onViewDetails(lead)}>
                   View details
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onMarkAsProspect(lead)} disabled={!!lead.prospectData}>
-                  Mark as Prospect
-                </DropdownMenuItem>
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>Change Status</DropdownMenuSubTrigger>
+                  <DropdownMenuPortal>
+                    <DropdownMenuSubContent>
+                      <DropdownMenuItem onClick={() => onChangeStatus({lead, status: 'Unaware'})}>Unaware</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => onChangeStatus({lead, status: 'Engaged'})}>Engaged</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => onChangeStatus({lead, status: 'Prospect'})}>Prospect</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => onChangeStatus({lead, status: 'Qualified'})}>Qualified (Opportunity)</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => onChangeStatus({lead, status: 'Future Opportunity'})}>Future Opportunity</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => onChangeStatus({lead, status: 'Disqualified'})}>Disqualified</DropdownMenuItem>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuPortal>
+                </DropdownMenuSub>
                 <DropdownMenuSeparator />
                 <AlertDialogTrigger asChild>
                   <DropdownMenuItem className='text-red-600' onSelect={(e) => e.preventDefault()}>Delete</DropdownMenuItem>
@@ -221,6 +201,9 @@ export function LeadsTable({ onViewDetails, leads, onDeleteLead, onMarkAsProspec
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({
         campaignId: false,
+        score: false,
+        priority: false,
+        lastContact: false,
     });
 
   const table = useReactTable({

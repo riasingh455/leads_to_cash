@@ -24,7 +24,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -49,12 +48,12 @@ const prospectSchema = z.object({
   nextSteps: z.string().min(1, 'Next steps are required.'),
 });
 
-type ProspectFormValues = z.infer<typeof prospectSchema>;
+export type ProspectFormValues = z.infer<typeof prospectSchema>;
 
 interface MarkAsProspectDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onProspectMarked: (leadId: string, prospectData: ProspectData) => void;
+  onProspectMarked: (prospectData: ProspectData) => void;
   lead: Lead | null;
 }
 
@@ -81,7 +80,7 @@ export function MarkAsProspectDialog({ isOpen, onOpenChange, onProspectMarked, l
         demoDate: values.demoDate?.toISOString(),
     };
     
-    onProspectMarked(lead.id, prospectData);
+    onProspectMarked(prospectData);
     form.reset();
     onOpenChange(false);
   };
@@ -268,7 +267,7 @@ export function MarkAsProspectDialog({ isOpen, onOpenChange, onProspectMarked, l
                     <FormItem>
                       <FormLabel>Competitor Awareness</FormLabel>
                       <FormControl>
-                        <Input placeholder="Any mentioned competitors..." {...field} />
+                        <Textarea placeholder="Any mentioned competitors..." {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
