@@ -1,6 +1,6 @@
 
 'use client';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -15,7 +15,7 @@ import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { FileText, Phone, Mail, Users, Lightbulb, FolderKanban, Briefcase, Calendar, Handshake, Target, CheckCircle, Clock, Search, FileCheck2, UserCheck, ShieldCheck, DollarSign, AlertTriangle, Building, Truck, Presentation, FileUp, Edit, Info, Users2, FileSignature, Newspaper, BookUser, Rocket, Receipt, GitBranch, History, NotebookText, XCircle, Star, CalendarClock, MessageSquareQuote } from 'lucide-react';
-import type { Lead, User } from '@/lib/data';
+import type { Lead, User, ProposalData } from '@/lib/data';
 import { users, columns } from '@/lib/data';
 import { format } from 'date-fns';
 import { StakeholderIdentification } from '../ai/stakeholder-identification';
@@ -26,12 +26,15 @@ import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
+import { AddRevisionDialog } from '../proposals/add-revision-dialog';
 
 interface LeadDetailsDialogProps {
   lead: Lead | null;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   currentUser: User;
+  onUpdateLead?: (lead: Lead) => void;
 }
 
 const DetailRow = ({ label, value, fullWidth = false, className }: { label: string; value: React.ReactNode, fullWidth?: boolean, className?: string }) => (
@@ -54,8 +57,47 @@ const StatusDetailSection = ({ title, icon: Icon, children }: { title: string, i
 )
 
 
-export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: LeadDetailsDialogProps) {
+export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser, onUpdateLead }: LeadDetailsDialogProps) {
+  const [proposalData, setProposalData] = useState<ProposalData | undefined>(lead?.proposalData);
+  const [isAddRevisionOpen, setIsAddRevisionOpen] = useState(false);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    setProposalData(lead?.proposalData);
+  }, [lead]);
+
   if (!lead) return null;
+
+  const handleProposalChange = (field: keyof ProposalData, value: any) => {
+    if (!proposalData) return;
+    setProposalData({ ...proposalData, [field]: value });
+  };
+  
+  const handleSaveChanges = () => {
+    if (!proposalData || !onUpdateLead) return;
+    const updatedLead = { ...lead, proposalData: proposalData };
+    onUpdateLead(updatedLead);
+    toast({ title: "Proposal Saved", description: "Your changes to the proposal have been saved."});
+  };
+  
+  const handleAddRevision = (notes: string) => {
+    if (!proposalData || !onUpdateLead) return;
+    const newRevision = {
+      version: proposalData.revisionHistory.length + 1,
+      date: new Date().toISOString(),
+      notes,
+    };
+    const updatedProposalData = {
+      ...proposalData,
+      revisionHistory: [...proposalData.revisionHistory, newRevision],
+    };
+    const updatedLead = { ...lead, proposalData: updatedProposalData };
+    onUpdateLead(updatedLead);
+    setProposalData(updatedProposalData);
+    setIsAddRevisionOpen(false);
+    toast({ title: "Revision Added", description: "A new version of the proposal has been recorded." });
+  };
+
 
   const owner = users.find(u => u.id === lead.ownerId);
 
@@ -93,11 +135,11 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
         baseTabs.push({ id: 'prospecting', label: 'Prospecting', icon: <Target className="w-4 h-4 mr-2" /> });
     }
     
-    if (stageIndex >= stages.proposal && stageIndex < stages.review) {
+    if (stageIndex >= stages.proposal || lead.proposalData) {
         baseTabs.push({ id: 'proposal', label: 'Proposal', icon: <FileUp className="w-4 h-4 mr-2" /> });
     }
     
-    if (stageIndex >= stages.review && stageIndex < stages.delivery) {
+    if (stageIndex >= stages.review) {
         baseTabs.push({ id: 'review', label: 'Review', icon: <Search className="w-4 h-4 mr-2" /> });
     }
     
@@ -138,7 +180,7 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
     if (stageIndex >= stages.implementation) return "implementation";
     if (stageIndex >= stages.delivery) return "delivery-contract";
     if (stageIndex >= stages.review) return "review";
-    if (stageIndex >= stages.proposal) return "proposal";
+    if (stageIndex >= stages.proposal || lead.proposalData) return "proposal";
     if (stageIndex >= stages.prospect) return "prospecting";
     return "details";
   }
@@ -146,6 +188,7 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
   const defaultTab = getDefaultTab();
   
   return (
+    <>
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-5xl h-[90vh] flex flex-col">
         <DialogHeader>
@@ -351,7 +394,7 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
             </TabsContent>
             
             <TabsContent value="proposal" className="flex-grow overflow-auto p-1">
-              {lead.proposalData ? (
+              {proposalData ? (
                 <Card>
                     <CardHeader>
                         <CardTitle>Proposal Details</CardTitle>
@@ -361,7 +404,7 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
                         <div className="grid md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="template">Proposal Template</Label>
-                                <Select defaultValue={lead.proposalData.templateUsed}>
+                                <Select value={proposalData.templateUsed} onValueChange={(value) => handleProposalChange('templateUsed', value)}>
                                     <SelectTrigger id="template">
                                         <SelectValue placeholder="Select a template" />
                                     </SelectTrigger>
@@ -374,7 +417,7 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="pricing">Pricing Structure</Label>
-                                <Select defaultValue={lead.proposalData.pricingStructure}>
+                                <Select value={proposalData.pricingStructure} onValueChange={(value) => handleProposalChange('pricingStructure', value)}>
                                     <SelectTrigger id="pricing">
                                         <SelectValue placeholder="Select pricing" />
                                     </SelectTrigger>
@@ -388,26 +431,26 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="services">Services/Products Included</Label>
-                            <Textarea id="services" defaultValue={lead.proposalData.servicesIncluded} placeholder="List all services and products..."/>
+                            <Textarea id="services" value={proposalData.servicesIncluded} onChange={(e) => handleProposalChange('servicesIncluded', e.target.value)} placeholder="List all services and products..."/>
                         </div>
                         <div className="grid md:grid-cols-2 gap-4">
                            <div className="space-y-2">
                                 <Label htmlFor="duration">Project Duration Estimate</Label>
-                                <Input id="duration" defaultValue={lead.proposalData.projectDuration} placeholder="e.g., 3 months" />
+                                <Input id="duration" value={proposalData.projectDuration} onChange={(e) => handleProposalChange('projectDuration', e.target.value)} placeholder="e.g., 3 months" />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="terms">Terms & Conditions Version</Label>
-                                <Input id="terms" defaultValue={lead.proposalData.termsVersion} placeholder="e.g., v2.1" />
+                                <Input id="terms" value={proposalData.termsVersion} onChange={(e) => handleProposalChange('termsVersion', e.target.value)} placeholder="e.g., v2.1" />
                             </div>
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="resources">Resource Requirements Analysis</Label>
-                            <Textarea id="resources" defaultValue={lead.proposalData.resourceRequirements} placeholder="Analyze the resources needed..."/>
+                            <Textarea id="resources" value={proposalData.resourceRequirements} onChange={(e) => handleProposalChange('resourceRequirements', e.target.value)} placeholder="Analyze the resources needed..."/>
                         </div>
                         <div>
                           <h4 className="font-semibold mb-2 mt-4 flex items-center gap-2"><Edit className="w-4 h-4"/>Revision History</h4>
                           <ul className="space-y-2">
-                            {lead.proposalData.revisionHistory.map(rev => (
+                            {proposalData.revisionHistory.map(rev => (
                                <li key={rev.version} className="flex gap-4 text-sm border-l-2 pl-4">
                                 <div>V{rev.version}</div>
                                 <div>{format(new Date(rev.date), 'PPP')}</div>
@@ -418,8 +461,8 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
                         </div>
                     </CardContent>
                     <CardFooter className='gap-2'>
-                        <Button>Save Changes</Button>
-                        <Button variant='outline'>Add New Revision</Button>
+                        <Button onClick={handleSaveChanges}>Save Changes</Button>
+                        <Button variant='outline' onClick={() => setIsAddRevisionOpen(true)}>Add New Revision</Button>
                     </CardFooter>
                 </Card>
               ) : (
@@ -785,6 +828,12 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
         </div>
       </DialogContent>
     </Dialog>
+    <AddRevisionDialog
+      isOpen={isAddRevisionOpen}
+      onOpenChange={setIsAddRevisionOpen}
+      onAddRevision={handleAddRevision}
+    />
+    </>
   );
 }
 

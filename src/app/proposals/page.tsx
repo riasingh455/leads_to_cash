@@ -83,6 +83,16 @@ export default function ProposalsPage() {
     });
   }
 
+  const handleUpdateLead = (updatedLead: Lead) => {
+    const leadIndex = leads.findIndex(l => l.id === updatedLead.id);
+    if (leadIndex > -1) {
+      const updatedLeads = [...leads];
+      updatedLeads[leadIndex] = updatedLead;
+      setLeads(updatedLeads);
+      setSelectedLead(updatedLead);
+    }
+  };
+
   const proposalLeads = leads.filter(l => ['col-proposal', 'col-review', 'col-delivery'].includes(l.columnId));
 
   return (
@@ -211,6 +221,7 @@ export default function ProposalsPage() {
         isOpen={!!selectedLead}
         onOpenChange={(isOpen) => !isOpen && setSelectedLead(null)}
         currentUser={currentUser}
+        onUpdateLead={handleUpdateLead}
       />
       <AddProposalDialog
         isOpen={isAddProposalOpen}
