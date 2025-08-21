@@ -351,79 +351,87 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser }: L
             </TabsContent>
             
             <TabsContent value="proposal" className="flex-grow overflow-auto p-1">
-              <Card>
-                  <CardHeader>
-                      <CardTitle>Create Proposal</CardTitle>
-                      <CardDescription>Fill out the details for the internal proposal document.</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                      <div className="grid md:grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                              <Label htmlFor="template">Proposal Template</Label>
-                              <Select defaultValue={lead.proposalData?.templateUsed}>
-                                  <SelectTrigger id="template">
-                                      <SelectValue placeholder="Select a template" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                      <SelectItem value="Standard">Standard Template</SelectItem>
-                                      <SelectItem value="Enterprise">Enterprise Template</SelectItem>
-                                      <SelectItem value="SME">SME Template</SelectItem>
-                                  </SelectContent>
-                              </Select>
-                          </div>
-                          <div className="space-y-2">
-                              <Label htmlFor="pricing">Pricing Structure</Label>
-                              <Select defaultValue={lead.proposalData?.pricingStructure}>
-                                  <SelectTrigger id="pricing">
-                                      <SelectValue placeholder="Select pricing" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                      <SelectItem value="Fixed">Fixed</SelectItem>
-                                      <SelectItem value="T&M">T&M</SelectItem>
-                                      <SelectItem value="Hybrid">Hybrid</SelectItem>
-                                  </SelectContent>
-                              </Select>
-                          </div>
-                      </div>
-                      <div className="space-y-2">
-                          <Label htmlFor="services">Services/Products Included</Label>
-                          <Textarea id="services" defaultValue={lead.proposalData?.servicesIncluded} placeholder="List all services and products..."/>
-                      </div>
-                      <div className="grid md:grid-cols-2 gap-4">
-                         <div className="space-y-2">
-                              <Label htmlFor="duration">Project Duration Estimate</Label>
-                              <Input id="duration" defaultValue={lead.proposalData?.projectDuration} placeholder="e.g., 3 months" />
-                          </div>
-                          <div className="space-y-2">
-                              <Label htmlFor="terms">Terms & Conditions Version</Label>
-                              <Input id="terms" defaultValue={lead.proposalData?.termsVersion} placeholder="e.g., v2.1" />
-                          </div>
-                      </div>
-                      <div className="space-y-2">
-                          <Label htmlFor="resources">Resource Requirements Analysis</Label>
-                          <Textarea id="resources" defaultValue={lead.proposalData?.resourceRequirements} placeholder="Analyze the resources needed..."/>
-                      </div>
-                      <div className="space-y-2">
-                          <Label htmlFor="success-criteria">Success Criteria Incorporation</Label>
-                          <Textarea id="success-criteria" placeholder="Incorporate success criteria from opportunity stage..." />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold mb-2 mt-4 flex items-center gap-2"><Edit className="w-4 h-4"/>Revision History</h4>
-                        <ul className="space-y-2">
-                          {lead.proposalData?.revisionHistory.map(rev => (
-                             <li key={rev.version} className="flex gap-4 text-sm border-l-2 pl-4">
-                              <div>V{rev.version}</div>
-                              <div>{format(new Date(rev.date), 'PPP')}</div>
-                              <div className="text-muted-foreground">{rev.notes}</div>
-                             </li>
-                          ))}
-                        </ul>
-                      </div>
-                  </CardContent>
-                  <CardFooter>
-                      <Button>Save Proposal</Button>
-                  </CardFooter>
-              </Card>
+              {lead.proposalData ? (
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Proposal Details</CardTitle>
+                        <CardDescription>View and edit the proposal for this opportunity.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="grid md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="template">Proposal Template</Label>
+                                <Select defaultValue={lead.proposalData.templateUsed}>
+                                    <SelectTrigger id="template">
+                                        <SelectValue placeholder="Select a template" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Standard">Standard Template</SelectItem>
+                                        <SelectItem value="Enterprise">Enterprise Template</SelectItem>
+                                        <SelectItem value="SME">SME Template</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="pricing">Pricing Structure</Label>
+                                <Select defaultValue={lead.proposalData.pricingStructure}>
+                                    <SelectTrigger id="pricing">
+                                        <SelectValue placeholder="Select pricing" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Fixed">Fixed</SelectItem>
+                                        <SelectItem value="T&M">T&M</SelectItem>
+                                        <SelectItem value="Hybrid">Hybrid</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="services">Services/Products Included</Label>
+                            <Textarea id="services" defaultValue={lead.proposalData.servicesIncluded} placeholder="List all services and products..."/>
+                        </div>
+                        <div className="grid md:grid-cols-2 gap-4">
+                           <div className="space-y-2">
+                                <Label htmlFor="duration">Project Duration Estimate</Label>
+                                <Input id="duration" defaultValue={lead.proposalData.projectDuration} placeholder="e.g., 3 months" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="terms">Terms & Conditions Version</Label>
+                                <Input id="terms" defaultValue={lead.proposalData.termsVersion} placeholder="e.g., v2.1" />
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="resources">Resource Requirements Analysis</Label>
+                            <Textarea id="resources" defaultValue={lead.proposalData.resourceRequirements} placeholder="Analyze the resources needed..."/>
+                        </div>
+                        <div>
+                          <h4 className="font-semibold mb-2 mt-4 flex items-center gap-2"><Edit className="w-4 h-4"/>Revision History</h4>
+                          <ul className="space-y-2">
+                            {lead.proposalData.revisionHistory.map(rev => (
+                               <li key={rev.version} className="flex gap-4 text-sm border-l-2 pl-4">
+                                <div>V{rev.version}</div>
+                                <div>{format(new Date(rev.date), 'PPP')}</div>
+                                <div className="text-muted-foreground">{rev.notes}</div>
+                               </li>
+                            ))}
+                          </ul>
+                        </div>
+                    </CardContent>
+                    <CardFooter className='gap-2'>
+                        <Button>Save Changes</Button>
+                        <Button variant='outline'>Add New Revision</Button>
+                    </CardFooter>
+                </Card>
+              ) : (
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>No Proposal Found</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-muted-foreground">There is no proposal data for this lead yet. Move this lead to the proposal stage from the Opportunities page to create one.</p>
+                    </CardContent>
+                 </Card>
+              )}
             </TabsContent>
             
             <TabsContent value="review" className="flex-grow overflow-auto p-1">
