@@ -14,7 +14,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Phone, Mail, Users, Lightbulb, FolderKanban, Briefcase, Calendar, Handshake, Target, CheckCircle, Clock, Search, FileCheck2, UserCheck, ShieldCheck, DollarSign, AlertTriangle, Building, Truck, Presentation, FileUp, Edit, Info, Users2, FileSignature, Newspaper, BookUser, Rocket, Receipt, GitBranch, History, NotebookText, XCircle, Star, CalendarClock, MessageSquareQuote } from 'lucide-react';
+import { FileText, Phone, Mail, Users, Lightbulb, FolderKanban, Briefcase, Calendar, Handshake, Target, CheckCircle, Clock, Search, FileCheck2, UserCheck, ShieldCheck, DollarSign, AlertTriangle, Building, Truck, Presentation, FileUp, Edit, Info, Users2, FileSignature, Newspaper, BookUser, Rocket, Receipt, GitBranch, History, NotebookText, XCircle, Star, CalendarClock, MessageSquareQuote, UserCircle } from 'lucide-react';
 import type { Lead, User, ProposalData, ProposalRevision } from '@/lib/data';
 import { users, columns } from '@/lib/data';
 import { format } from 'date-fns';
@@ -233,16 +233,20 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser, onU
                   </div>
                   <div className="space-y-6">
                     <div>
-                      <h3 className="font-semibold font-headline mb-2">Contact Details</h3>
-                       <div className="flex items-start gap-3 text-sm">
-                        <Mail className="w-4 h-4 mt-1 text-muted-foreground" />
-                        <div className="flex flex-col">
-                            <span>{lead.contact.email}</span>
-                            <span className="text-xs text-muted-foreground">{lead.contact.name}, {lead.contact.title}</span>
+                      <h3 className="font-semibold font-headline mb-4">Contact Details</h3>
+                      <div className="flex items-center gap-3 text-sm">
+                        <UserCircle className="w-5 h-5 text-muted-foreground" />
+                        <div>
+                          <p className="font-semibold">{lead.contact.name}</p>
+                          <p className="text-xs text-muted-foreground">{lead.contact.title}</p>
                         </div>
                       </div>
-                       <div className="flex items-center gap-3 text-sm mt-2">
-                        <Phone className="w-4 h-4 text-muted-foreground" />
+                       <div className="flex items-center gap-3 text-sm mt-3">
+                        <Mail className="w-5 h-5 text-muted-foreground" />
+                        <span>{lead.contact.email}</span>
+                      </div>
+                       <div className="flex items-center gap-3 text-sm mt-3">
+                        <Phone className="w-5 h-5 text-muted-foreground" />
                         <span>{lead.contact.phone}</span>
                       </div>
                     </div>
@@ -843,5 +847,7 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser, onU
   );
 }
 
+
+    
 
     
