@@ -44,7 +44,7 @@ export default function LeadsPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [isAddLeadOpen, setIsAddLeadOpen] = useState(false);
-  const [leads, setLeads] = useState<Lead[]>(initialLeads);
+  const [leads, setLeads] = useState<Lead[]>(initialLeads.filter(l => l.status !== 'Qualified'));
   const { toast } = useToast();
   
   const [statusChangeLead, setStatusChangeLead] = useState<{lead: Lead, status: LeadStatus} | null>(null);
@@ -91,8 +91,12 @@ export default function LeadsPage() {
             lead.disqualifiedData = data;
         }
         
+        if (status === 'Qualified') {
+          lead.columnId = 'col-prospect';
+        }
+
         initialLeads[leadIndex] = lead;
-        setLeads([...initialLeads]);
+        setLeads([...initialLeads.filter(l => l.status !== 'Qualified')]);
         toast({
             title: "Lead Updated",
             description: `The lead status has been changed to ${status}.`,

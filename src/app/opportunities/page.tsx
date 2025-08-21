@@ -62,7 +62,7 @@ export default function OpportunitiesPage() {
     });
   };
 
-  const opportunities = leads.filter(l => ['col-prospect'].includes(l.columnId));
+  const opportunities = leads.filter(l => l.status === 'Qualified');
 
   return (
     <SidebarProvider defaultOpen>

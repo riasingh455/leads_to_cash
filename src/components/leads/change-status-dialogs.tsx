@@ -52,6 +52,11 @@ const unawareEngagedSchema = z.object({
 });
 type UnawareEngagedValues = z.infer<typeof unawareEngagedSchema>;
 
+const qualifiedSchema = z.object({
+    notes: z.string().min(1, 'BANT confirmation notes are required.'),
+});
+type QualifiedValues = z.infer<typeof qualifiedSchema>;
+
 
 const futureOpportunitySchema = z.object({
   reminderDate: z.date({ required_error: 'Reminder date is required.' }),
@@ -76,6 +81,11 @@ export function ChangeStatusDialogs({ statusChangeLead, onOpenChange, onStatusCh
     resolver: zodResolver(unawareEngagedSchema),
     defaultValues: { notes: '' },
   });
+
+  const qualifiedForm = useForm<QualifiedValues>({
+      resolver: zodResolver(qualifiedSchema),
+      defaultValues: { notes: '' },
+  })
 
   const futureOpportunityForm = useForm<FutureOpportunityValues>({
     resolver: zodResolver(futureOpportunitySchema)
@@ -106,6 +116,12 @@ export function ChangeStatusDialogs({ statusChangeLead, onOpenChange, onStatusCh
     onOpenChange(false);
   };
 
+  const handleQualifiedSubmit = (values: QualifiedValues) => {
+    if (!lead) return;
+    onStatusChanged(lead.id, 'Qualified', values);
+    onOpenChange(false);
+  }
+
   const handleFutureOpportunitySubmit = (values: FutureOpportunityValues) => {
     if (!lead) return;
     const data: FutureOpportunityData = {
@@ -128,7 +144,6 @@ export function ChangeStatusDialogs({ statusChangeLead, onOpenChange, onStatusCh
     switch (status) {
       case 'Unaware':
       case 'Engaged':
-      case 'Qualified':
         return (
           <DialogContent>
             <DialogHeader>
@@ -160,6 +175,36 @@ export function ChangeStatusDialogs({ statusChangeLead, onOpenChange, onStatusCh
         );
       case 'Prospect':
         return <MarkAsProspectDialog isOpen={true} onOpenChange={onOpenChange} lead={lead} onProspectMarked={handleProspectSubmit} />;
+      case 'Qualified':
+        return (
+           <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Mark as Opportunity (Qualified)</DialogTitle>
+              <DialogDescription>Confirm BANT for &quot;{lead?.title}&quot; to move to Opportunities.</DialogDescription>
+            </DialogHeader>
+            <Form {...qualifiedForm}>
+                <form id="qualified-form" onSubmit={qualifiedForm.handleSubmit(handleQualifiedSubmit)}>
+                    <FormField
+                        control={qualifiedForm.control}
+                        name="notes"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>BANT Confirmation Notes</FormLabel>
+                            <FormControl>
+                                <Textarea placeholder="Confirm budget, authority, need, and timeline..." {...field} />
+                            </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </form>
+            </Form>
+            <DialogFooter>
+                <DialogClose asChild><Button type="button" variant="secondary">Cancel</Button></DialogClose>
+                <Button type="submit" form="qualified-form">Mark as Opportunity</Button>
+            </DialogFooter>
+          </DialogContent>
+        )
       case 'Future Opportunity':
         return (
            <DialogContent>

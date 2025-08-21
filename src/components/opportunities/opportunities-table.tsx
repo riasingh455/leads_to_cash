@@ -48,9 +48,6 @@ import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
 
-const opportunityStageIds = ['col-prospect'];
-const opportunityStages = leadColumns.filter(c => opportunityStageIds.includes(c.id));
-
 interface OpportunitiesTableProps {
   onViewDetails: (lead: Lead) => void;
   leads: Lead[];
@@ -59,10 +56,10 @@ interface OpportunitiesTableProps {
 
 export function OpportunitiesTable({ onViewDetails, leads: propLeads, onDeleteOpportunity }: OpportunitiesTableProps) {
   const { toast } = useToast();
-  const [leads, setLeads] = React.useState<Lead[]>(propLeads.filter(lead => opportunityStageIds.includes(lead.columnId)));
+  const [leads, setLeads] = React.useState<Lead[]>(propLeads.filter(lead => lead.status === 'Qualified'));
 
   React.useEffect(() => {
-    setLeads(propLeads.filter(lead => opportunityStageIds.includes(lead.columnId)))
+    setLeads(propLeads.filter(lead => lead.status === 'Qualified'))
   }, [propLeads]);
   
   const handleStageUpdate = (leadId: string, newStageId: string) => {
