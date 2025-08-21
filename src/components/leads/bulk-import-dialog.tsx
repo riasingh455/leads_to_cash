@@ -75,7 +75,7 @@ export function BulkImportDialog({ isOpen, onOpenChange, onLeadsImported, users 
           };
           
           return {
-            title: leadObject.title || 'New Lead from Import',
+            title: `Lead for ${leadObject.company}` || 'New Lead from Import',
             company: leadObject.company || 'N/A',
             contact: {
               name: leadObject.name || 'N/A',
