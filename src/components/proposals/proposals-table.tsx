@@ -42,6 +42,7 @@ import { type Lead, users, columns as leadColumns } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { format } from 'date-fns';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
+import { useToast } from '@/hooks/use-toast';
 
 const proposalStageIds = ['col-proposal', 'col-review', 'col-delivery'];
 
@@ -53,6 +54,7 @@ interface ProposalsTableProps {
 }
 
 export function ProposalsTable({ onViewDetails, leads: propLeads, onDeleteProposal, onMoveToClientDelivery }: ProposalsTableProps) {
+  const { toast } = useToast();
   const data = React.useMemo(() => propLeads.filter(lead => lead.stage === 'Proposal'), [propLeads]);
   
   const columns: ColumnDef<Lead>[] = [
@@ -137,6 +139,8 @@ export function ProposalsTable({ onViewDetails, leads: propLeads, onDeletePropos
       enableHiding: false,
       cell: ({ row }) => {
         const lead = row.original;
+        const canMoveToDelivery = lead.internalReviewData?.cstReviewStatus === 'Approved' && lead.internalReviewData?.croReviewStatus === 'Approved';
+
         return (
           <AlertDialog>
             <DropdownMenu>
@@ -146,12 +150,24 @@ export function ProposalsTable({ onViewDetails, leads: propLeads, onDeletePropos
                   <DotsHorizontalIcon className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
                 <DropdownMenuItem onClick={() => onViewDetails(lead)}>
                   View details
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onMoveToClientDelivery(lead)}>
+                <DropdownMenuItem 
+                  onClick={() => {
+                      if (canMoveToDelivery) {
+                          onMoveToClientDelivery(lead)
+                      } else {
+                          toast({
+                              variant: 'destructive',
+                              title: 'Cannot Move to Client Delivery',
+                              description: 'Both CST and CRO reviews must be "Approved" to move to the next stage.',
+                          })
+                      }
+                  }}
+                >
                   Move to Client Delivery
                 </DropdownMenuItem>
                  <DropdownMenuSeparator />

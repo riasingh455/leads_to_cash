@@ -30,6 +30,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import type { Lead, User, InternalReviewData } from '@/lib/data';
 import { Textarea } from '../ui/textarea';
+import { useEffect } from 'react';
 
 const reviewSchema = z.object({
   cstReviewStatus: z.enum(['Approved', 'Needs Changes', 'Pending']),
@@ -57,11 +58,31 @@ export function MoveToClientDeliveryDialog({ isOpen, onOpenChange, onMoveToClien
   const form = useForm<ReviewFormValues>({
     resolver: zodResolver(reviewSchema),
     defaultValues: {
-        cstReviewStatus: 'Pending',
-        resourceAvailabilityCheck: 'Pending',
-        croReviewStatus: 'Pending',
+        cstReviewStatus: lead?.internalReviewData?.cstReviewStatus || 'Pending',
+        cstReviewer: lead?.internalReviewData?.cstReviewer || '',
+        technicalFeasibilityNotes: lead?.internalReviewData?.technicalFeasibilityNotes || '',
+        resourceAvailabilityCheck: lead?.internalReviewData?.resourceAvailabilityCheck || 'Pending',
+        croReviewStatus: lead?.internalReviewData?.croReviewStatus || 'Pending',
+        croReviewer: lead?.internalReviewData?.croReviewer || '',
+        marginAnalysis: lead?.internalReviewData?.marginAnalysis || '',
+        riskAssessment: lead?.internalReviewData?.riskAssessment || '',
     },
   });
+
+  useEffect(() => {
+    if (lead) {
+      form.reset({
+        cstReviewStatus: lead.internalReviewData?.cstReviewStatus || 'Pending',
+        cstReviewer: lead.internalReviewData?.cstReviewer || '',
+        technicalFeasibilityNotes: lead.internalReviewData?.technicalFeasibilityNotes || '',
+        resourceAvailabilityCheck: lead.internalReviewData?.resourceAvailabilityCheck || 'Pending',
+        croReviewStatus: lead.internalReviewData?.croReviewStatus || 'Pending',
+        croReviewer: lead.internalReviewData?.croReviewer || '',
+        marginAnalysis: lead.internalReviewData?.marginAnalysis || '',
+        riskAssessment: lead.internalReviewData?.riskAssessment || '',
+      });
+    }
+  }, [lead, form]);
 
   const onSubmit = (values: ReviewFormValues) => {
     if (!lead) return;
