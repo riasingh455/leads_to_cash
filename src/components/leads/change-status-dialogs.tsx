@@ -88,7 +88,10 @@ export function ChangeStatusDialogs({ statusChangeLead, onOpenChange, onStatusCh
   })
 
   const futureOpportunityForm = useForm<FutureOpportunityValues>({
-    resolver: zodResolver(futureOpportunitySchema)
+    resolver: zodResolver(futureOpportunitySchema),
+    defaultValues: {
+      notes: '',
+    },
   });
 
   const disqualifiedForm = useForm<DisqualifiedValues>({
@@ -179,7 +182,7 @@ export function ChangeStatusDialogs({ statusChangeLead, onOpenChange, onStatusCh
         return (
            <DialogContent>
             <DialogHeader>
-              <DialogTitle>Mark as Opportunity (Qualified)</DialogTitle>
+              <DialogTitle>Mark as Opportunity</DialogTitle>
               <DialogDescription>Confirm BANT for &quot;{lead?.title}&quot; to move to Opportunities.</DialogDescription>
             </DialogHeader>
             <Form {...qualifiedForm}>
