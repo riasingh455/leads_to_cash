@@ -29,11 +29,11 @@ import { Button } from '@/components/ui/button';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import type { Campaign, Lead } from '@/lib/data';
+import type { Campaign, Lead, User } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '../ui/textarea';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
-import { CalendarIcon, Loader2, PlusCircle, Trash2, Wand2 } from 'lucide-react';
+import { CalendarIcon, Loader2, PlusCircle, Trash2, Wand2, Upload } from 'lucide-react';
 import { Calendar } from '../ui/calendar';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
@@ -42,7 +42,9 @@ import { generateCampaignBriefAction } from '@/app/actions/generate-campaign-bri
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import { Label } from '../ui/label';
 import { Separator } from '../ui/separator';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
+import { BulkImportDialog } from '../leads/bulk-import-dialog';
+import { users } from '@/lib/data';
 
 const leadSchema = z.object({
     name: z.string().min(1, 'Name is required'),
@@ -74,6 +76,7 @@ interface AddCampaignDialogProps {
 export function AddCampaignDialog({ isOpen, onOpenChange, onCampaignAndLeadsAdded: onCampaignAdded }: AddCampaignDialogProps) {
   const { toast } = useToast();
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isBulkImportOpen, setIsBulkImportOpen] = useState(false);
   const [aiIdea, setAiIdea] = useState('');
 
   const form = useForm<CampaignFormValues>({
@@ -113,6 +116,19 @@ export function AddCampaignDialog({ isOpen, onOpenChange, onCampaignAndLeadsAdde
     }
     setIsGenerating(false);
   };
+  
+  const handleLeadsImported = (importedLeads: Lead[]) => {
+    const leadsToAppend = importedLeads.map(lead => ({
+      name: lead.contact.name,
+      email: lead.contact.email,
+      company: lead.company,
+    }));
+    append(leadsToAppend);
+    toast({
+      title: 'Leads Added',
+      description: `${importedLeads.length} leads have been added to the list.`,
+    });
+  };
 
   const onSubmit = (values: CampaignFormValues) => {
     const campaignId = `campaign-${Date.now()}`;
@@ -146,6 +162,9 @@ export function AddCampaignDialog({ isOpen, onOpenChange, onCampaignAndLeadsAdde
       columnId: 'col-1',
       score: 50,
       priority: 'Medium',
+      stage: 'Lead',
+      status: 'Unaware',
+      statusHistory: [],
       entryDate: new Date().toISOString(),
       lastContact: new Date().toISOString(),
       nextAction: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
@@ -166,6 +185,7 @@ export function AddCampaignDialog({ isOpen, onOpenChange, onCampaignAndLeadsAdde
   };
 
   return (
+    <>
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-4xl max-h-[90vh] flex flex-col">
         <DialogHeader>
@@ -181,7 +201,7 @@ export function AddCampaignDialog({ isOpen, onOpenChange, onCampaignAndLeadsAdde
                   <Label htmlFor='ai-idea'>Generate Brief with AI</Label>
                   <div className='flex gap-2'>
                       <Input id='ai-idea' placeholder='e.g., A webinar about Q3 product updates' value={aiIdea} onChange={(e) => setAiIdea(e.target.value)} />
-                      <Button onClick={handleGenerateBrief} disabled={isGenerating}>
+                      <Button type='button' onClick={handleGenerateBrief} disabled={isGenerating}>
                           {isGenerating ? <Loader2 className='animate-spin' /> : <Wand2 />}
                           Generate
                       </Button>
@@ -438,14 +458,24 @@ export function AddCampaignDialog({ isOpen, onOpenChange, onCampaignAndLeadsAdde
                             </Button>
                         </div>
                     ))}
-                    <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => append({ name: '', email: '', company: '' })}
-                    >
-                        <PlusCircle className="mr-2 h-4 w-4" />
-                        Add Lead
-                    </Button>
+                    <div className='flex gap-2'>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => append({ name: '', email: '', company: '' })}
+                        >
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            Add Lead Manually
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setIsBulkImportOpen(true)}
+                        >
+                            <Upload className="mr-2 h-4 w-4" />
+                            Import Leads from File
+                        </Button>
+                    </div>
                 </CardContent>
               </Card>
 
@@ -463,5 +493,12 @@ export function AddCampaignDialog({ isOpen, onOpenChange, onCampaignAndLeadsAdde
         </DialogFooter>
       </DialogContent>
     </Dialog>
+    <BulkImportDialog
+        isOpen={isBulkImportOpen}
+        onOpenChange={setIsBulkImportOpen}
+        onLeadsImported={handleLeadsImported}
+        users={users}
+    />
+    </>
   );
 }
