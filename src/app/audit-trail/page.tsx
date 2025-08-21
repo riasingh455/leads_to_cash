@@ -26,7 +26,7 @@ import {
   History,
   LogOut,
 } from 'lucide-react';
-import { users, auditLogs, type User, type AuditLog } from '@/lib/data';
+import { users, auditLogs, type User, type AuditLog, leads, type Lead } from '@/lib/data';
 import { DashboardHeader } from '@/components/dashboard-header';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ThemeSwitcher } from '@/components/theme-switcher';
@@ -36,7 +36,17 @@ import { Button } from '@/components/ui/button';
 
 export default function AuditTrailPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
-  const [logs] = useState<AuditLog[]>(auditLogs);
+  const [logs, setLogs] = useState<AuditLog[]>(auditLogs);
+  const [showActiveOnly, setShowActiveOnly] = useState(false);
+
+  const activeLeadIds = new Set(leads.filter(l => l.status !== 'Disqualified').map(l => l.id));
+
+  const filteredLogs = showActiveOnly
+    ? logs.filter(log => {
+        if (log.entity !== 'Lead') return true;
+        return activeLeadIds.has(log.entityId);
+      })
+    : logs;
 
   return (
     <SidebarProvider defaultOpen>
@@ -146,11 +156,15 @@ export default function AuditTrailPage() {
             setUser={setCurrentUser}
             title="Audit Trail" 
             description="View a complete history of all changes made in the application." 
-            exportData={logs}
+            exportData={filteredLogs}
             exportFilename="audit-trail.csv"
           />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
-            <AuditTrailTable logs={logs} />
+            <AuditTrailTable 
+              logs={filteredLogs}
+              showActiveOnly={showActiveOnly}
+              setShowActiveOnly={setShowActiveOnly}
+            />
           </main>
           <footer className="border-t p-4 text-center text-sm text-muted-foreground">
             © Copyright 2025. Outamation Inc. All rights reserved.

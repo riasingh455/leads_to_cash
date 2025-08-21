@@ -40,6 +40,8 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { type AuditLog, users } from '@/lib/data';
 import { format, formatDistanceToNow } from 'date-fns';
+import { Checkbox } from '../ui/checkbox';
+import { Label } from '../ui/label';
 
 const TimestampCell = ({ timestamp }: { timestamp: string }) => {
     const [isMounted, setIsMounted] = React.useState(false);
@@ -64,9 +66,11 @@ const TimestampCell = ({ timestamp }: { timestamp: string }) => {
 
 interface AuditTrailTableProps {
   logs: AuditLog[];
+  showActiveOnly: boolean;
+  setShowActiveOnly: (value: boolean) => void;
 }
 
-export function AuditTrailTable({ logs }: AuditTrailTableProps) {
+export function AuditTrailTable({ logs, showActiveOnly, setShowActiveOnly }: AuditTrailTableProps) {
   const columns: ColumnDef<AuditLog>[] = [
     {
       accessorKey: 'timestamp',
@@ -209,6 +213,10 @@ export function AuditTrailTable({ logs }: AuditTrailTableProps) {
                 </DropdownMenuRadioGroup>
             </DropdownMenuContent>
         </DropdownMenu>
+        <div className="flex items-center space-x-2">
+            <Checkbox id="active-leads" checked={showActiveOnly} onCheckedChange={(checked) => setShowActiveOnly(checked as boolean)} />
+            <Label htmlFor="active-leads">Active Leads Only</Label>
+        </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
