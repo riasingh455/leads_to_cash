@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { SidebarTrigger } from '@/components/ui/sidebar';
-import { Plus } from 'lucide-react';
+import { Plus, Upload } from 'lucide-react';
 import type { User } from '@/lib/data';
 import { exportToCsv } from '@/lib/utils';
 import { format } from 'date-fns';
@@ -15,6 +15,7 @@ interface DashboardHeaderProps {
   description?: string;
   onAddButtonClick?: () => void;
   addButtonText?: string;
+  onImportButtonClick?: () => void;
   exportData?: any[];
   exportFilename?: string;
 }
@@ -26,6 +27,7 @@ export function DashboardHeader({
   description,
   onAddButtonClick,
   addButtonText = 'Add Lead',
+  onImportButtonClick,
   exportData,
   exportFilename = `leads-to-cash-export-${format(new Date(), 'yyyy-MM-dd')}.csv`
 }: DashboardHeaderProps) {
@@ -47,6 +49,12 @@ export function DashboardHeader({
           <p className="text-sm text-muted-foreground hidden md:block truncate">{finalDescription}</p>
         </div>
         <div className="flex items-center gap-4">
+          {onImportButtonClick && (
+             <Button variant="outline" onClick={onImportButtonClick} className='hidden sm:inline-flex'>
+                <Upload className="mr-2 h-4 w-4" />
+                Import Leads
+            </Button>
+          )}
           {onAddButtonClick && (
             <Button onClick={onAddButtonClick} className='hidden sm:inline-flex'>
               <Plus className="mr-2 h-4 w-4" />

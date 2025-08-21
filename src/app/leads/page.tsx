@@ -39,11 +39,13 @@ import { MarkAsProspectDialog } from '@/components/leads/mark-as-prospect-dialog
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { ChangeStatusDialogs } from '@/components/leads/change-status-dialogs';
+import { BulkImportDialog } from '@/components/leads/bulk-import-dialog';
 
 export default function LeadsPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [isAddLeadOpen, setIsAddLeadOpen] = useState(false);
+  const [isBulkImportOpen, setIsBulkImportOpen] = useState(false);
   const [leads, setLeads] = useState<Lead[]>(initialLeads.filter(l => l.status !== 'Qualified'));
   const { toast } = useToast();
   
@@ -55,6 +57,19 @@ export default function LeadsPage() {
     initialLeads.unshift(newLead);
   };
   
+  const handleBulkAddLeads = (newLeads: Lead[]) => {
+    const leadsWithIds = newLeads.map(lead => ({
+      ...lead,
+      id: `lead-${Date.now()}-${Math.random()}`,
+    }));
+    setLeads(prev => [...leadsWithIds, ...prev]);
+    initialLeads.unshift(...leadsWithIds);
+    toast({
+        title: "Import Successful",
+        description: `${leadsWithIds.length} new leads have been added.`,
+    });
+  };
+
   const handleDeleteLead = (leadId: string) => {
     setLeads(prev => prev.filter(l => l.id !== leadId));
     const leadIndex = initialLeads.findIndex(l => l.id === leadId);
@@ -213,6 +228,7 @@ export default function LeadsPage() {
             title="Leads" 
             description="Manage and track all potential leads." 
             onAddButtonClick={() => setIsAddLeadOpen(true)}
+            onImportButtonClick={() => setIsBulkImportOpen(true)}
             exportData={leads}
             exportFilename="leads.csv"
           />
@@ -236,6 +252,12 @@ export default function LeadsPage() {
         onLeadAdded={handleAddLead}
         users={users}
       />
+      <BulkImportDialog
+        isOpen={isBulkImportOpen}
+        onOpenChange={setIsBulkImportOpen}
+        onLeadsImported={handleBulkAddLeads}
+        users={users}
+       />
       <ChangeStatusDialogs
         statusChangeLead={statusChangeLead}
         onOpenChange={() => setStatusChangeLead(null)}
