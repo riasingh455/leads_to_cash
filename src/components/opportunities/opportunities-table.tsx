@@ -82,20 +82,20 @@ export function OpportunitiesTable({ onViewDetails, leads: propLeads, onDeleteOp
     {
       accessorKey: 'title',
       header: 'Opportunity',
-      cell: ({ row }) => <div>{row.getValue('title')}</div>,
+      cell: ({ row }) => {
+        const stage = leadColumns.find(c => c.id === row.original.columnId)
+        return (
+            <div className='flex flex-col'>
+                <span className="font-medium">{row.getValue('title')}</span>
+                <span className="text-xs text-muted-foreground">{stage?.title}</span>
+            </div>
+        )
+      }
     },
     {
       accessorKey: 'company',
       header: 'Company',
       cell: ({ row }) => <div>{row.getValue('company')}</div>,
-    },
-      {
-      accessorKey: 'columnId',
-      header: 'Stage',
-      cell: ({ row }) => {
-          const stage = leadColumns.find(c => c.id === row.getValue('columnId'))
-          return <div>{stage?.title}</div>
-      }
     },
     {
       accessorKey: 'ownerId',
@@ -152,12 +152,12 @@ export function OpportunitiesTable({ onViewDetails, leads: propLeads, onDeleteOp
           <AlertDialog>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0" onClick={(e) => e.stopPropagation()}>
+                <Button variant="ghost" className="h-8 w-8 p-0" onClick={(e) => { e.stopPropagation(); }}>
                   <span className="sr-only">Open menu</span>
                   <DotsHorizontalIcon className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+              <DropdownMenuContent align="end" onClick={(e) => { e.stopPropagation(); }}>
                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
                 <DropdownMenuItem onClick={() => onViewDetails(lead)}>
                   View details

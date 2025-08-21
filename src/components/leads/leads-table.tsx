@@ -56,8 +56,9 @@ export function LeadsTable({ onViewDetails, leads, onDeleteLead, onChangeStatus 
       accessorKey: 'title',
       header: 'Title',
       cell: ({ row }) => (
-        <div className="flex items-center gap-2">
-          <span>{row.getValue('title')}</span>
+        <div className="flex flex-col">
+          <span className="font-medium">{row.getValue('title')}</span>
+          <Badge variant='secondary' className="w-fit">{row.original.status}</Badge>
         </div>
       ),
     },
@@ -65,11 +66,6 @@ export function LeadsTable({ onViewDetails, leads, onDeleteLead, onChangeStatus 
       accessorKey: 'company',
       header: 'Company',
       cell: ({ row }) => <div>{row.getValue('company')}</div>,
-    },
-     {
-      accessorKey: 'status',
-      header: 'Status',
-      cell: ({ row }) => <Badge variant='secondary'>{row.getValue('status')}</Badge>,
     },
     {
       accessorKey: 'ownerId',
@@ -201,9 +197,6 @@ export function LeadsTable({ onViewDetails, leads, onDeleteLead, onChangeStatus 
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({
         campaignId: false,
-        score: false,
-        priority: false,
-        lastContact: false,
     });
 
   const table = useReactTable({
