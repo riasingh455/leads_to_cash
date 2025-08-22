@@ -194,6 +194,8 @@ export interface AuditLog {
   action: string;
   timestamp: string;
   details: string;
+  entity: 'Lead' | 'Campaign' | 'Proposal' | 'System';
+  entityId: string;
 }
 
 
@@ -203,8 +205,6 @@ export interface Lead {
   company: string;
   companySize: '1-10' | '11-50' | '51-200' | '201-500' | '501+';
   industry: string;
-  value: number;
-  currency: 'USD' | 'EUR' | 'GBP';
   score: number;
   status: LeadStatus;
   stage: LeadStage;
@@ -313,8 +313,6 @@ export let leads: Lead[] = [
     company: 'Innovate Corp',
     companySize: '51-200',
     industry: 'Technology',
-    value: 75000,
-    currency: 'USD',
     score: 85,
     priority: 'High',
     columnId: 'col-1',
@@ -347,8 +345,6 @@ export let leads: Lead[] = [
     company: 'DataSolutions Inc.',
     companySize: '501+',
     industry: 'Finance',
-    value: 120000,
-    currency: 'USD',
     score: 92,
     priority: 'High',
     columnId: 'col-prospect',
@@ -383,8 +379,6 @@ export let leads: Lead[] = [
     company: 'PeopleFirst HR',
     companySize: '201-500',
     industry: 'Human Resources',
-    value: 45000,
-    currency: 'EUR',
     score: 65,
     priority: 'Medium',
     columnId: 'col-2',
@@ -428,8 +422,6 @@ export let leads: Lead[] = [
     company: 'GrowthHackers Ltd.',
     companySize: '11-50',
     industry: 'Marketing',
-    value: 30000,
-    currency: 'USD',
     score: 78,
     priority: 'Medium',
     columnId: 'col-1',
@@ -456,8 +448,6 @@ export let leads: Lead[] = [
     company: 'Shopify Gurus',
     companySize: '51-200',
     industry: 'Retail',
-    value: 95000,
-    currency: 'GBP',
     score: 88,
     priority: 'High',
     columnId: 'col-proposal',
@@ -509,8 +499,6 @@ export let leads: Lead[] = [
     company: 'Metrics Master',
     companySize: '1-10',
     industry: 'SaaS',
-    value: 62000,
-    currency: 'USD',
     score: 72,
     priority: 'Medium',
     columnId: 'col-review',
@@ -547,8 +535,6 @@ export let leads: Lead[] = [
     company: 'SecureNet',
     companySize: '501+',
     industry: 'Cybersecurity',
-    value: 250000,
-    currency: 'USD',
     score: 95,
     priority: 'High',
     columnId: 'col-delivery',
@@ -593,8 +579,6 @@ export let leads: Lead[] = [
     company: 'Global Transit',
     companySize: '201-500',
     industry: 'Logistics',
-    value: 150000,
-    currency: 'EUR',
     score: 35,
     priority: 'Low',
     columnId: 'col-contract',
@@ -640,8 +624,6 @@ export let leads: Lead[] = [
     company: 'FutureTech',
     companySize: '201-500',
     industry: 'AI',
-    value: 88000,
-    currency: 'USD',
     score: 91,
     priority: 'High',
     columnId: 'col-implementation',
@@ -711,8 +693,6 @@ export let leads: Lead[] = [
     company: 'Analytics Pros',
     companySize: '51-200',
     industry: 'Data Analytics',
-    value: 180000,
-    currency: 'USD',
     score: 94,
     priority: 'High',
     columnId: 'col-go-live',
@@ -754,8 +734,6 @@ export let leads: Lead[] = [
     company: 'Connectify',
     companySize: '201-500',
     industry: 'Software',
-    value: 110000,
-    currency: 'EUR',
     score: 89,
     priority: 'High',
     columnId: 'col-billing',
@@ -796,6 +774,8 @@ export let auditLogs: AuditLog[] = [
     id: 'log-1',
     user: 'Alex Johnson',
     action: 'Created',
+    entity: 'Lead',
+    entityId: 'lead-1',
     timestamp: '2024-05-01T10:00:00Z',
     details: 'New lead "Website Redesign Project" created via website form.',
   },
@@ -803,6 +783,8 @@ export let auditLogs: AuditLog[] = [
     id: 'log-2',
     user: 'Maria Garcia',
     action: 'Updated',
+    entity: 'Lead',
+    entityId: 'lead-1',
     timestamp: '2024-05-20T10:00:00Z',
     details: 'Logged a call with Jane Doe. Next action set to 2024-06-05.',
   },
@@ -810,6 +792,8 @@ export let auditLogs: AuditLog[] = [
     id: 'log-3',
     user: 'System',
     action: 'Updated',
+    entity: 'Lead',
+    entityId: 'lead-3',
     timestamp: '2024-05-07T10:00:00Z',
     details: 'Lead stage changed from "Contacted" to "Prospect".',
   },
@@ -817,6 +801,8 @@ export let auditLogs: AuditLog[] = [
     id: 'log-4',
     user: 'Alex Johnson',
     action: 'Deleted',
+    entity: 'Campaign',
+    entityId: 'campaign-old',
     timestamp: '2024-05-21T11:00:00Z',
     details: 'Deleted campaign "Old Spring Promo".',
   },
@@ -824,6 +810,8 @@ export let auditLogs: AuditLog[] = [
     id: 'log-5',
     user: 'James Smith',
     action: 'Created',
+    entity: 'Proposal',
+    entityId: 'lead-5',
     timestamp: '2024-05-26T10:00:00Z',
     details: 'Created proposal for "E-commerce Platform".',
   },

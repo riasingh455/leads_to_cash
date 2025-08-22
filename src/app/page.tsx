@@ -57,13 +57,12 @@ export default function DashboardPage() {
   };
   
   const kpiData = useMemo(() => {
-    const totalPipelineValue = leads.reduce((sum, lead) => sum + lead.value, 0);
     const wonLeads = leads.filter(l => l.columnId === 'col-5');
-    const wonRevenue = wonLeads.reduce((sum, lead) => sum + lead.value, 0);
     const newLeadsCount = leads.filter(l => new Date(l.entryDate) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)).length;
     const conversionRate = leads.length > 0 ? (wonLeads.length / leads.length) * 100 : 0;
+    const totalLeads = leads.length;
     
-    return { totalPipelineValue, wonRevenue, newLeadsCount, conversionRate };
+    return { wonLeads: wonLeads.length, newLeadsCount, conversionRate, totalLeads };
   }, [leads]);
   
   const pipelineChartData = useMemo(() => {
@@ -74,7 +73,6 @@ export default function DashboardPage() {
         return {
           name: col.title,
           leads: stageLeads.length,
-          value: stageLeads.reduce((sum, l) => sum + l.value, 0)
         }
       })
       .filter(Boolean);
@@ -194,22 +192,22 @@ export default function DashboardPage() {
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total Pipeline Value</CardTitle>
-                        <DollarSign className="h-4 w-4 text-muted-foreground" />
+                        <CardTitle className="text-sm font-medium">Total Leads</CardTitle>
+                        <Users className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{formatCurrency(kpiData.totalPipelineValue)}</div>
-                        <p className="text-xs text-muted-foreground">Across all active leads</p>
+                        <div className="text-2xl font-bold">{kpiData.totalLeads}</div>
+                        <p className="text-xs text-muted-foreground">Across all active stages</p>
                     </CardContent>
                 </Card>
                  <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Won Revenue</CardTitle>
+                        <CardTitle className="text-sm font-medium">Won Deals</CardTitle>
                         <DollarSign className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{formatCurrency(kpiData.wonRevenue)}</div>
-                         <p className="text-xs text-muted-foreground">From all closed-won deals</p>
+                        <div className="text-2xl font-bold">{kpiData.wonLeads}</div>
+                         <p className="text-xs text-muted-foreground">Total deals closed</p>
                     </CardContent>
                 </Card>
                  <Card>

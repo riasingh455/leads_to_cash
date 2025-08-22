@@ -218,7 +218,6 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser, onU
                     <h3 className="font-semibold font-headline">Lead Information</h3>
                     <div className="text-sm grid grid-cols-2 gap-2">
                         <DetailRow label="Proposed Offering" value={lead.title} />
-                        <DetailRow label="Value" value={`$${lead.value.toLocaleString()} ${lead.currency}`} />
                         <DetailRow label="Company Size" value={lead.companySize} />
                         <DetailRow label="Source" value={lead.source} />
                         <DetailRow label="Campaign" value={lead.marketingCampaign || 'N/A'} />
@@ -621,7 +620,7 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser, onU
                               <DetailRow label="Client Review" value={lead.contractData.clientReviewStatus} />
                               <DetailRow label="Final Contract Date" value={lead.contractData.finalDate ? format(new Date(lead.contractData.finalDate), 'PPP') : 'N/A'} />
                               <DetailRow label="Signed Date" value={lead.contractData.signedDate ? format(new Date(lead.contractData.signedDate), 'PPP') : 'N/A'} />
-                              <DetailRow label="Final Value" value={`$${lead.contractData.finalValue.toLocaleString()} ${lead.currency}`} />
+                              <DetailRow label="Final Value" value={`$${lead.contractData.finalValue.toLocaleString()}`} />
                               <DetailRow label="Payment Terms" value={lead.contractData.paymentTerms} />
                           </div>
                         </div>
@@ -867,4 +866,5 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser, onU
     
 
     
+
 

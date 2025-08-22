@@ -37,11 +37,8 @@ const DetailCard = ({ title, children }: { title: string, children: React.ReactN
 export function CampaignDetailsView({ campaign, leads, onBack, onViewLeadDetails, onAddLead }: CampaignDetailsViewProps) {
     
   const totalLeads = leads.length;
-  const totalValue = leads.reduce((sum, lead) => sum + lead.value, 0);
   const wonLeads = leads.filter(l => l.columnId === 'col-5');
-  const wonValue = wonLeads.reduce((sum, lead) => sum + lead.value, 0);
   const conversionRate = totalLeads > 0 ? (wonLeads.length / totalLeads) * 100 : 0;
-  const roi = campaign.budget > 0 ? ((wonValue - campaign.budget) / campaign.budget) * 100 : 0;
 
   return (
     <div className="space-y-6">
@@ -62,11 +59,11 @@ export function CampaignDetailsView({ campaign, leads, onBack, onViewLeadDetails
             </Card>
              <Card>
                 <CardHeader className='flex-row items-center justify-between pb-2'>
-                    <CardTitle className="text-sm font-medium">Pipeline Value</CardTitle>
+                    <CardTitle className="text-sm font-medium">Won Deals</CardTitle>
                     <DollarSign className="w-4 h-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                    <div className="text-2xl font-bold">{formatCurrency(totalValue)}</div>
+                    <div className="text-2xl font-bold">{wonLeads.length}</div>
                 </CardContent>
             </Card>
              <Card>
@@ -80,11 +77,11 @@ export function CampaignDetailsView({ campaign, leads, onBack, onViewLeadDetails
             </Card>
              <Card>
                 <CardHeader className='flex-row items-center justify-between pb-2'>
-                    <CardTitle className="text-sm font-medium">ROI</CardTitle>
+                    <CardTitle className="text-sm font-medium">Budget</CardTitle>
                     <Goal className="w-4 h-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                    <div className={`text-2xl font-bold ${roi >= 0 ? 'text-green-600' : 'text-red-600'}`}>{roi.toFixed(1)}%</div>
+                    <div className='text-2xl font-bold'>{formatCurrency(campaign.budget)}</div>
                 </CardContent>
             </Card>
         </div>
@@ -127,7 +124,7 @@ export function CampaignDetailsView({ campaign, leads, onBack, onViewLeadDetails
                     </Button>
                 </CardHeader>
                 <CardContent>
-                    <LeadsTable onViewDetails={onViewLeadDetails} leads={leads} onDeleteLead={() => {}} onMarkAsProspect={() => {}} />
+                    <LeadsTable onViewDetails={onViewLeadDetails} leads={leads} onDeleteLead={() => {}} onChangeStatus={() => {}} />
                 </CardContent>
             </Card>
         </div>

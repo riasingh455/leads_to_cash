@@ -44,7 +44,6 @@ export function KanbanColumn({ column, leads, onDrop, onDragStart, onCardClick, 
   };
 
   const visibleLeads = leads.slice(0, visibleCount);
-  const totalValue = leads.reduce((sum, lead) => sum + lead.value, 0);
 
   return (
     <div
@@ -62,7 +61,6 @@ export function KanbanColumn({ column, leads, onDrop, onDragStart, onCardClick, 
                 {leads.length}
             </span>
         </div>
-        <p className='text-sm font-semibold text-muted-foreground'>{formatCurrency(totalValue)}</p>
       </div>
       <ScrollArea className="flex-grow">
         <div className="flex flex-col gap-4 p-4 pt-2">

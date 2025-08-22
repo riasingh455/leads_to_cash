@@ -45,8 +45,6 @@ const leadSchema = z.object({
   contactEmail: z.string().email('Invalid email address').optional().or(z.literal('')),
   contactPhone: z.string().optional(),
   region: z.string().optional(),
-  currency: z.enum(['USD', 'EUR', 'GBP']).optional(),
-  value: z.coerce.number().optional(),
   ownerId: z.string().optional(),
   campaignId: z.string().optional(),
   status: z.enum(['Unaware', 'Engaged', 'Prospect']),
@@ -79,8 +77,6 @@ export function AddLeadDialog({ isOpen, onOpenChange, onLeadAdded, users, defaul
       contactEmail: '',
       contactPhone: '',
       region: '',
-      currency: 'USD',
-      value: 0,
       ownerId: salesReps[0]?.id || '',
       campaignId: defaultCampaignId || 'none',
       status: 'Unaware',
@@ -104,8 +100,6 @@ export function AddLeadDialog({ isOpen, onOpenChange, onLeadAdded, users, defaul
       id: `lead-${Date.now()}`,
       title: values.title || 'New Lead',
       company: values.company,
-      value: values.value || 0,
-      currency: values.currency || 'USD',
       ownerId: values.ownerId || users.find(u => u.role === 'Admin')?.id || 'user-1',
       campaignId: values.campaignId === 'none' ? undefined : values.campaignId,
       contact: {
@@ -291,43 +285,6 @@ export function AddLeadDialog({ isOpen, onOpenChange, onLeadAdded, users, defaul
 
               <h3 className="text-lg font-semibold mt-4 border-t pt-4">Lead Details</h3>
 
-              <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                  control={form.control}
-                  name="value"
-                  render={({ field }) => (
-                      <FormItem>
-                      <FormLabel>Value</FormLabel>
-                      <FormControl>
-                          <Input type="number" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                      </FormItem>
-                  )}
-                  />
-                  <FormField
-                  control={form.control}
-                  name="currency"
-                  render={({ field }) => (
-                      <FormItem>
-                      <FormLabel>Currency</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                          <SelectTrigger>
-                              <SelectValue placeholder="Select currency" />
-                          </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                          <SelectItem value="USD">USD</SelectItem>
-                          <SelectItem value="EUR">EUR</SelectItem>
-                          <SelectItem value="GBP">GBP</SelectItem>
-                          </SelectContent>
-                      </Select>
-                      <FormMessage />
-                      </FormItem>
-                  )}
-                  />
-              </div>
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}

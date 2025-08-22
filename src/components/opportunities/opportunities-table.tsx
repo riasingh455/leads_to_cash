@@ -101,31 +101,6 @@ export function OpportunitiesTable({ onViewDetails, leads: propLeads, onDeleteOp
       },
     },
     {
-      accessorKey: 'value',
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-            className='text-right w-full'
-          >
-            Value
-            <CaretSortIcon className="ml-2 h-4 w-4" />
-          </Button>
-        );
-      },
-      cell: ({ row }) => {
-        const amount = parseFloat(row.getValue('value'));
-  
-        const formatted = new Intl.NumberFormat('en-US', {
-          style: 'currency',
-          currency: 'USD',
-        }).format(amount);
-  
-        return <div className="text-right font-medium">{formatted}</div>;
-      },
-    },
-    {
       accessorKey: 'nextAction',
       header: 'Next Action',
       cell: ({ row }) => <div>{format(new Date(row.getValue('nextAction')), 'PPP')}</div>,

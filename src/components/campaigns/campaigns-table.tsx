@@ -82,30 +82,6 @@ export function CampaignsTable({ campaigns, onViewDetails, onDeleteCampaign }: C
         cell: ({ row }) => <div>{format(new Date(row.getValue('endDate')), 'PPP')}</div>,
     },
     {
-        accessorKey: 'budget',
-        header: ({ column }) => {
-            return (
-              <Button
-                variant="ghost"
-                onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-                className='text-right w-full'
-              >
-                Budget
-                <CaretSortIcon className="ml-2 h-4 w-4" />
-              </Button>
-            );
-        },
-        cell: ({ row }) => {
-            const amount = parseFloat(row.getValue('budget'));
-            const formatted = new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD',
-            }).format(amount);
-    
-            return <div className="text-right font-medium">{formatted}</div>;
-        },
-    },
-    {
       id: 'actions',
       enableHiding: false,
       cell: ({ row }) => {
