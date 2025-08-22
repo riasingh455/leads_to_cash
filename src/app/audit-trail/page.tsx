@@ -100,12 +100,6 @@ export default function AuditTrailPage() {
                           <span>Proposals</span>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
-                       <SidebarMenuItem>
-                        <SidebarMenuButton href="/approvals">
-                          <ShieldCheck />
-                          <span>Approvals</span>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
                       <SidebarMenuItem>
                         <SidebarMenuButton href="/client-delivery">
                           <FileSignature />
@@ -127,6 +121,12 @@ export default function AuditTrailPage() {
                   </SidebarMenu>
                 </CollapsibleContent>
               </Collapsible>
+               <SidebarMenuItem>
+                <SidebarMenuButton href="/approvals">
+                  <ShieldCheck />
+                  <span>Approvals</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton href="/audit-trail" isActive>
                   <History />
@@ -181,5 +181,3 @@ export default function AuditTrailPage() {
     </SidebarProvider>
   );
 }
-
-    

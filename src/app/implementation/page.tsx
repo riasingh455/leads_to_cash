@@ -120,12 +120,6 @@ export default function ImplementationPage() {
                           <span>Proposals</span>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
-                       <SidebarMenuItem>
-                        <SidebarMenuButton href="/approvals">
-                          <ShieldCheck />
-                          <span>Approvals</span>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
                       <SidebarMenuItem>
                         <SidebarMenuButton href="/client-delivery">
                           <FileSignature />
@@ -147,6 +141,12 @@ export default function ImplementationPage() {
                   </SidebarMenu>
                 </CollapsibleContent>
               </Collapsible>
+               <SidebarMenuItem>
+                <SidebarMenuButton href="/approvals">
+                  <ShieldCheck />
+                  <span>Approvals</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton href="/audit-trail">
                   <History />
@@ -209,5 +209,3 @@ export default function ImplementationPage() {
     </SidebarProvider>
   );
 }
-
-    

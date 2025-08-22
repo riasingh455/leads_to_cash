@@ -198,12 +198,6 @@ export default function ProposalsPage() {
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                       <SidebarMenuItem>
-                        <SidebarMenuButton href="/approvals">
-                          <ShieldCheck />
-                          <span>Approvals</span>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                      <SidebarMenuItem>
                         <SidebarMenuButton href="/client-delivery">
                           <FileSignature />
                           <span>Client Delivery & Contracts</span>
@@ -224,6 +218,12 @@ export default function ProposalsPage() {
                   </SidebarMenu>
                 </CollapsibleContent>
               </Collapsible>
+               <SidebarMenuItem>
+                <SidebarMenuButton href="/approvals">
+                  <ShieldCheck />
+                  <span>Approvals</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton href="/audit-trail">
                   <History />
@@ -302,5 +302,3 @@ export default function ProposalsPage() {
     </SidebarProvider>
   );
 }
-
-    
