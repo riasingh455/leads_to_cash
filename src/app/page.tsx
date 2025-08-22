@@ -127,7 +127,7 @@ export default function DashboardPage() {
                       <SidebarMenuItem>
                         <SidebarMenuButton href="/proposals">
                           <ClipboardCheck />
-                          <span>Proposals</span>
+                          <span>Proposals & Internal Review</span>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                       <SidebarMenuItem>

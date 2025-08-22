@@ -194,7 +194,7 @@ export default function ProposalsPage() {
                       <SidebarMenuItem>
                         <SidebarMenuButton href="/proposals" isActive>
                           <ClipboardCheck />
-                          <span>Proposals</span>
+                          <span>Proposals & Internal Review</span>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                       <SidebarMenuItem>
@@ -258,7 +258,7 @@ export default function ProposalsPage() {
           <DashboardHeader 
             user={currentUser} 
             setUser={setCurrentUser}
-            title="Proposals" 
+            title="Proposals & Internal Review" 
             description="Track and manage deals in the proposal and internal review stages." 
             onAddButtonClick={() => setIsAddProposalOpen(true)}
             addButtonText="Add Proposal"

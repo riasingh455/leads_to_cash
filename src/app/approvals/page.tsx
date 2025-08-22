@@ -61,7 +61,7 @@ export default function ApprovalsPage() {
 
             if (updatedLead.internalReviewData?.cstReviewStatus === 'Approved' && updatedLead.internalReviewData?.croReviewStatus === 'Approved') {
                 updatedLead.internalReviewData.finalApprovalDate = new Date().toISOString();
-                updatedLead.internalReviewData.approvedBy = currentUser.name;
+                updatedLead.internalReviewa.approvedBy = currentUser.name;
             }
 
             updatedLeads[leadIndex] = updatedLead;
@@ -122,7 +122,7 @@ export default function ApprovalsPage() {
                       <SidebarMenuItem>
                         <SidebarMenuButton href="/proposals">
                           <ClipboardCheck />
-                          <span>Proposals</span>
+                          <span>Proposals & Internal Review</span>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                       <SidebarMenuItem>

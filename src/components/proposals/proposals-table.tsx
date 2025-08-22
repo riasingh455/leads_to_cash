@@ -76,8 +76,6 @@ export function ProposalsTable({ onViewDetails, leads: propLeads, onDeletePropos
           let stageLabel = 'Proposal Draft';
           if (lead.columnId === 'col-review') {
               stageLabel = 'Internal Review';
-          } else if (lead.columnId === 'col-delivery') {
-              stageLabel = 'Client Delivery';
           }
           return <Badge variant="outline">{stageLabel}</Badge>
       }
@@ -121,6 +119,7 @@ export function ProposalsTable({ onViewDetails, leads: propLeads, onDeletePropos
         const lead = row.original;
         const canMoveToDelivery = lead.internalReviewData?.cstReviewStatus === 'Approved' && lead.internalReviewData?.croReviewStatus === 'Approved';
         const isDraft = lead.columnId === 'col-proposal';
+        const isReview = lead.columnId === 'col-review';
 
         return (
           <AlertDialog>
@@ -141,21 +140,23 @@ export function ProposalsTable({ onViewDetails, leads: propLeads, onDeletePropos
                         Submit for Review
                     </DropdownMenuItem>
                 )}
-                <DropdownMenuItem 
-                  onClick={() => {
-                      if (canMoveToDelivery) {
-                          onMoveToClientDelivery(lead)
-                      } else {
-                          toast({
-                              variant: 'destructive',
-                              title: 'Cannot Move to Client Delivery',
-                              description: 'Both CST and CRO reviews must be "Approved" to move to the next stage.',
-                          })
-                      }
-                  }}
-                >
-                  Move to Client Delivery
-                </DropdownMenuItem>
+                {isReview && (
+                    <DropdownMenuItem 
+                      onClick={() => {
+                          if (canMoveToDelivery) {
+                              onMoveToClientDelivery(lead)
+                          } else {
+                              toast({
+                                  variant: 'destructive',
+                                  title: 'Cannot Move to Client Delivery',
+                                  description: 'Both CST and CRO reviews must be "Approved" to move to the next stage.',
+                              })
+                          }
+                      }}
+                    >
+                      Move to Client Delivery
+                    </DropdownMenuItem>
+                )}
                  <DropdownMenuSeparator />
                 <AlertDialogTrigger asChild>
                   <DropdownMenuItem className="text-red-600" onSelect={(e) => e.preventDefault()} onClick={(e) => e.stopPropagation()}>
@@ -322,5 +323,3 @@ export function ProposalsTable({ onViewDetails, leads: propLeads, onDeletePropos
     </div>
   );
 }
-
-    
