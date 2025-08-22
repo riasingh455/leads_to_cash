@@ -27,8 +27,11 @@ interface BulkImportDialogProps {
   users: User[];
 }
 
-// Expected columns in the Excel file
+// Expected columns in the Excel file (for parsing logic - case-insensitive)
 const expectedHeaders = ['name', 'title', 'company', 'address', 'phone', 'email'];
+// Headers for the downloadable template
+const templateHeaders = ['Name', 'Title', 'Company', 'Address', 'Phone', 'Email'];
+
 
 export function BulkImportDialog({ isOpen, onOpenChange, onLeadsImported, users }: BulkImportDialogProps) {
   const { toast } = useToast();
@@ -38,11 +41,12 @@ export function BulkImportDialog({ isOpen, onOpenChange, onLeadsImported, users 
 
   const handleDownloadTemplate = () => {
     const worksheet = utils.json_to_sheet([
-      { name: 'John Doe', title: 'CEO', company: 'Acme Inc.', address: '123 Main St, Anytown USA', phone: '555-123-4567', email: 'john.doe@acme.com' }
+      { Name: 'John Doe', Title: 'CEO', Company: 'Acme Inc.', Address: '123 Main St, Anytown USA', Phone: '555-123-4567', Email: 'john.doe@acme.com' }
     ]);
     const workbook = utils.book_new();
     utils.book_append_sheet(workbook, worksheet, "Leads Template");
-    utils.sheet_add_aoa(worksheet, [expectedHeaders], { origin: "A1" });
+    // We use the capitalized headers for the template file.
+    utils.sheet_add_aoa(worksheet, [templateHeaders], { origin: "A1" });
     writeFile(workbook, "Lead_Import_Template.xlsx");
   };
 
