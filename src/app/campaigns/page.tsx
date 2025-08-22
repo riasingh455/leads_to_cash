@@ -30,6 +30,7 @@ import {
   Megaphone,
   Workflow,
   History,
+  ShieldCheck,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -118,7 +119,7 @@ export default function CampaignsPage() {
                   <span>Campaigns</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              <Collapsible className="w-full">
+              <Collapsible className="w-full" defaultOpen>
                 <CollapsibleTrigger asChild>
                     <SidebarMenuButton>
                         <Workflow />
@@ -142,7 +143,13 @@ export default function CampaignsPage() {
                       <SidebarMenuItem>
                         <SidebarMenuButton href="/proposals">
                           <ClipboardCheck />
-                          <span>Proposals & Internal Review</span>
+                          <span>Proposals</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                       <SidebarMenuItem>
+                        <SidebarMenuButton href="/approvals">
+                          <ShieldCheck />
+                          <span>Approvals</span>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                       <SidebarMenuItem>
@@ -253,3 +260,5 @@ export default function CampaignsPage() {
     </SidebarProvider>
   );
 }
+
+    

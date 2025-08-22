@@ -28,6 +28,7 @@ import {
   TrendingUp,
   BarChart,
   LogOut,
+  ShieldCheck,
 } from 'lucide-react';
 import { DashboardHeader } from '@/components/dashboard-header';
 import { users, type User, type Lead, leads as initialLeads, columns } from '@/lib/data';
@@ -102,7 +103,7 @@ export default function DashboardPage() {
                   <span>Campaigns</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              <Collapsible className="w-full">
+              <Collapsible className="w-full" defaultOpen>
                 <CollapsibleTrigger asChild>
                     <SidebarMenuButton>
                         <Workflow />
@@ -126,7 +127,13 @@ export default function DashboardPage() {
                       <SidebarMenuItem>
                         <SidebarMenuButton href="/proposals">
                           <ClipboardCheck />
-                          <span>Proposals & Internal Review</span>
+                          <span>Proposals</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                      <SidebarMenuItem>
+                        <SidebarMenuButton href="/approvals">
+                          <ShieldCheck />
+                          <span>Approvals</span>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                       <SidebarMenuItem>
@@ -270,3 +277,5 @@ export default function DashboardPage() {
     </SidebarProvider>
   );
 }
+
+    

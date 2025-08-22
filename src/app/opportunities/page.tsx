@@ -26,6 +26,7 @@ import {
   Workflow,
   History,
   LogOut,
+  ShieldCheck,
 } from 'lucide-react';
 import { users, type User, type Lead, leads as initialLeads, type LeadStatus, type StatusUpdate } from '@/lib/data';
 import { DashboardHeader } from '@/components/dashboard-header';
@@ -97,6 +98,7 @@ export default function OpportunitiesPage() {
         const updatedLeads = [...prevLeads];
         const updatedLead = { ...updatedLeads[leadIndex] };
         updatedLead.columnId = 'col-proposal';
+        updatedLead.stage = 'Proposal';
         updatedLead.proposalData = {
           ...proposalData,
           revisionHistory: [{ version: 1, date: new Date().toISOString(), notes: 'Initial draft' }],
@@ -142,7 +144,7 @@ export default function OpportunitiesPage() {
                   <span>Campaigns</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              <Collapsible className="w-full">
+              <Collapsible className="w-full" defaultOpen>
                 <CollapsibleTrigger asChild>
                     <SidebarMenuButton>
                         <Workflow />
@@ -166,7 +168,13 @@ export default function OpportunitiesPage() {
                        <SidebarMenuItem>
                         <SidebarMenuButton href="/proposals">
                           <ClipboardCheck />
-                          <span>Proposals & Internal Review</span>
+                          <span>Proposals</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                       <SidebarMenuItem>
+                        <SidebarMenuButton href="/approvals">
+                          <ShieldCheck />
+                          <span>Approvals</span>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                        <SidebarMenuItem>
@@ -264,3 +272,5 @@ export default function OpportunitiesPage() {
     </SidebarProvider>
   );
 }
+
+    

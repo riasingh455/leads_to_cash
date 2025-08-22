@@ -26,6 +26,7 @@ import {
   Workflow,
   History,
   LogOut,
+  ShieldCheck,
 } from 'lucide-react';
 import { users, type User, type Lead, leads as initialLeads, type InternalReviewData } from '@/lib/data';
 import { DashboardHeader } from '@/components/dashboard-header';
@@ -74,7 +75,7 @@ export default function ProposalsPage() {
         const updatedLead = { ...updatedLeads[leadIndex] };
         delete updatedLead.proposalData;
         updatedLead.stage = 'Opportunity';
-        updatedLead.columnId = 'col-prospect'; // Revert to prospect
+        updatedLead.columnId = 'col-prospect'; // Revert to opportunity
         updatedLeads[leadIndex] = updatedLead;
         return updatedLeads;
       }
@@ -97,6 +98,31 @@ export default function ProposalsPage() {
     }
   };
   
+  const handleSubmitForReview = (leadId: string) => {
+    setLeads(prev => {
+        const leadIndex = prev.findIndex(l => l.id === leadId);
+        if (leadIndex > -1) {
+            const updatedLeads = [...prev];
+            const updatedLead = { ...updatedLeads[leadIndex] };
+            updatedLead.columnId = 'col-review';
+            if (!updatedLead.internalReviewData) {
+                updatedLead.internalReviewData = {
+                    cstReviewStatus: 'Pending',
+                    croReviewStatus: 'Pending',
+                    resourceAvailabilityCheck: 'Pending',
+                };
+            }
+            updatedLeads[leadIndex] = updatedLead;
+            return updatedLeads;
+        }
+        return prev;
+    });
+    toast({
+        title: 'Submitted for Review',
+        description: 'The proposal has been moved to the Internal Review stage.',
+    });
+  };
+
   const handleMoveToClientDelivery = (leadId: string, reviewData: InternalReviewData) => {
     setLeads(prev => {
       const leadIndex = prev.findIndex(l => l.id === leadId);
@@ -118,7 +144,7 @@ export default function ProposalsPage() {
     })
   }
 
-  const proposalLeads = leads.filter(l => ['col-proposal', 'col-review', 'col-delivery'].includes(l.columnId));
+  const proposalLeads = leads.filter(l => l.proposalData);
 
   return (
     <SidebarProvider defaultOpen>
@@ -144,7 +170,7 @@ export default function ProposalsPage() {
                   <span>Campaigns</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              <Collapsible className="w-full">
+              <Collapsible className="w-full" defaultOpen>
                 <CollapsibleTrigger asChild>
                     <SidebarMenuButton>
                         <Workflow />
@@ -168,7 +194,13 @@ export default function ProposalsPage() {
                       <SidebarMenuItem>
                         <SidebarMenuButton href="/proposals" isActive>
                           <ClipboardCheck />
-                          <span>Proposals & Internal Review</span>
+                          <span>Proposals</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                      <SidebarMenuItem>
+                        <SidebarMenuButton href="/approvals">
+                          <ShieldCheck />
+                          <span>Approvals</span>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                       <SidebarMenuItem>
@@ -226,8 +258,8 @@ export default function ProposalsPage() {
           <DashboardHeader 
             user={currentUser} 
             setUser={setCurrentUser}
-            title="Proposals & Internal Review" 
-            description="Track and manage deals in the late stages of the sales cycle." 
+            title="Proposals" 
+            description="Track and manage deals in the proposal and internal review stages." 
             onAddButtonClick={() => setIsAddProposalOpen(true)}
             addButtonText="Add Proposal"
             exportData={proposalLeads}
@@ -239,6 +271,7 @@ export default function ProposalsPage() {
                 leads={leads} 
                 onDeleteProposal={handleDeleteProposal} 
                 onMoveToClientDelivery={setMoveToClientDeliveryLead}
+                onSubmitForReview={handleSubmitForReview}
             />
           </main>
           <footer className="border-t p-4 text-center text-sm text-muted-foreground">
@@ -269,3 +302,5 @@ export default function ProposalsPage() {
     </SidebarProvider>
   );
 }
+
+    

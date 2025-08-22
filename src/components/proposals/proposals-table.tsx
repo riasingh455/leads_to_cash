@@ -43,19 +43,19 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { format } from 'date-fns';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
-
-const proposalStageIds = ['col-proposal', 'col-review', 'col-delivery'];
+import { Badge } from '../ui/badge';
 
 interface ProposalsTableProps {
   onViewDetails: (lead: Lead) => void;
   leads: Lead[];
   onDeleteProposal: (leadId: string) => void;
   onMoveToClientDelivery: (lead: Lead) => void;
+  onSubmitForReview: (leadId: string) => void;
 }
 
-export function ProposalsTable({ onViewDetails, leads: propLeads, onDeleteProposal, onMoveToClientDelivery }: ProposalsTableProps) {
+export function ProposalsTable({ onViewDetails, leads: propLeads, onDeleteProposal, onMoveToClientDelivery, onSubmitForReview }: ProposalsTableProps) {
   const { toast } = useToast();
-  const data = React.useMemo(() => propLeads.filter(lead => lead.stage === 'Proposal'), [propLeads]);
+  const data = React.useMemo(() => propLeads.filter(lead => lead.proposalData), [propLeads]);
   
   const columns: ColumnDef<Lead>[] = [
     {
@@ -69,11 +69,17 @@ export function ProposalsTable({ onViewDetails, leads: propLeads, onDeletePropos
       cell: ({ row }) => <div>{row.getValue('company')}</div>,
     },
     {
-      accessorKey: 'columnId',
+      accessorKey: 'stage',
       header: 'Stage',
       cell: ({ row }) => {
-          const stage = leadColumns.find(c => c.id === row.getValue('columnId'))
-          return <div>{stage?.title}</div>
+          const lead = row.original;
+          let stageLabel = 'Proposal Draft';
+          if (lead.columnId === 'col-review') {
+              stageLabel = 'Internal Review';
+          } else if (lead.columnId === 'col-delivery') {
+              stageLabel = 'Client Delivery';
+          }
+          return <Badge variant="outline">{stageLabel}</Badge>
       }
     },
     {
@@ -114,6 +120,7 @@ export function ProposalsTable({ onViewDetails, leads: propLeads, onDeletePropos
       cell: ({ row }) => {
         const lead = row.original;
         const canMoveToDelivery = lead.internalReviewData?.cstReviewStatus === 'Approved' && lead.internalReviewData?.croReviewStatus === 'Approved';
+        const isDraft = lead.columnId === 'col-proposal';
 
         return (
           <AlertDialog>
@@ -129,6 +136,11 @@ export function ProposalsTable({ onViewDetails, leads: propLeads, onDeletePropos
                 <DropdownMenuItem onClick={() => onViewDetails(lead)}>
                   View details
                 </DropdownMenuItem>
+                {isDraft && (
+                    <DropdownMenuItem onClick={() => onSubmitForReview(lead.id)}>
+                        Submit for Review
+                    </DropdownMenuItem>
+                )}
                 <DropdownMenuItem 
                   onClick={() => {
                       if (canMoveToDelivery) {
@@ -156,7 +168,7 @@ export function ProposalsTable({ onViewDetails, leads: propLeads, onDeletePropos
               <AlertDialogHeader>
                 <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This will permanently delete the proposal for &quot;{lead.title}&quot; and revert it to the &quot;Qualified&quot; stage. This action cannot be undone.
+                  This will permanently delete the proposal for &quot;{lead.title}&quot; and revert it to an opportunity. This action cannot be undone.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -310,3 +322,5 @@ export function ProposalsTable({ onViewDetails, leads: propLeads, onDeletePropos
     </div>
   );
 }
+
+    

@@ -26,6 +26,7 @@ import {
   Workflow,
   History,
   LogOut,
+  ShieldCheck,
 } from 'lucide-react';
 import { users, type User, type Lead, leads as initialLeads } from '@/lib/data';
 import { DashboardHeader } from '@/components/dashboard-header';
@@ -67,7 +68,7 @@ export default function PostSalesPage() {
                   <span>Campaigns</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              <Collapsible className="w-full">
+              <Collapsible className="w-full" defaultOpen>
                 <CollapsibleTrigger asChild>
                     <SidebarMenuButton>
                         <Workflow />
@@ -91,7 +92,13 @@ export default function PostSalesPage() {
                       <SidebarMenuItem>
                         <SidebarMenuButton href="/proposals">
                           <ClipboardCheck />
-                          <span>Proposals & Internal Review</span>
+                          <span>Proposals</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                       <SidebarMenuItem>
+                        <SidebarMenuButton href="/approvals">
+                          <ShieldCheck />
+                          <span>Approvals</span>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                       <SidebarMenuItem>
@@ -179,3 +186,5 @@ export default function PostSalesPage() {
     </SidebarProvider>
   );
 }
+
+    

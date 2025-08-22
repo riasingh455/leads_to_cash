@@ -11,7 +11,6 @@ import {
   SidebarMenuButton,
   SidebarFooter,
   SidebarInset,
-  useSidebar,
 } from '@/components/ui/sidebar';
 import {
   LayoutDashboard,
@@ -28,46 +27,52 @@ import {
   LogOut,
   ShieldCheck,
 } from 'lucide-react';
-import { users, type User, type Lead, leads as initialLeads, type ContractData } from '@/lib/data';
+import { users, type User, type Lead, leads as initialLeads, type InternalReviewData } from '@/lib/data';
 import { DashboardHeader } from '@/components/dashboard-header';
 import { LeadDetailsDialog } from '@/components/kanban/lead-details-dialog';
-import { ClientDeliveryTable } from '@/components/client-delivery/client-delivery-table';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ThemeSwitcher } from '@/components/theme-switcher';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
-import { MoveToImplementationDialog } from '@/components/client-delivery/move-to-implementation-dialog';
+import { ApprovalsTable } from '@/components/approvals/approvals-table';
+import { ApprovalDialog } from '@/components/approvals/approval-dialog';
 
-export default function ClientDeliveryPage() {
+export default function ApprovalsPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
-  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
-  const [moveToImplementationLead, setMoveToImplementationLead] = useState<Lead | null>(null);
-  const { toast } = useToast();
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [approvalLead, setApprovalLead] = useState<Lead | null>(null);
 
-  const handleMoveToImplementation = (leadId: string, contractData: ContractData) => {
+  const handleUpdateReview = (leadId: string, reviewData: Partial<InternalReviewData>) => {
     setLeads(prev => {
-      const leadIndex = prev.findIndex(l => l.id === leadId);
-      if (leadIndex > -1) {
-        const updatedLeads = [...prev];
-        const updatedLead = { ...updatedLeads[leadIndex] };
-        updatedLead.stage = 'Implementation';
-        updatedLead.columnId = 'col-implementation';
-        updatedLead.contractData = contractData;
-        updatedLeads[leadIndex] = updatedLead;
-        return updatedLeads;
-      }
-      return prev;
-    });
-    setMoveToImplementationLead(null);
-    toast({
-        title: 'Moved to Implementation',
-        description: 'The deal has been advanced to the implementation stage.'
-    })
-  }
+        const leadIndex = prev.findIndex(l => l.id === leadId);
+        if (leadIndex > -1) {
+            const updatedLeads = [...prev];
+            const lead = updatedLeads[leadIndex];
+            const updatedLead = {
+                ...lead,
+                internalReviewData: {
+                    ...lead.internalReviewData,
+                    ...reviewData,
+                    ...(reviewData.cstReviewStatus !== 'Pending' && { cstReviewDate: new Date().toISOString() }),
+                    ...(reviewData.croReviewStatus !== 'Pending' && { financialReviewDate: new Date().toISOString() }),
+                } as InternalReviewData
+            };
 
-  const deliveryLeads = initialLeads.filter(l => l.stage === 'Client-Delivery');
+            if (updatedLead.internalReviewData?.cstReviewStatus === 'Approved' && updatedLead.internalReviewData?.croReviewStatus === 'Approved') {
+                updatedLead.internalReviewData.finalApprovalDate = new Date().toISOString();
+                updatedLead.internalReviewData.approvedBy = currentUser.name;
+            }
+
+            updatedLeads[leadIndex] = updatedLead;
+            return updatedLeads;
+        }
+        return prev;
+    });
+    setApprovalLead(null);
+  };
+  
+  const approvalLeads = leads.filter(l => l.stage === 'Proposal' && l.columnId === 'col-review');
 
   return (
     <SidebarProvider defaultOpen>
@@ -120,14 +125,14 @@ export default function ClientDeliveryPage() {
                           <span>Proposals</span>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
-                       <SidebarMenuItem>
-                        <SidebarMenuButton href="/approvals">
+                      <SidebarMenuItem>
+                        <SidebarMenuButton href="/approvals" isActive>
                           <ShieldCheck />
                           <span>Approvals</span>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                       <SidebarMenuItem>
-                        <SidebarMenuButton href="/client-delivery" isActive>
+                        <SidebarMenuButton href="/client-delivery">
                           <FileSignature />
                           <span>Client Delivery & Contracts</span>
                         </SidebarMenuButton>
@@ -181,31 +186,35 @@ export default function ClientDeliveryPage() {
           <DashboardHeader 
             user={currentUser} 
             setUser={setCurrentUser}
-            title="Client Delivery & Contracts" 
-            description="Manage the final stages of deal closure and contract finalization."
-            exportData={deliveryLeads}
-            exportFilename='client-delivery.csv'
+            title="Proposal Approvals" 
+            description="Review and approve proposals before they are sent to clients." 
+            exportData={approvalLeads}
+            exportFilename="approvals.csv"
           />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
-            <ClientDeliveryTable onViewDetails={setSelectedLead} leads={leads} onMoveToImplementation={setMoveToImplementationLead} />
+            <ApprovalsTable 
+              leads={approvalLeads}
+              onViewDetails={setSelectedLead}
+              onApprove={setApprovalLead}
+            />
           </main>
           <footer className="border-t p-4 text-center text-sm text-muted-foreground">
             © Copyright 2025. Outamation Inc. All rights reserved.
           </footer>
         </SidebarInset>
       </div>
-      <LeadDetailsDialog
+       <LeadDetailsDialog
         lead={selectedLead}
         isOpen={!!selectedLead}
         onOpenChange={(isOpen) => !isOpen && setSelectedLead(null)}
         currentUser={currentUser}
       />
-      <MoveToImplementationDialog
-        isOpen={!!moveToImplementationLead}
-        onOpenChange={() => setMoveToImplementationLead(null)}
-        lead={moveToImplementationLead}
-        onMoveToImplementation={handleMoveToImplementation}
-        users={users}
+      <ApprovalDialog
+        isOpen={!!approvalLead}
+        onOpenChange={() => setApprovalLead(null)}
+        lead={approvalLead}
+        currentUser={currentUser}
+        onUpdateReview={handleUpdateReview}
       />
     </SidebarProvider>
   );
