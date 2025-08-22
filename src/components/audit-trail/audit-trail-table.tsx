@@ -3,7 +3,6 @@
 import * as React from 'react';
 import {
   CaretSortIcon,
-  ChevronDownIcon,
 } from '@radix-ui/react-icons';
 import {
   ColumnDef,
@@ -18,16 +17,6 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuSeparator,
-  DropdownMenuLabel,
-} from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import {
   Table,
@@ -38,7 +27,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { type AuditLog, users } from '@/lib/data';
+import { type AuditLog } from '@/lib/data';
 import { format, formatDistanceToNow } from 'date-fns';
 import { Checkbox } from '../ui/checkbox';
 import { Label } from '../ui/label';
@@ -94,9 +83,6 @@ export function AuditTrailTable({ logs, showActiveOnly, setShowActiveOnly }: Aud
       accessorKey: 'user',
       header: 'User',
       cell: ({ row }) => <div>{row.getValue('user')}</div>,
-      filterFn: (row, id, value) => {
-        return value ? value === row.getValue(id) : true
-      },
     },
     {
       accessorKey: 'action',
@@ -107,9 +93,6 @@ export function AuditTrailTable({ logs, showActiveOnly, setShowActiveOnly }: Aud
         if (action === 'Created') variant = 'default';
         if (action === 'Deleted') variant = 'destructive';
         return <Badge variant={variant}>{action}</Badge>;
-      },
-       filterFn: (row, id, value) => {
-        return value ? value === row.getValue(id) : true
       },
     },
     {
@@ -144,10 +127,6 @@ export function AuditTrailTable({ logs, showActiveOnly, setShowActiveOnly }: Aud
     },
   });
   
-  const selectedUser = table.getColumn('user')?.getFilterValue() as string || "all";
-  const selectedAction = table.getColumn('action')?.getFilterValue() as string || "all";
-  const uniqueActions = [...new Set(logs.map(log => log.action))];
-
   return (
     <div className="w-full">
       <div className="flex items-center py-4 gap-2">
@@ -159,78 +138,10 @@ export function AuditTrailTable({ logs, showActiveOnly, setShowActiveOnly }: Aud
           }
           className="max-w-sm"
         />
-         <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="outline">
-                    {selectedUser === 'all' ? 'All Users' : selectedUser}
-                    <ChevronDownIcon className="ml-2 h-4 w-4" />
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-                <DropdownMenuRadioGroup
-                    value={selectedUser}
-                    onValueChange={(value) => {
-                        table.getColumn('user')?.setFilterValue(value === "all" ? null : value)
-                    }}
-                >
-                    <DropdownMenuRadioItem value="all">All Users</DropdownMenuRadioItem>
-                    <DropdownMenuSeparator />
-                    {users.map(user => (
-                        <DropdownMenuRadioItem key={user.id} value={user.name}>{user.name}</DropdownMenuRadioItem>
-                    ))}
-                </DropdownMenuRadioGroup>
-            </DropdownMenuContent>
-        </DropdownMenu>
-         <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="outline">
-                    {selectedAction === 'all' ? 'All Actions' : selectedAction}
-                    <ChevronDownIcon className="ml-2 h-4 w-4" />
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-                <DropdownMenuRadioGroup
-                    value={selectedAction}
-                    onValueChange={(value) => {
-                        table.getColumn('action')?.setFilterValue(value === "all" ? null : value)
-                    }}
-                >
-                    <DropdownMenuRadioItem value="all">All Actions</DropdownMenuRadioItem>
-                    <DropdownMenuSeparator />
-                    {uniqueActions.map(action => (
-                        <DropdownMenuRadioItem key={action} value={action}>{action}</DropdownMenuRadioItem>
-                    ))}
-                </DropdownMenuRadioGroup>
-            </DropdownMenuContent>
-        </DropdownMenu>
         <div className="flex items-center space-x-2">
             <Checkbox id="active-leads" checked={showActiveOnly} onCheckedChange={(checked) => setShowActiveOnly(checked as boolean)} />
             <Label htmlFor="active-leads">Active Leads Only</Label>
         </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              Columns <ChevronDownIcon className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
       </div>
       <div className="rounded-md border">
         <Table>
