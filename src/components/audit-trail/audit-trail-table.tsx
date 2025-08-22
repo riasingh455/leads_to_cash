@@ -113,16 +113,6 @@ export function AuditTrailTable({ logs, showActiveOnly, setShowActiveOnly }: Aud
       },
     },
     {
-      accessorKey: 'entity',
-      header: 'Entity',
-      cell: ({ row }) => <div>{row.getValue('entity')}</div>,
-    },
-    {
-      accessorKey: 'entityId',
-      header: 'Entity ID',
-      cell: ({ row }) => <div className="font-mono text-xs">{row.getValue('entityId')}</div>,
-    },
-    {
       accessorKey: 'details',
       header: 'Details',
       cell: ({ row }) => <div className="max-w-xs truncate">{row.getValue('details')}</div>,
