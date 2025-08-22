@@ -39,6 +39,7 @@ import { ThemeSwitcher } from '@/components/theme-switcher';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { MoveToClientDeliveryDialog } from '@/components/proposals/move-to-client-delivery-dialog';
+import { UserMenu } from '@/components/user-menu';
 
 export default function ProposalsPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
@@ -233,25 +234,10 @@ export default function ProposalsPage() {
             </SidebarMenu>
           </SidebarContent>
           <SidebarFooter>
-            <div className='p-2'>
-              <div className='text-left text-sm space-y-0.5 mb-2'>
-                <p className='text-muted-foreground text-xs'>Logged in as</p>
-                <p className='font-bold'>{currentUser.role}</p>
-              </div>
-              <Button variant='ghost' className='w-full justify-start p-2 h-auto mb-2'>
-                <LogOut className="mr-2 h-4 w-4" />
-                Logout
-              </Button>
-              <Separator className="my-1" />
-              <div className='text-left text-sm space-y-0.5 mt-2'>
-                <p className='font-bold'>{currentUser.name}</p>
-                <p className='text-muted-foreground'>{currentUser.email}</p>
-              </div>
+            <div className="flex items-center justify-between p-2">
+              <UserMenu user={currentUser} setUser={setCurrentUser} />
+              <ThemeSwitcher />
             </div>
-            <div className='text-left text-xs p-2 text-muted-foreground'>
-                Version 1.0.0
-            </div>
-            <ThemeSwitcher />
           </SidebarFooter>
         </Sidebar>
         <SidebarInset>

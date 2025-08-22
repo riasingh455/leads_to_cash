@@ -6,7 +6,6 @@ import { Plus, Upload } from 'lucide-react';
 import type { User } from '@/lib/data';
 import { exportToCsv } from '@/lib/utils';
 import { format } from 'date-fns';
-import { UserMenu } from './user-menu';
 
 interface DashboardHeaderProps {
   user: User;
@@ -62,7 +61,6 @@ export function DashboardHeader({
             </Button>
           )}
            <Button variant="outline" onClick={handleExport} disabled={!exportData || exportData.length === 0} className='hidden sm:inline-flex'>Export Data</Button>
-          <UserMenu user={user} setUser={setUser} />
         </div>
       </div>
     </header>
