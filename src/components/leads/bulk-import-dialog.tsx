@@ -14,8 +14,8 @@ import { Button } from '@/components/ui/button';
 import { useState, useRef } from 'react';
 import type { Lead, User, StatusUpdate } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
-import { read, utils, WorkSheet } from 'xlsx';
-import { Loader2, Upload } from 'lucide-react';
+import { read, utils, writeFile } from 'xlsx';
+import { Loader2, Upload, Download } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { ScrollArea } from '../ui/scroll-area';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
@@ -35,6 +35,16 @@ export function BulkImportDialog({ isOpen, onOpenChange, onLeadsImported, users 
   const [isLoading, setIsLoading] = useState(false);
   const [parsedLeads, setParsedLeads] = useState<Omit<Lead, 'id'>[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleDownloadTemplate = () => {
+    const worksheet = utils.json_to_sheet([
+      { name: 'John Doe', title: 'CEO', company: 'Acme Inc.', address: '123 Main St, Anytown USA', phone: '555-123-4567', email: 'john.doe@acme.com' }
+    ]);
+    const workbook = utils.book_new();
+    utils.book_append_sheet(workbook, worksheet, "Leads Template");
+    utils.sheet_add_aoa(worksheet, [expectedHeaders], { origin: "A1" });
+    writeFile(workbook, "Lead_Import_Template.xlsx");
+  };
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -143,18 +153,25 @@ export function BulkImportDialog({ isOpen, onOpenChange, onLeadsImported, users 
         <DialogHeader>
           <DialogTitle>Bulk Import Leads</DialogTitle>
           <DialogDescription>
-            Upload an Excel (.xlsx) file with lead information. The file must contain columns: {expectedHeaders.join(', ')}.
+            Upload an Excel (.xlsx) file with lead information. You can download a template to get started.
           </DialogDescription>
         </DialogHeader>
         <div className="flex-grow overflow-y-auto space-y-4 pr-4 -mr-4">
-            <Input 
-                id="file-upload"
-                type="file" 
-                accept=".xlsx"
-                onChange={handleFileChange}
-                disabled={isLoading}
-                ref={fileInputRef}
-            />
+            <div className="flex gap-2">
+                <Input 
+                    id="file-upload"
+                    type="file" 
+                    accept=".xlsx"
+                    onChange={handleFileChange}
+                    disabled={isLoading}
+                    ref={fileInputRef}
+                    className="flex-grow"
+                />
+                 <Button variant="outline" onClick={handleDownloadTemplate}>
+                    <Download className="mr-2 h-4 w-4" />
+                    Template
+                </Button>
+            </div>
             {isLoading && (
                 <div className='flex items-center justify-center py-8'>
                     <Loader2 className='h-8 w-8 animate-spin' />
