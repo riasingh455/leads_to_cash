@@ -19,7 +19,6 @@ import type { Lead, User, ProposalData, ProposalRevision } from '@/lib/data';
 import { users, columns } from '@/lib/data';
 import { format } from 'date-fns';
 import { StakeholderIdentification } from '../ai/stakeholder-identification';
-import { RecommendedNextSteps } from '../ai/recommend-next-steps';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
@@ -169,7 +168,6 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser, onU
 
     const aiTabs = [
       { id: 'stakeholders', label: 'Stakeholders', icon: <Users className="w-4 h-4 mr-2"/>, disabled: !canUseAiFeatures },
-      { id: 'next-steps', label: 'Next Steps', icon: <Lightbulb className="w-4 h-4 mr-2"/>, disabled: !canUseAiFeatures },
       { id: 'documents', label: 'Documents', icon: <FolderKanban className="w-4 h-4 mr-2"/> }
     ];
 
@@ -830,9 +828,7 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser, onU
             <TabsContent value="stakeholders" className="flex-grow overflow-auto p-1">
               <StakeholderIdentification lead={lead} />
             </TabsContent>
-            <TabsContent value="next-steps" className="flex-grow overflow-auto p-1">
-              <RecommendedNextSteps lead={lead} />
-            </TabsContent>
+            
             <TabsContent value="documents" className="flex-grow overflow-auto p-1">
                <Card>
                 <CardHeader>
