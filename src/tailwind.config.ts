@@ -23,6 +23,7 @@ export default {
     'grid-cols-11',
     'grid-cols-12',
     'grid-cols-13',
+    'grid-cols-14',
   ],
   theme: {
     extend: {
