@@ -22,7 +22,7 @@ interface DashboardHeaderProps {
 export function DashboardHeader({ 
   user,
   setUser,
-  title = "Leads Dashboard",
+  title = "Leads to Cash Dashboard",
   description,
   onAddButtonClick,
   addButtonText = 'Add Lead',

@@ -9,13 +9,21 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Phone, Mail, Users, Lightbulb, FolderKanban, Briefcase, Calendar, Handshake, Target, CheckCircle, Clock, Search, FileCheck2, UserCheck, ShieldCheck, DollarSign, AlertTriangle, Building, Truck, Presentation, FileUp, Edit, Info, Users2, FileSignature, Newspaper, BookUser, Rocket, Receipt, GitBranch, History, NotebookText, XCircle, Star, CalendarClock, MessageSquareQuote, UserCircle, PlusCircle } from 'lucide-react';
-import type { Lead, User, ProposalData, ProposalRevision, ChangeOrderData } from '@/lib/data';
+import { FileText, Phone, Mail, Users, Lightbulb, FolderKanban, Briefcase, Calendar, Handshake, Target, CheckCircle, Clock, Search, FileCheck2, UserCheck, ShieldCheck, DollarSign, AlertTriangle, Building, Truck, Presentation, FileUp, Edit, Info, Users2, FileSignature, Newspaper, BookUser, Rocket, Receipt, GitBranch, History, NotebookText, XCircle, Star, CalendarClock, MessageSquareQuote, UserCircle, PlusCircle, Send } from 'lucide-react';
+import type { Lead, User, ProposalData, ProposalRevision, ChangeOrderData, ScheduledFollowUp } from '@/lib/data';
 import { users, columns } from '@/lib/data';
 import { format } from 'date-fns';
 import { StakeholderIdentification } from '../ai/stakeholder-identification';
@@ -29,6 +37,12 @@ import { useToast } from '@/hooks/use-toast';
 import { AddRevisionDialog } from '../proposals/add-revision-dialog';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
 import { AddChangeOrderDialog } from '../implementation/add-change-order-dialog';
+import { useForm, useFieldArray } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import { Calendar as CalendarIcon } from 'lucide-react';
+import { Calendar as CalendarComponent } from '../ui/calendar';
 
 interface LeadDetailsDialogProps {
   lead: Lead | null;
@@ -57,12 +71,61 @@ const StatusDetailSection = ({ title, icon: Icon, children }: { title: string, i
     </div>
 )
 
+const followUpSchema = z.object({
+  followUps: z.array(z.object({
+    subject: z.string().min(1, "Subject is required"),
+    body: z.string().min(1, "Body is required"),
+    scheduledDate: z.date({ required_error: "Please select a date." }),
+  })),
+});
+type FollowUpFormValues = z.infer<typeof followUpSchema>;
+
 
 export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser, onUpdateLead }: LeadDetailsDialogProps) {
   const [proposalData, setProposalData] = useState<ProposalData | undefined>(lead?.proposalData);
   const [isAddRevisionOpen, setIsAddRevisionOpen] = useState(false);
   const [isAddChangeOrderOpen, setIsAddChangeOrderOpen] = useState(false);
   const { toast } = useToast();
+
+  const followUpForm = useForm<FollowUpFormValues>({
+    resolver: zodResolver(followUpSchema),
+    defaultValues: {
+      followUps: [{ subject: '', body: '', scheduledDate: new Date() }],
+    },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control: followUpForm.control,
+    name: 'followUps',
+  });
+  
+  const handleFollowUpSubmit = (values: FollowUpFormValues, sendNow: boolean = false) => {
+    if (!onUpdateLead || !lead) return;
+
+    const newFollowUps: ScheduledFollowUp[] = values.followUps.map(fu => ({
+      id: `fu-${Date.now()}-${Math.random()}`,
+      subject: fu.subject,
+      body: fu.body,
+      scheduledDate: fu.scheduledDate.toISOString(),
+      status: sendNow ? 'Sent' : 'Scheduled',
+    }));
+
+    const updatedLead: Lead = {
+      ...lead,
+      scheduledFollowUps: [...(lead.scheduledFollowUps || []), ...newFollowUps],
+      followUpCadence: sendNow 
+        ? [...lead.followUpCadence, { date: new Date().toISOString(), method: 'Email', notes: `Sent: "${values.followUps[0].subject}"` }]
+        : lead.followUpCadence
+    };
+    
+    onUpdateLead(updatedLead);
+    followUpForm.reset({ followUps: [{ subject: '', body: '', scheduledDate: new Date() }]});
+    toast({
+      title: sendNow ? 'Follow-up Sent' : 'Follow-up Scheduled',
+      description: `Your email has been ${sendNow ? 'sent' : 'scheduled'}.`,
+    });
+  }
+
 
   useEffect(() => {
     setProposalData(lead?.proposalData);
@@ -78,7 +141,6 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser, onU
   const handleAddRevision = (notes: string) => {
     if (!proposalData || !onUpdateLead || !lead.proposalData) return;
     
-    // Create a snapshot of the current proposal state before updating
     const previousState: Omit<ProposalData, 'revisionHistory'> = {
       templateUsed: lead.proposalData.templateUsed,
       servicesIncluded: lead.proposalData.servicesIncluded,
@@ -96,13 +158,13 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser, onU
     };
     
     const updatedProposalData: ProposalData = {
-      ...proposalData, // This contains the newly edited data from the form
+      ...proposalData,
       revisionHistory: [...lead.proposalData.revisionHistory, newRevision],
     };
 
     const updatedLead = { ...lead, proposalData: updatedProposalData };
     onUpdateLead(updatedLead);
-    setProposalData(updatedProposalData); // Ensure local state is also updated
+    setProposalData(updatedProposalData); 
     setIsAddRevisionOpen(false);
     toast({ title: "Revision Added", description: "A new version of the proposal has been saved." });
   };
@@ -357,11 +419,86 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser, onU
               </Card>
             </TabsContent>
 
-            <TabsContent value="follow-up" className="flex-grow overflow-auto p-1">
-               <Card>
+            <TabsContent value="follow-up" className="flex-grow overflow-auto p-1 space-y-4">
+              <Card>
                 <CardHeader>
-                  <CardTitle>Follow-up Cadence</CardTitle>
-                  <CardDescription>Tracking of all contact attempts with the lead.</CardDescription>
+                  <CardTitle>Schedule Follow-up Sequence</CardTitle>
+                  <CardDescription>Automate your email follow-ups for this lead.</CardDescription>
+                </CardHeader>
+                <Form {...followUpForm}>
+                  <form>
+                    <CardContent className="space-y-4">
+                      {fields.map((field, index) => (
+                        <div key={field.id} className="space-y-2 p-3 border rounded-md relative">
+                          <FormField
+                            control={followUpForm.control}
+                            name={`followUps.${index}.scheduledDate`}
+                            render={({ field }) => (
+                              <FormItem className="flex flex-col">
+                                <FormLabel>Schedule Date</FormLabel>
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                    <FormControl>
+                                        <Button
+                                        variant={"outline"}
+                                        className={cn("w-[240px] pl-3 text-left font-normal", !field.value && "text-muted-foreground")}
+                                        >
+                                        {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                        </Button>
+                                    </FormControl>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0" align="start">
+                                    <CalendarComponent mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
+                                    </PopoverContent>
+                                </Popover>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={followUpForm.control}
+                            name={`followUps.${index}.subject`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Subject</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Follow-up regarding..." {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={followUpForm.control}
+                            name={`followUps.${index}.body`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Body</FormLabel>
+                                <FormControl>
+                                  <Textarea placeholder="Hi {contact_name}, just wanted to follow up..." {...field} rows={4} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      ))}
+                    </CardContent>
+                    <CardFooter className="gap-2">
+                        <Button type="button" onClick={followUpForm.handleSubmit((data) => handleFollowUpSubmit(data, false))}>Schedule</Button>
+                        <Button type="button" variant="secondary" onClick={followUpForm.handleSubmit((data) => handleFollowUpSubmit(data, true))}>
+                          <Send className="mr-2" />
+                          Send Now
+                        </Button>
+                    </CardFooter>
+                  </form>
+                </Form>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Follow-up History</CardTitle>
+                  <CardDescription>A log of all contact attempts with the lead.</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-4">
@@ -376,6 +513,7 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser, onU
                           <p className="text-sm text-muted-foreground">
                             {format(new Date(attempt.date), 'PPP, p')}
                           </p>
+                           {attempt.notes && <p className="text-sm mt-1">{attempt.notes}</p>}
                         </div>
                       </li>
                     ))}

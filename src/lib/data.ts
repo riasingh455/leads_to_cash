@@ -198,6 +198,13 @@ export interface AuditLog {
   entityId: string;
 }
 
+export interface ScheduledFollowUp {
+  id: string;
+  subject: string;
+  body: string;
+  scheduledDate: string;
+  status: 'Scheduled' | 'Sent' | 'Failed';
+}
 
 export interface Lead {
   id: string;
@@ -227,7 +234,9 @@ export interface Lead {
   followUpCadence: {
       date: string;
       method: 'Email' | 'Call' | 'LinkedIn' | 'Meeting';
+      notes?: string;
   }[];
+  scheduledFollowUps?: ScheduledFollowUp[];
   prospectData?: ProspectData;
   futureOpportunityData?: FutureOpportunityData;
   disqualifiedData?: DisqualifiedData;
