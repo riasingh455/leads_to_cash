@@ -42,6 +42,7 @@ import { type Lead, users, columns as leadColumns } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { format } from 'date-fns';
 import { Badge } from '../ui/badge';
+import { formatCurrency } from '@/lib/utils';
 
 interface ClientDeliveryTableProps {
   onViewDetails: (lead: Lead) => void;
@@ -85,32 +86,6 @@ export function ClientDeliveryTable({ onViewDetails, leads, onMoveToImplementati
             {owner?.name}
           </div>
         )
-      },
-    },
-    {
-      accessorKey: 'value',
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-            className='text-right w-full'
-          >
-            Value
-            <CaretSortIcon className="ml-2 h-4 w-4" />
-          </Button>
-        );
-      },
-      cell: ({ row }) => {
-        const amount = parseFloat(row.getValue('value'));
-        const currency = row.original.currency;
-  
-        const formatted = new Intl.NumberFormat('en-US', {
-          style: 'currency',
-          currency: currency,
-        }).format(amount);
-  
-        return <div className="text-right font-medium">{formatted}</div>;
       },
     },
     {
