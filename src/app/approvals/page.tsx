@@ -40,7 +40,7 @@ import { UserMenu } from '@/components/user-menu';
 
 export default function ApprovalsPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
-  const [leads, setLeads] = useState<Lead[]>(initialLeads);
+  const [leads, setLeads] = useState<Lead[]>(() => JSON.parse(JSON.stringify(initialLeads)));
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [approvalLead, setApprovalLead] = useState<Lead | null>(null);
 

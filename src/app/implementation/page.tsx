@@ -43,7 +43,7 @@ import { UserMenu } from '@/components/user-menu';
 export default function ImplementationPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
-  const [leads, setLeads] = useState<Lead[]>(initialLeads);
+  const [leads, setLeads] = useState<Lead[]>(() => JSON.parse(JSON.stringify(initialLeads)));
   const [moveToGoLiveLead, setMoveToGoLiveLead] = useState<Lead | null>(null);
   const { toast } = useToast();
 
@@ -68,7 +68,7 @@ export default function ImplementationPage() {
     })
   }
 
-  const implementationLeads = initialLeads.filter(l => l.stage === 'Implementation');
+  const implementationLeads = leads.filter(l => l.stage === 'Implementation');
 
   return (
     <SidebarProvider defaultOpen>

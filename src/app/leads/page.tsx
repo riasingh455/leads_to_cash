@@ -48,7 +48,7 @@ export default function LeadsPage() {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [isAddLeadOpen, setIsAddLeadOpen] = useState(false);
   const [isBulkImportOpen, setIsBulkImportOpen] = useState(false);
-  const [leads, setLeads] = useState<Lead[]>(initialLeads.filter(l => l.status !== 'Qualified'));
+  const [leads, setLeads] = useState<Lead[]>(() => JSON.parse(JSON.stringify(initialLeads.filter(l => l.status !== 'Qualified'))));
   const { toast } = useToast();
   
   const [statusChangeLead, setStatusChangeLead] = useState<{lead: Lead, status: LeadStatus} | null>(null);
@@ -56,7 +56,6 @@ export default function LeadsPage() {
 
   const handleAddLead = (newLead: Lead) => {
     setLeads((prevLeads) => [newLead, ...prevLeads]);
-    initialLeads.unshift(newLead);
   };
   
   const handleBulkAddLeads = (newLeads: Lead[]) => {
@@ -65,7 +64,6 @@ export default function LeadsPage() {
       id: `lead-${Date.now()}-${Math.random()}`,
     }));
     setLeads(prev => [...leadsWithIds, ...prev]);
-    initialLeads.unshift(...leadsWithIds);
     toast({
         title: "Import Successful",
         description: `${leadsWithIds.length} new leads have been added.`,
@@ -74,10 +72,6 @@ export default function LeadsPage() {
 
   const handleDeleteLead = (leadId: string) => {
     setLeads(prev => prev.filter(l => l.id !== leadId));
-    const leadIndex = initialLeads.findIndex(l => l.id === leadId);
-    if (leadIndex > -1) {
-      initialLeads.splice(leadIndex, 1);
-    }
     toast({
       title: "Lead Deleted",
       description: "The lead has been successfully deleted.",
@@ -85,40 +79,46 @@ export default function LeadsPage() {
   }
   
   const handleChangeStatus = (leadId: string, status: LeadStatus, data?: any) => {
-    const leadIndex = initialLeads.findIndex(l => l.id === leadId);
-    if (leadIndex > -1) {
-        const lead = initialLeads[leadIndex];
-        lead.status = status;
-        const newStatusUpdate: StatusUpdate = {
-            status,
-            date: new Date().toISOString(),
-            notes: `Status changed to ${status}`,
-            updatedBy: currentUser.id,
-            data,
-        };
-        lead.statusHistory.push(newStatusUpdate);
+    setLeads(prev => {
+        const leadIndex = prev.findIndex(l => l.id === leadId);
+        if (leadIndex > -1) {
+            const updatedLeads = [...prev];
+            const lead = updatedLeads[leadIndex];
+            lead.status = status;
+            const newStatusUpdate: StatusUpdate = {
+                status,
+                date: new Date().toISOString(),
+                notes: `Status changed to ${status}`,
+                updatedBy: currentUser.id,
+                data,
+            };
+            lead.statusHistory.push(newStatusUpdate);
 
-        if (status === 'Prospect' && data) {
-            lead.prospectData = data;
-        }
-        if (status === 'Future Opportunity' && data) {
-            lead.futureOpportunityData = data;
-        }
-         if (status === 'Disqualified' && data) {
-            lead.disqualifiedData = data;
-        }
-        
-        if (status === 'Qualified') {
-          lead.columnId = 'col-prospect';
-        }
+            if (status === 'Prospect' && data) {
+                lead.prospectData = data;
+            }
+            if (status === 'Future Opportunity' && data) {
+                lead.futureOpportunityData = data;
+            }
+            if (status === 'Disqualified' && data) {
+                lead.disqualifiedData = data;
+            }
+            
+            if (status === 'Qualified') {
+              lead.columnId = 'col-prospect';
+            }
 
-        initialLeads[leadIndex] = lead;
-        setLeads([...initialLeads.filter(l => l.status !== 'Qualified')]);
-        toast({
-            title: "Lead Updated",
-            description: `The lead status has been changed to ${status}.`,
-        });
-    }
+            updatedLeads[leadIndex] = lead;
+            
+            toast({
+                title: "Lead Updated",
+                description: `The lead status has been changed to ${status}.`,
+            });
+            // Return a new array filtered by status
+            return updatedLeads.filter(l => l.status !== 'Qualified');
+        }
+        return prev;
+    });
   };
   
   return (

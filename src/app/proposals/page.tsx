@@ -45,7 +45,7 @@ export default function ProposalsPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [isAddProposalOpen, setIsAddProposalOpen] = useState(false);
-  const [leads, setLeads] = useState<Lead[]>(initialLeads);
+  const [leads, setLeads] = useState<Lead[]>(() => JSON.parse(JSON.stringify(initialLeads)));
   const [moveToClientDeliveryLead, setMoveToClientDeliveryLead] = useState<Lead | null>(null);
   const { toast } = useToast();
 

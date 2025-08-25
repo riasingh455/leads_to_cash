@@ -44,7 +44,7 @@ import { MoveToContractDialog } from '@/components/client-delivery/move-to-contr
 export default function ClientDeliveryPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
-  const [leads, setLeads] = useState<Lead[]>(initialLeads);
+  const [leads, setLeads] = useState<Lead[]>(() => JSON.parse(JSON.stringify(initialLeads)));
   const [moveToContractLead, setMoveToContractLead] = useState<Lead | null>(null);
   const [moveToImplementationLead, setMoveToImplementationLead] = useState<Lead | null>(null);
   const { toast } = useToast();
@@ -90,7 +90,7 @@ export default function ClientDeliveryPage() {
     })
   }
 
-  const deliveryLeads = initialLeads.filter(l => l.stage === 'Client-Delivery');
+  const deliveryLeads = leads.filter(l => l.stage === 'Client-Delivery');
 
   return (
     <SidebarProvider defaultOpen>

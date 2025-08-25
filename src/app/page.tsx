@@ -50,12 +50,11 @@ import { UserMenu } from '@/components/user-menu';
 export default function DashboardPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
   const [isAddLeadOpen, setIsAddLeadOpen] = useState(false);
-  const [leads, setLeads] = useState<Lead[]>(initialLeads);
+  const [leads, setLeads] = useState<Lead[]>(() => JSON.parse(JSON.stringify(initialLeads)));
 
   const handleAddLead = (newLead: Lead) => {
     const updatedLeads = [newLead, ...leads];
     setLeads(updatedLeads);
-    initialLeads.unshift(newLead);
   };
   
   const kpiData = useMemo(() => {

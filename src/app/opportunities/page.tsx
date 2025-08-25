@@ -44,17 +44,13 @@ import { UserMenu } from '@/components/user-menu';
 export default function OpportunitiesPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
-  const [leads, setLeads] = useState<Lead[]>(initialLeads);
+  const [leads, setLeads] = useState<Lead[]>(() => JSON.parse(JSON.stringify(initialLeads)));
   const { toast } = useToast();
   const [statusChangeLead, setStatusChangeLead] = useState<{lead: Lead, status: LeadStatus} | null>(null);
   const [proposalLead, setProposalLead] = useState<Lead | null>(null);
   
   const handleDeleteOpportunity = (leadId: string) => {
     setLeads(prev => prev.filter(l => l.id !== leadId));
-    const leadIndex = initialLeads.findIndex(l => l.id === leadId);
-    if (leadIndex > -1) {
-      initialLeads.splice(leadIndex, 1);
-    }
     toast({
       title: "Opportunity Deleted",
       description: "The opportunity has been successfully deleted.",
@@ -62,34 +58,38 @@ export default function OpportunitiesPage() {
   };
 
   const handleChangeStatus = (leadId: string, status: LeadStatus, data?: any) => {
-    const leadIndex = initialLeads.findIndex(l => l.id === leadId);
-    if (leadIndex > -1) {
-        const lead = initialLeads[leadIndex];
-        lead.status = status;
-        const newStatusUpdate: StatusUpdate = {
-            status,
-            date: new Date().toISOString(),
-            notes: `Status changed to ${status}`,
-            updatedBy: currentUser.id,
-            data,
-        };
-        lead.statusHistory.push(newStatusUpdate);
+    setLeads(prev => {
+        const leadIndex = prev.findIndex(l => l.id === leadId);
+        if (leadIndex > -1) {
+            const updatedLeads = [...prev];
+            const lead = updatedLeads[leadIndex];
+            lead.status = status;
+            const newStatusUpdate: StatusUpdate = {
+                status,
+                date: new Date().toISOString(),
+                notes: `Status changed to ${status}`,
+                updatedBy: currentUser.id,
+                data,
+            };
+            lead.statusHistory.push(newStatusUpdate);
 
-        if (status === 'Future Opportunity' && data) {
-            lead.futureOpportunityData = data;
+            if (status === 'Future Opportunity' && data) {
+                lead.futureOpportunityData = data;
+            }
+            if (status === 'Disqualified' && data) {
+                lead.disqualifiedData = data;
+            }
+            
+            updatedLeads[leadIndex] = lead;
+            
+            toast({
+                title: "Opportunity Updated",
+                description: `The opportunity status has been changed to ${status}.`,
+            });
+            return updatedLeads;
         }
-         if (status === 'Disqualified' && data) {
-            lead.disqualifiedData = data;
-        }
-        
-        initialLeads[leadIndex] = lead;
-        // This will force a re-render and re-filter of opportunities
-        setLeads([...initialLeads]);
-        toast({
-            title: "Opportunity Updated",
-            description: `The opportunity status has been changed to ${status}.`,
-        });
-    }
+        return prev;
+    });
   };
   
   const handleAddProposal = (leadId: string, proposalData: any) => {
@@ -105,13 +105,6 @@ export default function OpportunitiesPage() {
           revisionHistory: [{ version: 1, date: new Date().toISOString(), notes: 'Initial draft' }],
         };
         updatedLeads[leadIndex] = updatedLead;
-        
-        // Update master list
-        const initialLeadIndex = initialLeads.findIndex(l => l.id === leadId);
-        if (initialLeadIndex !== -1) {
-          initialLeads[initialLeadIndex] = updatedLead;
-        }
-
         return updatedLeads;
       }
       return prevLeads;
