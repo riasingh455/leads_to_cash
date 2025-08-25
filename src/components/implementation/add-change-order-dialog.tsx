@@ -79,6 +79,7 @@ export function AddChangeOrderDialog({ isOpen, onOpenChange, onAddChangeOrder }:
     };
     onAddChangeOrder(dataToSubmit);
     form.reset();
+    onOpenChange(false);
   };
 
   return (
