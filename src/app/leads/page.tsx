@@ -1,6 +1,6 @@
 
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   SidebarProvider,
   Sidebar,
@@ -110,16 +110,21 @@ export default function LeadsPage() {
 
             updatedLeads[leadIndex] = lead;
             
-            toast({
-                title: "Lead Updated",
-                description: `The lead status has been changed to ${status}.`,
-            });
             // Return a new array filtered by status
             return updatedLeads.filter(l => l.status !== 'Qualified');
         }
         return prev;
     });
   };
+
+  useEffect(() => {
+    if (statusChangeLead?.lead && !leads.find(l => l.id === statusChangeLead.lead.id && l.status === statusChangeLead.status)) {
+        toast({
+            title: "Lead Updated",
+            description: `The lead status has been changed to ${statusChangeLead.status}.`,
+        });
+    }
+  }, [leads, statusChangeLead, toast]);
   
   return (
     <SidebarProvider defaultOpen>

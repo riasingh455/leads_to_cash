@@ -1,6 +1,6 @@
 
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   SidebarProvider,
   Sidebar,
@@ -82,15 +82,20 @@ export default function OpportunitiesPage() {
             
             updatedLeads[leadIndex] = lead;
             
-            toast({
-                title: "Opportunity Updated",
-                description: `The opportunity status has been changed to ${status}.`,
-            });
             return updatedLeads;
         }
         return prev;
     });
   };
+
+  useEffect(() => {
+    if (statusChangeLead?.lead && !leads.find(l => l.id === statusChangeLead.lead.id && l.status === statusChangeLead.status)) {
+        toast({
+            title: "Opportunity Updated",
+            description: `The opportunity status has been changed to ${statusChangeLead.status}.`,
+        });
+    }
+  }, [leads, statusChangeLead, toast]);
   
   const handleAddProposal = (leadId: string, proposalData: any) => {
     setLeads((prevLeads) => {
