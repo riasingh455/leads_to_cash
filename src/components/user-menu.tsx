@@ -13,9 +13,10 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ChevronsUpDown, UserCircle, Settings, LogOut } from 'lucide-react';
+import { ChevronsUpDown, UserCircle, Settings } from 'lucide-react';
 import type { User } from '@/lib/data';
 import { users } from '@/lib/data';
+import { useMsal, useIsAuthenticated } from "@azure/msal-react";
 
 interface UserMenuProps {
   user: User;
@@ -23,6 +24,17 @@ interface UserMenuProps {
 }
 
 export function UserMenu({ user, setUser }: UserMenuProps) {
+  const { accounts } = useMsal();
+  const isAuthenticated = useIsAuthenticated();
+
+  if (!isAuthenticated) {
+      return null;
+  }
+
+  const name = accounts[0]?.name || user.name;
+  const email = accounts[0]?.username || user.email;
+
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -32,26 +44,17 @@ export function UserMenu({ user, setUser }: UserMenuProps) {
         >
           <Avatar className="h-8 w-8">
             <AvatarImage src={user.avatar} />
-            <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+            <AvatarFallback>{name.charAt(0)}</AvatarFallback>
           </Avatar>
            <div className="hidden text-left md:block">
-            <p className="font-medium text-sm">{user.name}</p>
-            <p className="text-xs text-muted-foreground">{user.role}</p>
+            <p className="font-medium text-sm">{name}</p>
+            <p className="text-xs text-muted-foreground">{email}</p>
           </div>
           <ChevronsUpDown className="hidden h-4 w-4 text-muted-foreground md:block" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-64" side="bottom" align="end">
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuRadioGroup value={user.id} onValueChange={(id) => setUser(users.find(u => u.id === id)!)}>
-          <DropdownMenuLabel>Switch Role</DropdownMenuLabel>
-          {users.map((u) => (
-            <DropdownMenuRadioItem key={u.id} value={u.id}>
-              {u.name} ({u.role})
-            </DropdownMenuRadioItem>
-          ))}
-        </DropdownMenuRadioGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem>
           <UserCircle className="mr-2 h-4 w-4" />
@@ -60,11 +63,6 @@ export function UserMenu({ user, setUser }: UserMenuProps) {
         <DropdownMenuItem>
           <Settings className="mr-2 h-4 w-4" />
           <span>Settings</span>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <LogOut className="mr-2 h-4 w-4" />
-          <span>Log out</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

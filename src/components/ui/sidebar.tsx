@@ -5,7 +5,8 @@ import * as React from "react"
 import NextLink from "next/link"
 import { Slot } from "@radix-ui/react-slot"
 import { VariantProps, cva } from "class-variance-authority"
-import { PanelLeft } from "lucide-react"
+import { LogOut, PanelLeft } from "lucide-react"
+import { useIsAuthenticated, useMsal } from "@azure/msal-react"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
@@ -178,6 +179,15 @@ const Sidebar = React.forwardRef<
     ref
   ) => {
     const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
+    const isAuthenticated = useIsAuthenticated()
+    const { instance } = useMsal()
+
+    const handleLogout = () => {
+        instance.logoutRedirect({
+            postLogoutRedirectUri: "/login",
+        });
+    }
+
 
     if (collapsible === "none") {
       return (
@@ -208,7 +218,17 @@ const Sidebar = React.forwardRef<
             }
             side={side}
           >
-            <div className="flex h-full w-full flex-col">{children}</div>
+            <div className="flex h-full w-full flex-col">
+              {children}
+              {isAuthenticated && (
+                <div className="p-2 border-t border-sidebar-border">
+                  <Button variant="ghost" className="w-full justify-start" onClick={handleLogout}>
+                    <LogOut className="mr-2"/>
+                    Logout
+                  </Button>
+                </div>
+              )}
+            </div>
           </SheetContent>
         </Sheet>
       )
@@ -253,6 +273,18 @@ const Sidebar = React.forwardRef<
             className="flex h-full w-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow"
           >
             {children}
+            {isAuthenticated && (
+              <div className="p-2 border-t border-sidebar-border mt-auto">
+                <SidebarMenu>
+                  <SidebarMenuItem>
+                      <SidebarMenuButton onClick={handleLogout} tooltip="Logout">
+                          <LogOut />
+                          <span>Logout</span>
+                      </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </div>
+            )}
           </div>
         </div>
       </div>
