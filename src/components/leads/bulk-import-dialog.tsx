@@ -14,8 +14,8 @@ import { Button } from '@/components/ui/button';
 import { useState, useRef } from 'react';
 import type { Lead, User, StatusUpdate } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
-import { read, utils, writeFile } from 'xlsx';
-import { Loader2, Upload, Download } from 'lucide-react';
+import { read, utils } from 'xlsx';
+import { Loader2, Download } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { ScrollArea } from '../ui/scroll-area';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
@@ -27,7 +27,7 @@ interface BulkImportDialogProps {
   users: User[];
 }
 
-// Expected columns in the Excel file (for parsing logic - case-insensitive)
+// Expected columns in the CSV file (for parsing logic - case-insensitive)
 const expectedHeaders = ['name', 'title', 'company', 'address', 'phone', 'email'];
 // Headers for the downloadable template
 const templateHeaders = ['Name', 'Title', 'Company', 'Address', 'Phone', 'Email'];
@@ -40,14 +40,14 @@ export function BulkImportDialog({ isOpen, onOpenChange, onLeadsImported, users 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleDownloadTemplate = () => {
-    const worksheet = utils.json_to_sheet([
-      { Name: 'John Doe', Title: 'CEO', Company: 'Acme Inc.', Address: '123 Main St, Anytown USA', Phone: '555-123-4567', Email: 'john.doe@acme.com' }
-    ]);
-    const workbook = utils.book_new();
-    utils.book_append_sheet(workbook, worksheet, "Leads Template");
-    // We use the capitalized headers for the template file.
-    utils.sheet_add_aoa(worksheet, [templateHeaders], { origin: "A1" });
-    writeFile(workbook, "Lead_Import_Template.xlsx");
+    const csvContent = "data:text/csv;charset=utf-8," + templateHeaders.join(",") + "\n" + "John Doe,CEO,\"Acme, Inc.\",\"123 Main St, Anytown USA\",555-123-4567,john.doe@acme.com";
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "Lead_Import_Template.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,14 +58,14 @@ export function BulkImportDialog({ isOpen, onOpenChange, onLeadsImported, users 
     setParsedLeads([]);
     
     try {
-      const data = await file.arrayBuffer();
-      const workbook = read(data);
+      const text = await file.text();
+      const workbook = read(text, { type: 'string', raw: true });
       const worksheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[worksheetName];
       const json: any[] = utils.sheet_to_json(worksheet, { header: 1 });
 
       if (json.length < 2) {
-        throw new Error("Spreadsheet is empty or only contains a header row.");
+        throw new Error("CSV file is empty or only contains a header row.");
       }
 
       const headers: string[] = json[0].map((h: any) => String(h).toLowerCase().trim());
@@ -74,13 +74,15 @@ export function BulkImportDialog({ isOpen, onOpenChange, onLeadsImported, users 
       if (missingHeaders.length > 0) {
         throw new Error(`Missing required columns: ${missingHeaders.join(', ')}`);
       }
+      
+      const headerMap = headers.reduce((acc, header, index) => {
+        acc[header] = index;
+        return acc;
+      }, {} as {[key: string]: number});
 
       const leadsData: Omit<Lead, 'id'>[] = json.slice(1).map((row: any[], rowIndex) => {
-          const leadObject: { [key: string]: any } = {};
-          headers.forEach((header, index) => {
-              leadObject[header] = row[index];
-          });
-        
+          if (row.every(cell => !cell)) return null; // Skip empty rows
+          
           const initialStatus: StatusUpdate = {
               status: 'Unaware',
               date: new Date().toISOString(),
@@ -89,13 +91,13 @@ export function BulkImportDialog({ isOpen, onOpenChange, onLeadsImported, users 
           };
           
           return {
-            title: leadObject.title || 'New Lead from Import',
-            company: leadObject.company || 'N/A',
+            title: row[headerMap['title']] || 'New Lead from Import',
+            company: row[headerMap['company']] || 'N/A',
             contact: {
-              name: leadObject.name || 'N/A',
-              title: leadObject.title || 'N/A',
-              email: leadObject.email || '',
-              phone: String(leadObject.phone || ''),
+              name: row[headerMap['name']] || 'N/A',
+              title: row[headerMap['title']] || 'N/A',
+              email: row[headerMap['email']] || '',
+              phone: String(row[headerMap['phone']] || ''),
             },
             value: 0,
             currency: 'USD',
@@ -112,10 +114,10 @@ export function BulkImportDialog({ isOpen, onOpenChange, onLeadsImported, users 
             source: 'Bulk Import',
             companySize: '11-50',
             industry: 'N/A',
-            region: leadObject.address || 'N/A',
+            region: row[headerMap['address']] || 'N/A',
             followUpCadence: [],
           };
-      });
+      }).filter(Boolean) as Omit<Lead, 'id'>[];
 
       setParsedLeads(leadsData);
        toast({
@@ -157,7 +159,7 @@ export function BulkImportDialog({ isOpen, onOpenChange, onLeadsImported, users 
         <DialogHeader>
           <DialogTitle>Bulk Import Leads</DialogTitle>
           <DialogDescription>
-            Upload an Excel (.xlsx) file with lead information. You can download a template to get started.
+            Upload a CSV (.csv) file with lead information. You can download a template to get started.
           </DialogDescription>
         </DialogHeader>
         <div className="flex-grow overflow-y-auto space-y-4 pr-4 -mr-4">
@@ -165,7 +167,7 @@ export function BulkImportDialog({ isOpen, onOpenChange, onLeadsImported, users 
                 <Input 
                     id="file-upload"
                     type="file" 
-                    accept=".xlsx"
+                    accept=".csv"
                     onChange={handleFileChange}
                     disabled={isLoading}
                     ref={fileInputRef}
