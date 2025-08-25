@@ -62,7 +62,7 @@ export default function ApprovalsPage() {
 
             if (updatedLead.internalReviewData?.cstReviewStatus === 'Approved' && updatedLead.internalReviewData?.croReviewStatus === 'Approved') {
                 updatedLead.internalReviewData.finalApprovalDate = new Date().toISOString();
-                updatedLead.internalReviewa.approvedBy = currentUser.name;
+                updatedLead.internalReviewData.approvedBy = currentUser.name;
             }
 
             updatedLeads[leadIndex] = updatedLead;
