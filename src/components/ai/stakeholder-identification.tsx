@@ -31,7 +31,7 @@ export function StakeholderIdentification({ lead }: { lead: Lead }) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       companyDescription: `Company: ${lead.company}\nIndustry: ${lead.industry}\nRegion: ${lead.region}\nSource: ${lead.source}`,
-      objective: `Secure a deal for "${lead.title}" with an estimated value of $${lead.value.toLocaleString()}.`,
+      objective: `Secure a deal for "${lead.title}".`,
     },
   });
 
