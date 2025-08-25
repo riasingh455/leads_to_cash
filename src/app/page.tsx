@@ -1,8 +1,6 @@
 
 'use client';
 import React, { useState, useMemo, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useIsAuthenticated } from "@azure/msal-react";
 import {
   SidebarProvider,
   Sidebar,
@@ -48,20 +46,11 @@ import { BarChart as RechartsBarChart, Bar, XAxis, YAxis, CartesianGrid } from '
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { UserMenu } from '@/components/user-menu';
-import { Skeleton } from '@/components/ui/skeleton';
 
 export default function DashboardPage() {
   const [currentUser, setCurrentUser] = useState<User>(users[0]);
   const [isAddLeadOpen, setIsAddLeadOpen] = useState(false);
   const [leads, setLeads] = useState<Lead[]>(() => JSON.parse(JSON.stringify(initialLeads)));
-  const isAuthenticated = useIsAuthenticated();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.push('/login');
-    }
-  }, [isAuthenticated, router]);
 
   const handleAddLead = (newLead: Lead) => {
     const updatedLeads = [newLead, ...leads];
@@ -89,15 +78,6 @@ export default function DashboardPage() {
       })
       .filter(Boolean);
   }, [leads]);
-  
-  if (!isAuthenticated) {
-    return (
-        <div className="flex items-center justify-center min-h-screen">
-          <Skeleton className="w-full h-full" />
-        </div>
-    );
-  }
-
 
   return (
     <SidebarProvider defaultOpen>

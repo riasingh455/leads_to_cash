@@ -16,7 +16,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ChevronsUpDown, UserCircle, Settings } from 'lucide-react';
 import type { User } from '@/lib/data';
 import { users } from '@/lib/data';
-import { useMsal, useIsAuthenticated } from "@azure/msal-react";
 
 interface UserMenuProps {
   user: User;
@@ -24,16 +23,9 @@ interface UserMenuProps {
 }
 
 export function UserMenu({ user, setUser }: UserMenuProps) {
-  const { accounts } = useMsal();
-  const isAuthenticated = useIsAuthenticated();
 
-  if (!isAuthenticated) {
-      return null;
-  }
-
-  const name = accounts[0]?.name || user.name;
-  const email = accounts[0]?.username || user.email;
-
+  const name = user.name;
+  const email = user.email;
 
   return (
     <DropdownMenu>
@@ -64,6 +56,24 @@ export function UserMenu({ user, setUser }: UserMenuProps) {
           <Settings className="mr-2 h-4 w-4" />
           <span>Settings</span>
         </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuRadioGroup
+          value={user.id}
+          onValueChange={(id) => {
+            const newUser = users.find((u) => u.id === id);
+            if (newUser) {
+              setUser(newUser);
+            }
+          }}
+        >
+          <DropdownMenuLabel>Switch User</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          {users.map((u) => (
+            <DropdownMenuRadioItem key={u.id} value={u.id}>
+              {u.name}
+            </DropdownMenuRadioItem>
+          ))}
+        </DropdownMenuRadioGroup>
       </DropdownMenuContent>
     </DropdownMenu>
   );
