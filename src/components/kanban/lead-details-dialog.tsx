@@ -28,6 +28,7 @@ import { cn, formatCurrency } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { AddRevisionDialog } from '../proposals/add-revision-dialog';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
+import { AddChangeOrderDialog } from '../implementation/add-change-order-dialog';
 
 interface LeadDetailsDialogProps {
   lead: Lead | null;
@@ -60,6 +61,7 @@ const StatusDetailSection = ({ title, icon: Icon, children }: { title: string, i
 export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser, onUpdateLead }: LeadDetailsDialogProps) {
   const [proposalData, setProposalData] = useState<ProposalData | undefined>(lead?.proposalData);
   const [isAddRevisionOpen, setIsAddRevisionOpen] = useState(false);
+  const [isAddChangeOrderOpen, setIsAddChangeOrderOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -104,6 +106,24 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser, onU
     setIsAddRevisionOpen(false);
     toast({ title: "Revision Added", description: "A new version of the proposal has been saved." });
   };
+
+  const handleAddChangeOrder = (changeOrderData: Omit<ChangeOrderData, 'id' | 'parentOpportunityId' | 'status' | 'auditTrail'>) => {
+    if (!onUpdateLead) return;
+    const newChangeOrder: ChangeOrderData = {
+        ...changeOrderData,
+        id: `co-${Date.now()}`,
+        parentOpportunityId: lead.id,
+        status: 'Pending',
+        auditTrail: [{ date: new Date().toISOString(), user: currentUser.name, action: 'Created Change Order' }],
+    };
+    const updatedLead: Lead = {
+        ...lead,
+        changeOrders: [...(lead.changeOrders || []), newChangeOrder],
+    };
+    onUpdateLead(updatedLead);
+    setIsAddChangeOrderOpen(false);
+    toast({ title: 'Change Order Created', description: 'The new change order has been added to the project.' });
+  }
 
 
   const owner = users.find(u => u.id === lead.ownerId);
@@ -805,7 +825,7 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser, onU
                     <CardTitle>Change Orders</CardTitle>
                     <CardDescription>Track all change orders related to this opportunity.</CardDescription>
                   </div>
-                  <Button variant="outline"><PlusCircle className="mr-2" /> New Change Order</Button>
+                  <Button variant="outline" onClick={() => setIsAddChangeOrderOpen(true)}><PlusCircle className="mr-2" /> New Change Order</Button>
                 </CardHeader>
                 <CardContent>
                    {lead.changeOrders && lead.changeOrders.length > 0 ? (
@@ -902,6 +922,11 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser, onU
       isOpen={isAddRevisionOpen}
       onOpenChange={setIsAddRevisionOpen}
       onAddRevision={handleAddRevision}
+    />
+    <AddChangeOrderDialog
+        isOpen={isAddChangeOrderOpen}
+        onOpenChange={setIsAddChangeOrderOpen}
+        onAddChangeOrder={handleAddChangeOrder}
     />
     </>
   );
