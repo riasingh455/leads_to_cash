@@ -14,8 +14,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Phone, Mail, Users, Lightbulb, FolderKanban, Briefcase, Calendar, Handshake, Target, CheckCircle, Clock, Search, FileCheck2, UserCheck, ShieldCheck, DollarSign, AlertTriangle, Building, Truck, Presentation, FileUp, Edit, Info, Users2, FileSignature, Newspaper, BookUser, Rocket, Receipt, GitBranch, History, NotebookText, XCircle, Star, CalendarClock, MessageSquareQuote, UserCircle } from 'lucide-react';
-import type { Lead, User, ProposalData, ProposalRevision } from '@/lib/data';
+import { FileText, Phone, Mail, Users, Lightbulb, FolderKanban, Briefcase, Calendar, Handshake, Target, CheckCircle, Clock, Search, FileCheck2, UserCheck, ShieldCheck, DollarSign, AlertTriangle, Building, Truck, Presentation, FileUp, Edit, Info, Users2, FileSignature, Newspaper, BookUser, Rocket, Receipt, GitBranch, History, NotebookText, XCircle, Star, CalendarClock, MessageSquareQuote, UserCircle, PlusCircle } from 'lucide-react';
+import type { Lead, User, ProposalData, ProposalRevision, ChangeOrderData } from '@/lib/data';
 import { users, columns } from '@/lib/data';
 import { format } from 'date-fns';
 import { StakeholderIdentification } from '../ai/stakeholder-identification';
@@ -24,7 +24,7 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { cn } from '@/lib/utils';
+import { cn, formatCurrency } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { AddRevisionDialog } from '../proposals/add-revision-dialog';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
@@ -620,7 +620,7 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser, onU
                               <DetailRow label="Client Review" value={lead.contractData.clientReviewStatus} />
                               <DetailRow label="Final Contract Date" value={lead.contractData.finalDate ? format(new Date(lead.contractData.finalDate), 'PPP') : 'N/A'} />
                               <DetailRow label="Signed Date" value={lead.contractData.signedDate ? format(new Date(lead.contractData.signedDate), 'PPP') : 'N/A'} />
-                              <DetailRow label="Final Value" value={`$${lead.contractData.finalValue.toLocaleString()}`} />
+                              <DetailRow label="Final Value" value={`${formatCurrency(lead.contractData.finalValue)}`} />
                               <DetailRow label="Payment Terms" value={lead.contractData.paymentTerms} />
                           </div>
                         </div>
@@ -778,7 +778,7 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser, onU
                       <div className="space-y-6">
                         <div className="text-sm grid md:grid-cols-2 gap-x-8 gap-y-4">
                             <DetailRow label="First Invoice Date" value={format(new Date(lead.billingAndHandoffData.firstInvoiceDate), 'PPP')} />
-                            <DetailRow label="First Invoice Amount" value={`$${lead.billingAndHandoffData.firstInvoiceAmount.toLocaleString()}`} />
+                            <DetailRow label="First Invoice Amount" value={`${formatCurrency(lead.billingAndHandoffData.firstInvoiceAmount)}`} />
                             <DetailRow label="Invoice Status" value={<Badge>{lead.billingAndHandoffData.invoiceStatus}</Badge>} />
                             <DetailRow label="Payment Due Date" value={format(new Date(lead.billingAndHandoffData.paymentDueDate), 'PPP')} />
                             <DetailRow label="Revenue Recognition Date" value={format(new Date(lead.billingAndHandoffData.revenueRecognitionDate), 'PPP')} />
@@ -800,26 +800,71 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser, onU
             
             <TabsContent value="change-orders" className="flex-grow overflow-auto p-1">
               <Card>
-                <CardHeader>
-                  <CardTitle>Change Orders</CardTitle>
-                  <CardDescription>Track all change orders related to this opportunity.</CardDescription>
+                <CardHeader className="flex-row items-center justify-between">
+                  <div>
+                    <CardTitle>Change Orders</CardTitle>
+                    <CardDescription>Track all change orders related to this opportunity.</CardDescription>
+                  </div>
+                  <Button variant="outline"><PlusCircle className="mr-2" /> New Change Order</Button>
                 </CardHeader>
                 <CardContent>
-                  <ul className="space-y-3">
-                    {lead.changeOrders?.map((co) => (
-                      <li key={co.id} className="flex items-start justify-between p-3 rounded-md border">
-                        <div className="flex items-start gap-4">
-                          <GitBranch className="w-5 h-5 text-primary mt-1" />
-                          <div>
-                            <p className="font-semibold">{co.description}</p>
-                            <p className="text-sm text-muted-foreground">Value: ${co.value.toLocaleString()} | Status: <Badge>{co.status}</Badge></p>
-                          </div>
-                        </div>
-                        <span className="text-sm text-muted-foreground">{format(new Date(co.implementationDate), 'PPP')}</span>
-                      </li>
-                    ))}
-                    {!lead.changeOrders?.length && <p className="text-muted-foreground">No change orders recorded.</p>}
-                  </ul>
+                   {lead.changeOrders && lead.changeOrders.length > 0 ? (
+                      <Accordion type="single" collapsible className="w-full">
+                        {lead.changeOrders.map((co) => (
+                          <AccordionItem value={co.id} key={co.id}>
+                            <AccordionTrigger>
+                              <div className="flex flex-1 items-center gap-4 text-sm">
+                                <div className="flex items-center gap-2">
+                                  <GitBranch className="w-5 h-5 text-primary" />
+                                  <span className="font-semibold">{co.description}</span>
+                                </div>
+                                <Badge variant={co.status === 'Approved' ? 'default' : 'secondary'}>{co.status}</Badge>
+                                <span className="text-muted-foreground">{formatCurrency(co.value)}</span>
+                                <span className="ml-auto text-muted-foreground hidden md:block">Implementation: {format(new Date(co.implementationDate), 'PPP')}</span>
+                              </div>
+                            </AccordionTrigger>
+                            <AccordionContent>
+                               <div className="grid md:grid-cols-2 gap-x-8 gap-y-4 p-4 border rounded-md bg-muted/50">
+                                  <div>
+                                    <h4 className="font-semibold mb-2">Details</h4>
+                                    <div className="text-xs grid grid-cols-2 gap-x-4 gap-y-1">
+                                      <DetailRow label="Change ID" value={co.id} />
+                                      <DetailRow label="Change Type" value={co.type} />
+                                      <DetailRow label="Requested By" value={co.requestedBy} />
+                                      <DetailRow label="Approved By" value={co.approvedBy || 'N/A'} />
+                                      <DetailRow label="Documentation" value={<a href={co.documentationUrl} className="text-primary hover:underline">View Document</a>} />
+                                    </div>
+                                  </div>
+                                   <div>
+                                    <h4 className="font-semibold mb-2">Impact</h4>
+                                    <div className="text-xs grid grid-cols-2 gap-x-4 gap-y-1">
+                                      <DetailRow label="Updated Budget" value={formatCurrency(co.updatedBudget)} />
+                                      <DetailRow label="Updated Timeline" value={co.updatedTimeline} />
+                                    </div>
+                                  </div>
+                                   <div className="col-span-full">
+                                    <h4 className="font-semibold mb-2">Impact Analysis</h4>
+                                    <p className="text-xs whitespace-pre-wrap">{co.impactAnalysis}</p>
+                                  </div>
+                                   <div className="col-span-full">
+                                    <h4 className="font-semibold mb-2">Audit Trail</h4>
+                                     <ul className="text-xs space-y-1">
+                                      {co.auditTrail.map((trail, index) => (
+                                        <li key={index} className="flex gap-2">
+                                          <span className="font-semibold">{format(new Date(trail.date), 'Pp')}</span>
+                                          <span className="text-muted-foreground">{trail.user} - {trail.action}</span>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                               </div>
+                            </AccordionContent>
+                          </AccordionItem>
+                        ))}
+                      </Accordion>
+                   ) : (
+                    <p className="text-muted-foreground text-center py-8">No change orders recorded for this project.</p>
+                   )}
                 </CardContent>
               </Card>
             </TabsContent>
@@ -861,10 +906,3 @@ export function LeadDetailsDialog({ lead, isOpen, onOpenChange, currentUser, onU
     </>
   );
 }
-
-
-    
-
-    
-
-
