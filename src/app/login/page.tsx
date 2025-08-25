@@ -40,7 +40,7 @@ export default function LoginPage() {
                 </Button>
                  <div className="text-center text-xs text-muted-foreground">
                     <p>
-                        Please make sure to configure your Client ID and Tenant ID in `src/lib/authConfig.ts`.
+                        Ensure your Client and Tenant IDs are configured in the .env file.
                     </p>
                 </div>
             </div>

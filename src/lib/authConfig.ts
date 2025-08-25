@@ -3,16 +3,19 @@ import { Configuration, LogLevel } from "@azure/msal-browser";
 /**
  * MSAL configuration for the application.
  * 
- * IMPORTANT: You must replace the placeholder values with your own
- * application's client ID and tenant ID from your Microsoft Entra
- * App Registration.
+ * IMPORTANT: The values for clientId and authority are read from
+ * environment variables. You must create a .env file in the root
+ * of your project and add the following:
+ * 
+ * NEXT_PUBLIC_AZURE_AD_CLIENT_ID=YOUR_CLIENT_ID_HERE
+ * NEXT_PUBLIC_AZURE_AD_TENANT_ID=YOUR_TENANT_ID_HERE
  */
 export const msalConfig: Configuration = {
     auth: {
         // This is the "Application (client) ID" from your app registration.
-        clientId: "YOUR_CLIENT_ID_HERE", 
+        clientId: process.env.NEXT_PUBLIC_AZURE_AD_CLIENT_ID || "YOUR_CLIENT_ID_HERE", 
         // This is the "Directory (tenant) ID" from your app registration.
-        authority: "https://login.microsoftonline.com/YOUR_TENANT_ID_HERE", 
+        authority: `https://login.microsoftonline.com/${process.env.NEXT_PUBLIC_AZURE_AD_TENANT_ID || "YOUR_TENANT_ID_HERE"}`, 
         redirectUri: "/" 
     },
     cache: {
