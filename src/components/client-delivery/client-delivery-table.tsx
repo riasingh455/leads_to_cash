@@ -42,15 +42,15 @@ import { type Lead, users, columns as leadColumns } from '@/lib/data';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { format } from 'date-fns';
 import { Badge } from '../ui/badge';
-import { formatCurrency } from '@/lib/utils';
 
 interface ClientDeliveryTableProps {
   onViewDetails: (lead: Lead) => void;
   leads: Lead[];
   onMoveToImplementation: (lead: Lead) => void;
+  onMoveToContract: (lead: Lead) => void;
 }
 
-export function ClientDeliveryTable({ onViewDetails, leads, onMoveToImplementation }: ClientDeliveryTableProps) {
+export function ClientDeliveryTable({ onViewDetails, leads, onMoveToImplementation, onMoveToContract }: ClientDeliveryTableProps) {
   const data = React.useMemo(() => leads.filter(lead => lead.stage === 'Client-Delivery'), [leads]);
   
   const columns: ColumnDef<Lead>[] = [
@@ -69,7 +69,7 @@ export function ClientDeliveryTable({ onViewDetails, leads, onMoveToImplementati
       header: 'Stage',
       cell: ({ row }) => {
           const stage = leadColumns.find(c => c.id === row.getValue('columnId'))
-          return <div>{stage?.title}</div>
+          return <Badge variant="outline">{stage?.title}</Badge>
       }
     },
     {
@@ -109,6 +109,9 @@ export function ClientDeliveryTable({ onViewDetails, leads, onMoveToImplementati
       enableHiding: false,
       cell: ({ row }) => {
         const lead = row.original;
+        const isDeliveryStage = lead.columnId === 'col-delivery';
+        const isContractStage = lead.columnId === 'col-contract';
+
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -122,9 +125,16 @@ export function ClientDeliveryTable({ onViewDetails, leads, onMoveToImplementati
               <DropdownMenuItem onClick={() => onViewDetails(lead)}>
                 View details
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onMoveToImplementation(lead)}>
-                Move to Implementation
-              </DropdownMenuItem>
+              {isDeliveryStage && (
+                <DropdownMenuItem onClick={() => onMoveToContract(lead)}>
+                  Move to Contract
+                </DropdownMenuItem>
+              )}
+               {isContractStage && (
+                 <DropdownMenuItem onClick={() => onMoveToImplementation(lead)}>
+                  Move to Implementation
+                </DropdownMenuItem>
+               )}
             </DropdownMenuContent>
           </DropdownMenu>
         );

@@ -33,15 +33,18 @@ import { Textarea } from '../ui/textarea';
 import { Input } from '../ui/input';
 
 const contractSchema = z.object({
-  templateUsed: z.string().min(1),
-  version: z.string().min(1),
+  templateUsed: z.string().min(1, 'Template is required.'),
+  version: z.string().min(1, 'Version is required.'),
   legalReviewRequired: z.enum(['Yes', 'No']),
   legalReviewer: z.string().optional(),
-  finalValue: z.coerce.number().min(1),
-  paymentTerms: z.string().min(1),
+  finalValue: z.coerce.number().min(1, 'Final value is required.'),
+  paymentTerms: z.string().min(1, 'Payment terms are required.'),
   keyClauses: z.string().optional(),
   renewalTerms: z.string().optional(),
-  projectSuccessCriteria: z.string().min(1),
+  projectSuccessCriteria: z.string().min(1, 'Success criteria is required.'),
+  clientReviewStatus: z.enum(['Pending', 'Reviewed', 'Approved']),
+  redlinesRequested: z.string().optional(),
+  negotiationLog: z.string().optional(),
 });
 
 type ContractFormValues = z.infer<typeof contractSchema>;
@@ -59,12 +62,13 @@ export function MoveToImplementationDialog({ isOpen, onOpenChange, onMoveToImple
   const form = useForm<ContractFormValues>({
     resolver: zodResolver(contractSchema),
     defaultValues: {
-      templateUsed: 'Standard Contract',
-      version: '1.0',
-      legalReviewRequired: 'No',
-      paymentTerms: 'Net 30',
-      projectSuccessCriteria: 'Standard',
-      finalValue: lead?.value || 0
+      templateUsed: lead?.contractData?.templateUsed || 'Standard Contract',
+      version: lead?.contractData?.version || '1.0',
+      legalReviewRequired: lead?.contractData?.legalReviewRequired || 'No',
+      paymentTerms: lead?.contractData?.paymentTerms || 'Net 30',
+      projectSuccessCriteria: lead?.contractData?.projectSuccessCriteria || 'Standard',
+      finalValue: lead?.contractData?.finalValue || 0,
+      clientReviewStatus: lead?.contractData?.clientReviewStatus || 'Pending',
     },
   });
 
@@ -74,9 +78,6 @@ export function MoveToImplementationDialog({ isOpen, onOpenChange, onMoveToImple
     const contractData: ContractData = {
         ...values,
         sentDate: new Date().toISOString(),
-        clientReviewStatus: 'Approved',
-        redlinesRequested: 'None',
-        negotiationLog: 'N/A',
         finalDate: new Date().toISOString(),
         signedDate: new Date().toISOString(),
     };
@@ -86,7 +87,7 @@ export function MoveToImplementationDialog({ isOpen, onOpenChange, onMoveToImple
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col">
+      <DialogContent className="sm:max-w-3xl max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Move to Implementation</DialogTitle>
           <DialogDescription>
@@ -96,18 +97,27 @@ export function MoveToImplementationDialog({ isOpen, onOpenChange, onMoveToImple
         <div className="flex-grow overflow-y-auto pr-4 -mr-4">
           <Form {...form}>
             <form id="move-to-implementation-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                 <h3 className="text-lg font-semibold border-b pb-2">Legal & Agreement</h3>
                 <div className='grid grid-cols-2 gap-4'>
                     <FormField name="templateUsed" control={form.control} render={({field}) => <FormItem><FormLabel>Template Used</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>} />
                     <FormField name="version" control={form.control} render={({field}) => <FormItem><FormLabel>Version</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>} />
                 </div>
-                <FormField name="legalReviewRequired" control={form.control} render={({field}) => <FormItem><FormLabel>Legal Review Required</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue/></SelectTrigger></FormControl><SelectContent><SelectItem value="Yes">Yes</SelectItem><SelectItem value="No">No</SelectItem></SelectContent></Select><FormMessage/></FormItem>} />
+                 <div className='grid grid-cols-2 gap-4'>
+                    <FormField name="legalReviewRequired" control={form.control} render={({field}) => <FormItem><FormLabel>Legal Review Required</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue/></SelectTrigger></FormControl><SelectContent><SelectItem value="Yes">Yes</SelectItem><SelectItem value="No">No</SelectItem></SelectContent></Select><FormMessage/></FormItem>} />
+                    <FormField name="legalReviewer" control={form.control} render={({field}) => <FormItem><FormLabel>Legal Reviewer</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>} />
+                </div>
                 <div className='grid grid-cols-2 gap-4'>
-                    <FormField name="finalValue" control={form.control} render={({field}) => <FormItem><FormLabel>Final Deal Value</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage/></FormItem>} />
+                    <FormField name="finalValue" control={form.control} render={({field}) => <FormItem><FormLabel>Final Contract Value</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage/></FormItem>} />
                     <FormField name="paymentTerms" control={form.control} render={({field}) => <FormItem><FormLabel>Payment Terms</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>} />
                 </div>
-                 <FormField name="keyClauses" control={form.control} render={({field}) => <FormItem><FormLabel>Key Clauses</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage/></FormItem>} />
-                 <FormField name="renewalTerms" control={form.control} render={({field}) => <FormItem><FormLabel>Renewal Terms</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage/></FormItem>} />
-                 <FormField name="projectSuccessCriteria" control={form.control} render={({field}) => <FormItem><FormLabel>Project Success Criteria</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage/></FormItem>} />
+                <FormField name="keyClauses" control={form.control} render={({field}) => <FormItem><FormLabel>Key Contract Clauses</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage/></FormItem>} />
+                <FormField name="renewalTerms" control={form.control} render={({field}) => <FormItem><FormLabel>Renewal Terms</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage/></FormItem>} />
+                <FormField name="projectSuccessCriteria" control={form.control} render={({field}) => <FormItem><FormLabel>Project Success Criteria</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage/></FormItem>} />
+
+                 <h3 className="text-lg font-semibold border-b pb-2 pt-4">Client Review & Negotiation</h3>
+                 <FormField name="clientReviewStatus" control={form.control} render={({field}) => <FormItem><FormLabel>Client Review Status</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue/></SelectTrigger></FormControl><SelectContent><SelectItem value="Pending">Pending</SelectItem><SelectItem value="Reviewed">Reviewed</SelectItem><SelectItem value="Approved">Approved</SelectItem></SelectContent></Select><FormMessage/></FormItem>} />
+                <FormField name="redlinesRequested" control={form.control} render={({field}) => <FormItem><FormLabel>Redlines/Changes Requested</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage/></FormItem>} />
+                <FormField name="negotiationLog" control={form.control} render={({field}) => <FormItem><FormLabel>Contract Negotiation Log</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage/></FormItem>} />
             </form>
           </Form>
         </div>
